@@ -2,10 +2,11 @@
   "name": "monster-modders",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "client/index.js",
   "scripts": {
     "start": "node server",
     "start-dev": "npm run build-watch & nodemon server",
+    "seed": "node script/seed.js",
     "build": "npx webpack --config webpack.config.js",
     "build-watch": "webpack -w"
   },
