@@ -2,8 +2,9 @@ const router = require("express").Router();
 const {
     models: {User}
 } = require("../db");
+module.exports = router;
 
-//middleware
+//middleware needed here
 
 router.get("/", async (req, res, next) => {
     try {
