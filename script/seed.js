@@ -1,27 +1,3 @@
-// "use strict"
-
-// const {db, models: {User} } = require("../server/db/index.js");
-
-// async function seed() {
-//     await db.sync({force: true}) //clears db and matches models to tables
-//     console.log("db synced");
-
-//     //creating fake users
-// const users = [
-//     {username: "username1", email: "test1@gmail.com", password: "1238947hfjn"},
-//     {username: "username2", email: "test2@gmail.com", password: "67987"}, 
-//     {username: "username3", email: "test3@gmail.com", password: "123"}
-// ];
-
-// const seedIt = await Promise.all(users.map(user => User.create(user)));
-
-// console.log(`${seedIt.length} --> seed successful`);
-// }
-
-// module.exports = seed;
-
-
-
 'use strict'
 
 const {db, models: {User} } = require('../server/db')
