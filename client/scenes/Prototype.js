@@ -1,3 +1,5 @@
+import Phaser from "phaser";
+
 export default class Prototype extends Phaser.Scene {
     constructor(key) {
         super(key);
