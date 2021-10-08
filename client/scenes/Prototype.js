@@ -7,7 +7,7 @@ export default class Prototype extends Phaser.Scene {
       preload(){
         //Loads basic ssets
         this.load.image('sky', 'assets/sky.png');
-        this.load.spritesheet('dude', 
+        this.load.spritesheet('dude',
         'assets/dude.png',
         { frameWidth: 32, frameHeight: 48 }
         );
