@@ -17,7 +17,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:userId", async (req, res, next) => {
     try {
-        const user = await User.findByPk(req.params.id, {
+        const user = await User.findByPk(req.params.userId, {
             attributes: ['id', 'username', 'email', 'number_of_wins']
         });
         res.json(user);
@@ -37,7 +37,7 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:userId", async (req, res, next) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const user = await User.findByPk(req.params.userId);
         await user.update(req.body);
         res.status(200).json(user);
     } catch (error) {
