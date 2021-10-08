@@ -19,8 +19,8 @@ const init = async () => {
     );
 
     // start socket connections
-    //const io = socket(server);
-    //require('./socket')(io);
+    const io = socket(server);
+    require('./sockets')(io);
   } catch (ex) {
     console.log(ex);
   }

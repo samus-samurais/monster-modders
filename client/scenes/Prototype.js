@@ -2,6 +2,11 @@ export default class Prototype extends Phaser.Scene {
     constructor(key) {
         super(key);
         this.player = null
+        this.otherPlayers = {}
+      }
+
+      init(data){
+          this.socket = data.socket;
       }
 
       preload(){
@@ -19,6 +24,8 @@ export default class Prototype extends Phaser.Scene {
         this.player = this.physics.add.sprite(100, 450, 'dude');
         //Makes player bound to world
         this.player.setCollideWorldBounds(true);
+        console.log("Socket: ",this.socket);
+        console.log("player ID: ",this.socket.id);
 
 
         //Sets up controls
@@ -68,5 +75,13 @@ export default class Prototype extends Phaser.Scene {
         if (this.cursors.up.isDown){
             this.player.setVelocityY(-330);
         }
+    }
+
+    addPlayer(){
+
+    }
+
+    addOtherPlayers(){
+
     }
 }

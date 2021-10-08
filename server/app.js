@@ -18,6 +18,9 @@ app.get('/', (req, res)  => res.sendFile(path.join(__dirname, '..', 'public/inde
 // static file-serving middleware
 app.use(express.static(path.join(__dirname, '..', 'public')))
 
+
+//This messes up socket.io, so I'm commenting it out for now
+/*
 // any remaining requests with an extension (.js, .css, etc.) send 404
 app.use((req, res, next) => {
   if (path.extname(req.path).length) {
@@ -28,6 +31,7 @@ app.use((req, res, next) => {
     next()
   }
 })
+*/
 
 // sends index.html
 app.use('*', (req, res) => {
