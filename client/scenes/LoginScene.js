@@ -9,7 +9,7 @@ export default class LoginScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.html('loginForm', 'assets/textHTML/loginForm.html');
+    this.load.html('nameform', 'assets/text/loginForm.html');
     // we will replace these false images later
     this.load.image('background', 'assets/testImage/falseBackground.png');
 
@@ -20,7 +20,7 @@ export default class LoginScene extends Phaser.Scene {
 
     var text = this.add.text(10, 10, 'Please login to play', { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
 
-    var element = this.add.dom(640, 360).createFromCache('loginform');
+    var element = this.add.dom(400, 600).createFromCache('nameform');
 
     element.setPerspective(800);
 
