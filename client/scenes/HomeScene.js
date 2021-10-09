@@ -12,7 +12,8 @@ export default class HomeScene extends Phaser.Scene {
     }
 
     preload(){
-        //Loads basic assets
+        // Loads basic assets
+        // we will replace these false images later
         this.load.image('background', 'assets/testImage/falseBackground.png');
         this.load.image('logo', 'assets/testImage/falseLogo.png');
         this.load.image('sandboxButton', 'assets/testImage/falseSandboxButton.png');
@@ -25,6 +26,7 @@ export default class HomeScene extends Phaser.Scene {
         this.add.image(640, 250, 'logo');
 
         // make sandbox mode button
+        // need to navigate to the real sandbox mode
         this.sandboxButton = this.add.image(320, 540, 'sandboxButton').setInteractive();
         this.sandboxButton.on('pointerdown', () => {
           this.scene.launch('Prototype');
@@ -41,7 +43,7 @@ export default class HomeScene extends Phaser.Scene {
         // make multiplayer mode button
         this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
         this.loginSignupButton.on('pointerdown', () => {
-          this.scene.launch('Prototype');
+          this.scene.launch('LoginScene');
           this.loginSignupButton.disableInteractive();
         })
     }

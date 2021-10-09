@@ -1,6 +1,7 @@
 import 'phaser'
 import config from './config/config'
 import HomeScene from './scenes/HomeScene'
+import LoginScene from './scenes/LoginScene'
 import Prototype from './scenes/Prototype'
 
 class Game extends Phaser.Game {
@@ -9,6 +10,7 @@ class Game extends Phaser.Game {
     super(config)
     //Adds scenes
     this.scene.add('HomeScene', HomeScene)
+    this.scene.add('LoginScene', LoginScene)
     this.scene.add('Prototype', Prototype)
 
     //Starts prototype (we'll replace this later)
