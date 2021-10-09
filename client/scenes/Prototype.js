@@ -17,7 +17,7 @@ export default class Prototype extends Phaser.Scene {
 
       create(){
         //Initializes player
-        this.add.image(400, 300, 'sky');
+        this.add.image(400, 300, 'sky').setScale(3);
         this.player = this.physics.add.sprite(100, 450, 'dude');
         //Makes player bound to world
         this.player.setCollideWorldBounds(true);
