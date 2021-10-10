@@ -4,6 +4,7 @@ import HomeScene from './scenes/HomeScene'
 import LoginScene from './scenes/LoginScene'
 import Prototype from './scenes/Prototype'
 
+// eslint-disable-next-line no-undef
 class Game extends Phaser.Game {
   constructor() {
     //initializes the game with set configurations in config.js

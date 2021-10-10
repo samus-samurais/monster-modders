@@ -11,6 +11,7 @@ export default {
             debug: false
         }
     },
+    parent: "monster-modders",
     dom: {
         createContainer: true
     }
