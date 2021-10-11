@@ -5,6 +5,7 @@ import SignupScene from './scenes/SignupScene'
 import Prototype from './scenes/Prototype'
 import io from 'socket.io-client';
 
+// eslint-disable-next-line no-undef
 class Game extends Phaser.Game {
   constructor() {
     //initializes the game with set configurations in config.js
