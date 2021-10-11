@@ -1,5 +1,7 @@
 import 'phaser'
 import config from './config/config'
+import HomeScene from './scenes/HomeScene'
+import SignupScene from './scenes/SignupScene'
 import Prototype from './scenes/Prototype'
 import io from 'socket.io-client';
 
@@ -13,10 +15,12 @@ class Game extends Phaser.Game {
 		this.socket = io();
 
     //Adds scenes
+    this.scene.add('HomeScene', HomeScene)
+    this.scene.add('SignupScene', SignupScene)
     this.scene.add('Prototype', Prototype)
 
     //Starts prototype (we'll replace this later)
-    this.scene.start('Prototype',{socket: this.socket})
+    this.scene.start('HomeScene',{socket: this.socket})
   }
 }
 
