@@ -8,42 +8,22 @@ export default class Prototype extends Phaser.Scene {
       }
 
       init(data){
-          this.socket = data.socket;
-      }
-
-      preload(){
-        //Loads basic ssets
-        this.load.image('sky', 'assets/sky.png');
-        this.load.spritesheet('dude', 
-        'assets/dude.png',
-        { frameWidth: 32, frameHeight: 48 }
-        );
+            this.socket = data.socket;
+            this.playerId = data.socket.id;
       }
 
       create(){
+        const self = this;
         //Initializes player
-        //const self = this
         this.add.image(400, 300, 'sky');
-        const playerId = this.socket.id
-        this.socket.on('currentPlayers', function (players, id = playerId) {
-            console.log("Players object: ",players)
-            console.log("ID: ",id);
-            /*
-            Object.keys(players).forEach(function (id) {
-              if (players[id].playerId === this.socket.id) {
-                console.log(players[id].playerId);
-                console.log("Creating new player at coords: ",players[id].x,players[id].y);
-              } else {
-                  console.log("Adding another player");
-              }
-            });
-            */
+        this.socket.emit('playerJoined', );
+        this.socket.on('sentPlayerInfo', function (players, scene = self) {
+            scene.addPlayers(players);
           });
         //this.player = new Player(this.socket.x,this.socket.y,'dude',this.socket);
         //Makes player bound to world
         this.player = this.physics.add.sprite(100, 450, 'dude');
         this.player.setCollideWorldBounds(true);
-        console.log("Socket: ",this.socket);
 
 
         //Sets up controls
@@ -95,11 +75,22 @@ export default class Prototype extends Phaser.Scene {
         }
     }
 
-    addPlayer(){
-
+    addPlayers(players){
+        console.log("So, can we get all the info here?");
+        console.log("Players object: ",players);
+        console.log("Socket: ",this.socket);
+        /*
+        Object.keys(players).forEach(function (id) {
+            if (players[id].playerId === self.socket.id) {
+                this.player = this.physics.add.sprite(players[id].x, players[id].y, 'dude');
+            } else {
+                let otherPlayer = this.physics.add.sprite(players[id].x, players[id].y, 'dude');
+            }
+        });
+        */
     }
 
-    addOtherPlayers(){
+    addNewPlayer(){
 
     }
 }

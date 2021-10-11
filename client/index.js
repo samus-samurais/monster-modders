@@ -1,6 +1,7 @@
 import 'phaser'
 import config from './config/config'
 import Prototype from './scenes/Prototype'
+import InitialLoader from './scenes/Loader'
 import io from 'socket.io-client';
 
 class Game extends Phaser.Game {
@@ -14,9 +15,10 @@ class Game extends Phaser.Game {
 
     //Adds scenes
     this.scene.add('Prototype', Prototype)
+    this.scene.add('InitialLoader', InitialLoader)
 
     //Starts prototype (we'll replace this later)
-    this.scene.start('Prototype',{socket: this.socket})
+    this.scene.start('InitialLoader',{socket: this.socket})
   }
 }
 
