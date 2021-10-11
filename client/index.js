@@ -2,6 +2,7 @@ import 'phaser'
 import config from './config/config'
 import HomeScene from './scenes/HomeScene'
 import LoginScene from './scenes/LoginScene'
+import SignupScene from './scenes/SignupScene'
 import Prototype from './scenes/Prototype'
 
 // eslint-disable-next-line no-undef
@@ -12,6 +13,7 @@ class Game extends Phaser.Game {
     //Adds scenes
     this.scene.add('HomeScene', HomeScene)
     this.scene.add('LoginScene', LoginScene)
+    this.scene.add('SignupScene', SignupScene)
     this.scene.add('Prototype', Prototype)
 
     //Starts prototype (we'll replace this later)

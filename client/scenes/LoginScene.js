@@ -6,8 +6,12 @@ export default class LoginScene extends Phaser.Scene {
     super('LoginScene')
   }
 
+  init(data) {
+    this.socket = data.socket
+  }
+
   preload() {
-    this.load.html('loginForm', 'assets/text/loginform.html');
+    this.load.html('loginform', 'assets/text/loginform.html');
     // we will replace these false images later
     this.load.image('background', 'assets/testImage/falseBackground.png');
 
@@ -16,18 +20,15 @@ export default class LoginScene extends Phaser.Scene {
   create() {
     this.add.image(640, 360, 'background');
 
-    var text = this.add.text(440, 10, 'Please show me the login form!', { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
-
-    this.inputElement = this.add.dom(640, 360).createFromCache("loginForm");
-
-    this.inputElement.addListener('click');
-    this.inputElement.on('click', (event) => {
+    // create login form from html
+    this.inputElementLogin = this.add.dom(640, 360).createFromCache("loginform");
+    // add listener click function
+    this.inputElementLogin.addListener('click');
+    this.inputElementLogin.on('click', (event) => {
       if (event.target.name === 'loginButton') {
-        const username = this.inputElement.getChildByName('username');
-        const password = this.inputElement.getChildByName('password');
-        console.log('here is the login information: ', username, password)
-      } else {
-        console.log('the event.target.name did not happen in loginButton')
+        const username = this.inputElementSignup.getChildByName('username').value;
+        const password = this.inputElementSignup.getChildByName('password').value;
+
       }
     })
 

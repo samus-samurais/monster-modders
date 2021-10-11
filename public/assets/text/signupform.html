@@ -1,12 +1,12 @@
 <style>
-  .login {
+  .signup {
     background: #569D34;
     border-radius: 6px;
     height: 400px;
     margin: 20px auto 0;
     width: 400px;
   }
-  /* .login h1 {
+  /* .signup h1 {
     background-image: linear-gradient(top, #f1f3f3, #d4dae0);
     border-bottom: 1px solid #a6abaf;
     border-radius: 6px 6px 0 0;
@@ -20,7 +20,7 @@
     text-align: center;
     text-shadow: 0 -1px 0 rgba(0,0,0,0.2), 0 1px 0 #fff;
   } */
-  input[type="password"], input[type="text"] {
+  input[type="password"], input[type="text"], input[type="email"] {
     box-sizing: border-box;
     color: #696969;
     width: 240px;
@@ -29,7 +29,7 @@
     padding-left: 37px;
     transition: box-shadow 0.3s;
   }
-  input[type="password"]:focus, input[type="text"]:focus {
+  input[type="password"]:focus, input[type="text"]:focus, input[type="email"]:focus {
     box-shadow: 0 0 4px 1px rgba(55, 166, 155, 0.3);
     outline: 0;
   }
@@ -71,8 +71,9 @@
   }
   </style>
 
-  <div class="login">
+  <div class="signup">
       <input type="text" placeholder="Username" id="username" name="username">
+      <input type="email" placeholder="Email" id="email" name="email">
       <input type="password" placeholder="password" id="password" name="password">
-      <input type="submit" value="Login" name="loginButton">
+      <input type="submit" value="Sign Up" name="signupButton">
   </div>
