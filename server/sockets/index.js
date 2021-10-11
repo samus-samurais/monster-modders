@@ -1,7 +1,6 @@
 var players = {};
 
 module.exports = (io) => {
-    console.log("This runs")
     io.on('connection', function (socket) {
         console.log('a user connected');
         // create a new player and add it to our players object

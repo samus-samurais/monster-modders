@@ -11,56 +11,45 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.add.existing(this);
         this.setCollideWorldBounds(true);
         this.movementState = {
-        left,
-        right,
-        up,
-        down
+            x,
+            y,
+            currentAnim
         };
     }
 
     update(cursors){
         //Updates player movement
+        let animation = 'turn';
         if (cursors.left.isDown){
-            this.player.setVelocityX(-190);
-            this.player.anims.play('left', true);
+            this.setVelocityX(-190);
+            this.anims.play('left', true);
+            animation = 'left'
         }
 
         else if (cursors.right.isDown){
-            this.player.setVelocityX(190);
-            this.player.anims.play('right', true);
+            this.setVelocityX(190);
+            this.anims.play('right', true);
+            animation = 'right'
         } else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
+            this.setVelocityX(0);
+            this.anims.play('turn');
         }
-
         if (cursors.up.isDown){
-            this.player.setVelocityY(-330);
+            this.setVelocityY(-330);
         }
 
-        //Sends player movement to other players
+        //Sends new player position to other players
         if (this.socket) {
-            this.movementState.left=cursors.left.isDown
-            this.movementState.right=cursors.right.isDown
-            this.movementState.up=cursors.up.isDown
+            this.movementState.x = this.x
+            this.movementState.y = this.y
+            this.currentAnim = animation;
             this.socket.emit('updatePlayer', this.movementState);
           }
     }
 
     updateOtherPlayer(movementState){
-        if (movementState.left){
-            this.player.setVelocityX(-190);
-            this.player.anims.play('left', true);
-        }
-        else if (movementState.right){
-            this.player.setVelocityX(190);
-            this.player.anims.play('right', true);
-        } else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
-        }
-        if (movementState.up){
-            this.player.setVelocityY(-330);
-        }
+        this.setPosition(moveState.x, moveState.y);
+        this.anims.play(movementState.currentAnim)
     }
 
 }
