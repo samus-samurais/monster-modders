@@ -2,6 +2,9 @@
   "name": "monster-modders",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "14.x"
+  },
   "main": "client/index.js",
   "scripts": {
     "start": "node server",
