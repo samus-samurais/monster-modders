@@ -68,13 +68,13 @@ export default class Prototype extends Phaser.Scene {
         let ids = Object.keys(players);
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
-                console.log("Match found!");
-                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', this.socket)
+                console.log("Match found!"); //PC == Playable Character!
+                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket)
                 //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
                 //this.player.setCollideWorldBounds(true);
             } else {
-                console.log("Different player");
-                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude')
+                console.log("Different player"); //NPC = Non-playable Character
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude','NPC')
             }
         }
         //console.log("Other players object: ",this.otherPlayers);
@@ -82,7 +82,7 @@ export default class Prototype extends Phaser.Scene {
 
     addNewPlayer(player){
         console.log("Updating scene with new player:",player);
-        this.otherPlayers[player.playerId] = new Player(this, player.x,player.y, 'dude')
+        this.otherPlayers[player.playerId] = new Player(this, player.x,player.y, 'dude','NPC')
     }
 
     removePlayer(id){
