@@ -8,7 +8,7 @@ export default class HomeScene extends Phaser.Scene {
 
     init(data) {
       console.log('here is the init data', data);
-      // this.socket = data.socket;
+      this.socket = data.socket;
     }
 
     preload(){
@@ -29,14 +29,15 @@ export default class HomeScene extends Phaser.Scene {
         // need to navigate to the real sandbox mode
         this.sandboxButton = this.add.image(320, 540, 'sandboxButton').setInteractive();
         this.sandboxButton.on('pointerdown', () => {
-          this.scene.launch('Prototype');
+          this.scene.stop('HomeScene');
+          this.scene.launch('Prototype',{socket: this.socket});
           this.sandboxButton.disableInteractive();
         });
 
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.launch('Prototype');
+          this.scene.launch('Prototype',{socket: this.socket});
           this.multiplayerButton.disableInteractive();
         })
 

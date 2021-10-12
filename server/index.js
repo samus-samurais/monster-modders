@@ -50,7 +50,7 @@ const init = () => {
 
         // start socket connections
         const io = socket(server);
-        require('./socket')(io);
+        require('./sockets')(io);
     } catch (error) {
         console.log(error);
     }

@@ -8,42 +8,24 @@ export default class Prototype extends Phaser.Scene {
       }
 
       init(data){
-          this.socket = data.socket;
-      }
-
-      preload(){
-        //Loads basic ssets
-        this.load.image('sky', 'assets/sky.png');
-        this.load.spritesheet('dude',
-        'assets/dude.png',
-        { frameWidth: 32, frameHeight: 48 }
-        );
+            this.socket = data.socket;
+            this.playerId = data.socket.id;
       }
 
       create(){
+        const self = this;
         //Initializes player
-        //const self = this
-        this.add.image(400, 300, 'sky');
-        const playerId = this.socket.id
-        this.socket.on('currentPlayers', function (players, id = playerId) {
-            console.log("Players object: ",players)
-            console.log("ID: ",id);
-            /*
-            Object.keys(players).forEach(function (id) {
-              if (players[id].playerId === this.socket.id) {
-                console.log(players[id].playerId);
-                console.log("Creating new player at coords: ",players[id].x,players[id].y);
-              } else {
-                  console.log("Adding another player");
-              }
-            });
-            */
+        this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+        this.socket.emit('playerJoined');
+        
+        this.socket.on('sentPlayerInfo', function (players, scene = self) {
+            scene.addPlayers(players);
           });
-        //this.player = new Player(this.socket.x,this.socket.y,'dude',this.socket);
+
+        //this.player = new Player(100,450,'dude',this.socket);
         //Makes player bound to world
-        this.player = this.physics.add.sprite(100, 450, 'dude');
-        this.player.setCollideWorldBounds(true);
-        console.log("Socket: ",this.socket);
+        //this.player = this.physics.add.sprite(100, 450, 'dude');
+        //this.player.setCollideWorldBounds(true);
 
 
         //Sets up controls
@@ -77,29 +59,43 @@ export default class Prototype extends Phaser.Scene {
     }
 
       update (){
-        if (this.cursors.left.isDown){
-            this.player.setVelocityX(-190);
-            this.player.anims.play('left', true);
-        }
+        if(this.player){
+            if (this.cursors.left.isDown){
+                this.player.setVelocityX(-190);
+                this.player.anims.play('left', true);
+            }
 
-        else if (this.cursors.right.isDown){
-            this.player.setVelocityX(190);
-            this.player.anims.play('right', true);
-        } else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
-        }
+            else if (this.cursors.right.isDown){
+                this.player.setVelocityX(190);
+                this.player.anims.play('right', true);
+            } else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('turn');
+            }
 
-        if (this.cursors.up.isDown){
-            this.player.setVelocityY(-330);
+            if (this.cursors.up.isDown){
+                this.player.setVelocityY(-330);
+            }
         }
     }
 
-    addPlayer(){
-
+    addPlayers(players){
+        console.log("Players object: ",players);
+        console.log("Socket: ",this.socket);
+        let ids = Object.keys(players);
+        for(let i = 0; i < ids.length; i++){
+            if(ids[i] === this.playerId){
+                console.log("Match found!");
+                this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
+                this.player.setCollideWorldBounds(true);
+            } else {
+                console.log("Different player");
+                this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude').setCollideWorldBounds(true);
+            }
+        }
     }
 
-    addOtherPlayers(){
+    addNewPlayer(){
 
     }
 }

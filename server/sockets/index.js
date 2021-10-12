@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import firebase from "firebase/app";
-import 'firebase/auth';
+const firebase = require("firebase/app");
+require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,28 +20,30 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 var players = {};
 
+const addPlayerToSocket = (socket) => {
+  players[socket.id] = {
+    playerId: socket.id,
+    x: Math.floor(Math.random() * 700) + 50,
+    y: Math.floor(Math.random() * 500) + 50
+  };
+}
+
 module.exports = (io) => {
-    io.on('connection', function (socket) {
-        console.log('a user connected');
+    io.on('connection', (socket) => {
+        console.log('user',socket.id, 'connected');
         // create a new player and add it to our players object
-        players[socket.id] = {
-            playerId: socket.id,
-            x: Math.floor(Math.random() * 700) + 50,
-            y: Math.floor(Math.random() * 500) + 50
-        };
-        console.log("Current players: ",players);
-        // send the players object to the new player
-        socket.emit('currentPlayers', players);
-        // update all other players of the new player
-        socket.broadcast.emit('newPlayer', players[socket.id]);
-
+        socket.on('playerJoined', (playerSocket = socket) => {
+          addPlayerToSocket(playerSocket);
+          socket.emit("sentPlayerInfo",players);
+          // send the players object to the new player
+          // update all other players of the new player
+          socket.broadcast.emit('newPlayer', players[socket.id]);
+        })
         socket.on('disconnect', function () {
-          console.log('user disconnected');
-
+          console.log('user',socket.id, 'disconnected');
           //delete player
           delete players[socket.id];
-          // emit a message to all players to remove this player
-          console.log("Current players: ",players);
+          // TODO: emit a message to all players to remove this player
         });
       });
 }
