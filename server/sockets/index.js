@@ -54,5 +54,23 @@ module.exports = (io) => {
           socket.broadcast.emit("playerLeft",socket.id);
           delete players[socket.id];
         });
-      });
+
+        socket.on("newUserSignup", (input) => {
+          firebase
+          .auth()
+          .createUserWithEmailAndPassword(input.email, input.password)
+          .then((userCredential) => {
+            const user = firebaseApp.auth().currentUser;
+            user.updateProfile({ displayName: input.username })
+            // const user = userCredential.user
+            console.log("...here is the newUser...", user)
+            socket.emit("signUpSuccess", user)
+          })
+          .catch((error) => {
+            var errorMessage = error.message;
+            console.log('signup error----', errorMessage);
+            socket.emit("newUserInfoNotValid", errorMessage)
+          })
+        })
+    });
 }

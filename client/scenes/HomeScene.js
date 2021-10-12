@@ -62,7 +62,9 @@ export default class HomeScene extends Phaser.Scene {
         // make multiplayer mode button
         this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
         this.loginSignupButton.on('pointerdown', () => {
-          this.scene.launch('SignupScene');
+          this.scene.stop('HomeScene');
+          this.music.stop(); //stop playing music when this scene is pressed by user
+          this.scene.launch('SignupScene', {socket: this.socket});
           this.loginSignupButton.disableInteractive();
         })
     }
