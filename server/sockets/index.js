@@ -32,6 +32,8 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('user',socket.id, 'connected');
         // create a new player and add it to our players object
+
+        //Wait for scene to signal it is ready thorugh "playerJoined" emission
         socket.on('playerJoined', (playerSocket = socket) => {
           addPlayerToSocket(playerSocket);
           socket.emit("sentPlayerInfo",players);
@@ -39,11 +41,18 @@ module.exports = (io) => {
           // update all other players of the new player
           socket.broadcast.emit('newPlayer', players[socket.id]);
         })
-        socket.on('disconnect', function () {
+
+        //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
+        socket.on('updatePlayer', (movementState) => {
+          movementState.playerId = socket.id
+          socket.broadcast.emit('playerMoved',movementState);
+        })
+
+        socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
           //delete player
+          socket.broadcast.emit("playerLeft",socket.id);
           delete players[socket.id];
-          // TODO: emit a message to all players to remove this player
         });
       });
 }

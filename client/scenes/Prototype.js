@@ -18,9 +18,28 @@ export default class Prototype extends Phaser.Scene {
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
         this.socket.emit('playerJoined');
         
+        //Gets info from server to load self and existing players
         this.socket.on('sentPlayerInfo', function (players, scene = self) {
             scene.addPlayers(players);
-          });
+        });
+
+        //Adds new player if player joins
+        this.socket.on('newPlayer', function (newPlayer, scene = self) {
+            scene.addNewPlayer(newPlayer);
+        });
+
+        //Removes player if player disconnects
+        this.socket.on('playerLeft', function (id, scene = self) {
+            scene.removePlayer(id)
+        });
+
+
+        //Updates other players when they move
+        this.socket.on('playerMoved', function (movementState, scene = self) {
+            if(scene.otherPlayers[movementState.playerId]){
+            scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
+            }
+        });
 
         //this.player = new Player(100,450,'dude',this.socket);
         //Makes player bound to world
@@ -35,47 +54,11 @@ export default class Prototype extends Phaser.Scene {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D
         });
-
-        //Implements animations
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
-            frameRate: 20
-        });
-
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
     }
 
       update (){
         if(this.player){
-            if (this.cursors.left.isDown){
-                this.player.setVelocityX(-190);
-                this.player.anims.play('left', true);
-            }
-
-            else if (this.cursors.right.isDown){
-                this.player.setVelocityX(190);
-                this.player.anims.play('right', true);
-            } else {
-                this.player.setVelocityX(0);
-                this.player.anims.play('turn');
-            }
-
-            if (this.cursors.up.isDown){
-                this.player.setVelocityY(-330);
-            }
+            this.player.update(this.cursors);
         }
     }
 
@@ -86,16 +69,25 @@ export default class Prototype extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Match found!");
-                this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
-                this.player.setCollideWorldBounds(true);
+                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', this.socket)
+                //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
+                //this.player.setCollideWorldBounds(true);
             } else {
                 console.log("Different player");
-                this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude').setCollideWorldBounds(true);
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude')
             }
         }
+        //console.log("Other players object: ",this.otherPlayers);
     }
 
-    addNewPlayer(){
+    addNewPlayer(player){
+        console.log("Updating scene with new player:",player);
+        this.otherPlayers[player.playerId] = new Player(this, player.x,player.y, 'dude')
+    }
 
+    removePlayer(id){
+        console.log("Removing player with id:",id)
+        this.otherPlayers[id].destroy();
+        delete this.otherPlayers[id];
     }
 }

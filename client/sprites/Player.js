@@ -4,7 +4,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, spriteKey, socket) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
-        this.username = username;
         this.socket = socket;
         this.scene = scene;
         this.scene.physics.world.enable(this);
@@ -13,8 +12,28 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.movementState = {
             x,
             y,
-            currentAnim
+            currentAnim: 'turn'
         };
+        
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: 'dude', frame: 4 } ],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
     }
 
     update(cursors){
@@ -42,13 +61,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.socket) {
             this.movementState.x = this.x
             this.movementState.y = this.y
-            this.currentAnim = animation;
+            this.movementState.currentAnim = animation;
             this.socket.emit('updatePlayer', this.movementState);
           }
     }
 
     updateOtherPlayer(movementState){
-        this.setPosition(moveState.x, moveState.y);
+        this.setPosition(movementState.x, movementState.y);
         this.anims.play(movementState.currentAnim)
     }
 
