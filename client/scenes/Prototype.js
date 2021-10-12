@@ -15,7 +15,7 @@ export default class Prototype extends Phaser.Scene {
       create(){
         const self = this;
         //Initializes player
-        this.add.image(400, 300, 'sky');
+        this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
         this.socket.emit('playerJoined');
         
         this.socket.on('sentPlayerInfo', function (players, scene = self) {

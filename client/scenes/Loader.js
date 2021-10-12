@@ -17,6 +17,6 @@ export default class InitialLoader extends Phaser.Scene {
 
     create() {
       this.scene.stop('InitialLoader');
-      this.scene.start('Prototype', { socket: this.socket });
+      this.scene.start('HomeScene', { socket: this.socket });
     }
   }
