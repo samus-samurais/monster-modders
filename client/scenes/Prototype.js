@@ -16,14 +16,16 @@ export default class Prototype extends Phaser.Scene {
         const self = this;
         //Initializes player
         this.add.image(400, 300, 'sky');
-        this.socket.emit('playerJoined', );
+        this.socket.emit('playerJoined');
+        
         this.socket.on('sentPlayerInfo', function (players, scene = self) {
             scene.addPlayers(players);
           });
-        //this.player = new Player(this.socket.x,this.socket.y,'dude',this.socket);
+
+        //this.player = new Player(100,450,'dude',this.socket);
         //Makes player bound to world
-        this.player = this.physics.add.sprite(100, 450, 'dude');
-        this.player.setCollideWorldBounds(true);
+        //this.player = this.physics.add.sprite(100, 450, 'dude');
+        //this.player.setCollideWorldBounds(true);
 
 
         //Sets up controls
@@ -57,37 +59,40 @@ export default class Prototype extends Phaser.Scene {
     }
 
       update (){
-        if (this.cursors.left.isDown){
-            this.player.setVelocityX(-190);
-            this.player.anims.play('left', true);
-        }
+        if(this.player){
+            if (this.cursors.left.isDown){
+                this.player.setVelocityX(-190);
+                this.player.anims.play('left', true);
+            }
 
-        else if (this.cursors.right.isDown){
-            this.player.setVelocityX(190);
-            this.player.anims.play('right', true);
-        } else {
-            this.player.setVelocityX(0);
-            this.player.anims.play('turn');
-        }
+            else if (this.cursors.right.isDown){
+                this.player.setVelocityX(190);
+                this.player.anims.play('right', true);
+            } else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('turn');
+            }
 
-        if (this.cursors.up.isDown){
-            this.player.setVelocityY(-330);
+            if (this.cursors.up.isDown){
+                this.player.setVelocityY(-330);
+            }
         }
     }
 
     addPlayers(players){
-        console.log("So, can we get all the info here?");
         console.log("Players object: ",players);
         console.log("Socket: ",this.socket);
-        /*
-        Object.keys(players).forEach(function (id) {
-            if (players[id].playerId === self.socket.id) {
-                this.player = this.physics.add.sprite(players[id].x, players[id].y, 'dude');
+        let ids = Object.keys(players);
+        for(let i = 0; i < ids.length; i++){
+            if(ids[i] === this.playerId){
+                console.log("Match found!");
+                this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
+                this.player.setCollideWorldBounds(true);
             } else {
-                let otherPlayer = this.physics.add.sprite(players[id].x, players[id].y, 'dude');
+                console.log("Different player");
+                this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude').setCollideWorldBounds(true);
             }
-        });
-        */
+        }
     }
 
     addNewPlayer(){
