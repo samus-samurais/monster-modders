@@ -9,13 +9,6 @@ export default class SignupScene extends Phaser.Scene {
     this.socket = data.socket
   }
 
-  preload() {
-    this.load.html('signupform', 'assets/text/signupform.html');
-    // we will replace these false images later
-    this.load.image('background', 'assets/testImage/falseBackground.png');
-
-  }
-
   create() {
     this.add.image(640, 360, 'background');
 

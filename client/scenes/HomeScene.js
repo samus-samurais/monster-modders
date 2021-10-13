@@ -11,36 +11,14 @@ export default class HomeScene extends Phaser.Scene {
       this.socket = data.socket;
     }
 
-    preload(){
-        // Loads basic assets
-        // we will replace these false images later
-        this.load.image('background', 'assets/testImage/falseBackground.png');
-        this.load.image('logo', 'assets/testImage/falseLogo.png');
-        this.load.image('sandboxButton', 'assets/testImage/falseSandboxButton.png');
-        this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
-        this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
-
-        //audio
-        this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
-    }
-
     create(){
         this.add.image(640, 360, 'background');
         this.add.image(640, 250, 'logo');
 
         this.music = this.sound.add("lobbyMusic");
 
-        var musicConfig = {
-          mute: false,
-          volume: 0.2,
-          rate: 1,
-          detune: 0,
-          seek: 0,
-          loop: true,
-          delay: 0
-        }
-
-        this.music.play(musicConfig); //plays music indefinitley
+        //lobby music... plays continuously
+        this.music.play({volume: 0.2, loop: true}); 
 
         // make sandbox mode button
         // need to navigate to the real sandbox mode
