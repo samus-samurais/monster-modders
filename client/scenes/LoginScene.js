@@ -39,7 +39,7 @@ export default class LoginScene extends Phaser.Scene {
 
     this.socket.on("LoginSuccess", (user) => {
       this.scene.stop("LoginScene");
-      this.scene.launch("Prototype", {
+      this.scene.launch("Sandbox", {
         socket: this.socket,
         user: user
       })
