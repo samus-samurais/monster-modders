@@ -1,5 +1,4 @@
 import Phaser from 'phaser'
-import io from 'socket.io-client'
 
 export default class SignupScene extends Phaser.Scene {
   constructor() {
@@ -28,10 +27,29 @@ export default class SignupScene extends Phaser.Scene {
         const email = this.inputElementSignup.getChildByName('email').value;
         const password = this.inputElementSignup.getChildByName('password').value;
 
-
+        this.socket.emit("newUserSignup", {
+          username,
+          email,
+          password
+        })
+      } else if (event.target.name === 'cancel') {
+        this.scene.stop("SignupScene");
+        this.scene.launch("HomeScene", { socket: this.socket })
       }
     })
 
+    this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: 'Arial', fontSize: '32px '})
+    this.socket.on("newUserInfoNotValid", (error) => {
+      this.errorMessage.setText(`${error}`)
+    })
+
+    this.socket.on("signUpSuccess", (user) => {
+      this.scene.stop("SignupScene");
+      this.scene.launch("Prototype", {
+        socket: this.socket,
+        user: user
+      })
+    })
 
   }
 }
