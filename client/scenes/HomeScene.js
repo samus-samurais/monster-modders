@@ -48,7 +48,7 @@ export default class HomeScene extends Phaser.Scene {
         this.sandboxButton.on('pointerdown', () => {
           this.scene.stop('HomeScene');
           this.music.stop(); //stop playing music when this scene is pressed by user
-          this.scene.launch('Prototype',{socket: this.socket});
+          this.scene.launch('Sandbox', {socket: this.socket});
           this.sandboxButton.disableInteractive();
         });
 
