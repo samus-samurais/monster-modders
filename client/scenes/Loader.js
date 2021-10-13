@@ -9,7 +9,7 @@ export default class InitialLoader extends Phaser.Scene {
     preload(){
         //Loads basic sets
         this.load.image('sky', 'assets/sky.png');
-        this.load.spritesheet('dude', 
+        this.load.spritesheet('dude',
         'assets/dude.png',
         { frameWidth: 32, frameHeight: 48 }
         );
