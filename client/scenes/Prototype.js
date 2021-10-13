@@ -10,6 +10,7 @@ export default class Prototype extends Phaser.Scene {
       init(data){
             this.socket = data.socket;
             this.playerId = data.socket.id;
+            console.log("login userInfo in the game interface", data.user)
       }
 
       create(){
@@ -17,7 +18,7 @@ export default class Prototype extends Phaser.Scene {
         //Initializes player
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
         this.socket.emit('playerJoined');
-        
+
         //Gets info from server to load self and existing players
         this.socket.on('sentPlayerInfo', function (players, scene = self) {
             scene.addPlayers(players);

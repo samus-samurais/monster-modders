@@ -69,6 +69,16 @@
     top:3px;
     box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #31524d, 0px 5px 3px #999;
   }
+  .cancel {
+    color: #000000;
+    display: block;
+    text-decoration: none;
+    transition: color 0.4s;
+    text-align:center;
+  }
+  .cancel:hover {
+    color: white;
+  }
   </style>
 
   <div class="signup">
@@ -76,4 +86,5 @@
       <input type="email" placeholder="Email" id="email" name="email">
       <input type="password" placeholder="password" id="password" name="password">
       <input type="submit" value="Sign Up" name="signupButton">
+      <a href="" name="cancel" class="cancel">cancel</a>
   </div>

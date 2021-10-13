@@ -1,22 +1,28 @@
 // Import the functions you need from the SDKs you need
 const firebase = require("firebase/app");
-require('firebase/auth')
+// require('firebase/auth')
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require("firebase/auth")
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 require("dotenv").config();
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID,
-  appId: process.env.APP_ID
+  apiKey: "AIzaSyDzDT4WNg-Z_iX2pF1tt6dn6wLz-KU2QI0",
+  authDomain: "monster-modders.firebaseapp.com",
+  databaseURL: "https://monster-modders-default-rtdb.firebaseio.com",
+  projectId: "monster-modders",
+  storageBucket: "monster-modders.appspot.com",
+  messagingSenderId: "377619460143",
+  appId: "1:377619460143:web:6413eb21e95cb1bd8d96da"
 };
 
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
+const auth = getAuth();
+
+// console.log('=========', auth)
+
 
 var players = {};
 
@@ -56,20 +62,44 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
-          firebase
-          .auth()
-          .createUserWithEmailAndPassword(input.email, input.password)
+          // firebase
+          // .auth()
+          createUserWithEmailAndPassword(auth, input.email, input.password)
           .then((userCredential) => {
-            const user = firebaseApp.auth().currentUser;
-            user.updateProfile({ displayName: input.username })
-            // const user = userCredential.user
+            // const user = firebaseApp.auth().currentUser;
+            // user.updateProfile({ displayName: input.username })
+            const user = userCredential.user
+
             console.log("...here is the newUser...", user)
-            socket.emit("signUpSuccess", user)
+            socket.emit("signUpSuccess", { username: user.displayName, email: user.email})
           })
           .catch((error) => {
-            var errorMessage = error.message;
-            console.log('signup error----', errorMessage);
-            socket.emit("newUserInfoNotValid", errorMessage)
+            var errorCode = error.code; // example: auth/email-already-in-use
+            var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
+            var errorMessageUpperCase = error.customData._tokenResponse.error.message // EMAIL_EXIST
+            console.log('signup error----', errorMessageUpperCase);
+            socket.emit("newUserInfoNotValid", errorCode.slice(5))
+          })
+        })
+
+        socket.on("userLogin", (input) => {
+          // firebase
+          // .auth()
+          signInWithEmailAndPassword(auth, input.email, input.password)
+          .then((userCredential) => {
+            // const user = firebaseApp.auth().currentUser;
+            // user.updateProfile({ displayName: input.username })
+            const user = userCredential.user
+
+            console.log("...here is the user...", user)
+            socket.emit("LoginSuccess", { username: user.displayName, email: user.email})
+          })
+          .catch((error) => {
+            var errorCode = error.code; // example: auth/wrong-password
+            var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
+
+            console.log('login error----', error.code);
+            socket.emit("userInfoNotValid", errorCode.slice(5))
           })
         })
     });

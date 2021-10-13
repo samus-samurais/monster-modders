@@ -1,6 +1,7 @@
 import 'phaser'
 import config from './config/config'
 import HomeScene from './scenes/HomeScene'
+import LoginScene from './scenes/LoginScene'
 import SignupScene from './scenes/SignupScene'
 import Prototype from './scenes/Prototype'
 import InitialLoader from './scenes/Loader'
@@ -11,13 +12,14 @@ class Game extends Phaser.Game {
   constructor() {
     //initializes the game with set configurations in config.js
     super(config)
-    
+
 
     //Connects to socket
 		this.socket = io();
 
     //Adds scenes
     this.scene.add('HomeScene', HomeScene)
+    this.scene.add('LoginScene', LoginScene)
     this.scene.add('SignupScene', SignupScene)
     this.scene.add('Prototype', Prototype)
     this.scene.add('InitialLoader', InitialLoader)
