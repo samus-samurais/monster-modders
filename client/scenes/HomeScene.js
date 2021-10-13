@@ -11,17 +11,6 @@ export default class HomeScene extends Phaser.Scene {
       this.socket = data.socket;
     }
 
-    preload(){
-        // Loads basic assets
-        // we will replace these false images later
-        this.load.image('background', 'assets/testImage/falseBackground.png');
-        this.load.image('logo', 'assets/testImage/falseLogo.png');
-        this.load.image('sandboxButton', 'assets/testImage/falseSandboxButton.png');
-        this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
-        this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
-
-    }
-
     create(){
         this.add.image(640, 360, 'background');
         this.add.image(640, 250, 'logo');

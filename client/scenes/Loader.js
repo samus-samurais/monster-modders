@@ -22,15 +22,29 @@ export default class InitialLoader extends Phaser.Scene {
       fontSize: "32px",
       fill: "#FFF",
     });
+
     //Loads basic sets
-    this.load.image("sky", "assets/sky.png");
     this.load.spritesheet("dude", "assets/dude.png", {
       frameWidth: 32,
       frameHeight: 48,
     });
 
+    //images
+    this.load.image('background', 'assets/testImage/falseBackground.png');
+    this.load.image('logo', 'assets/testImage/falseLogo.png');
+    this.load.image('sandboxButton', 'assets/testImage/falseSandboxButton.png');
+    this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
+    this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
+    this.load.image("sky", "assets/sky.png");
+    this.load.image('background', 'assets/testImage/falseBackground.png');
+    this.load.image('background', 'assets/testImage/falseBackground.png');
+
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
+
+    //html
+    this.load.html('loginform', 'assets/text/loginform.html');
+    this.load.html('signupform', 'assets/text/signupform.html');
 
     this.load.on("progress", this.updateBar, {
       newGraphics: this.newGraphics,
@@ -51,12 +65,11 @@ export default class InitialLoader extends Phaser.Scene {
 
   complete() {
     console.log("COMPLETE");
-    this.scene.stop("InitialLoader"); //necessary?
-    this.scene.start("HomeScene", { socket: this.socket });
+    
   }
 
-  // create() {
-  //   
-    
-  // }
+  create() {
+    this.scene.stop("InitialLoader"); 
+    this.scene.start("HomeScene", { socket: this.socket });
+  }
 }
