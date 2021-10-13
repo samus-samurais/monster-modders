@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 const firebase = require("firebase/app");
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} = require("firebase/auth")
 // require('firebase/auth')
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require("firebase/auth")
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,9 +20,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
-
-// console.log('=========', auth)
-
 
 var players = {};
 
@@ -63,44 +60,56 @@ module.exports = (io) => {
 
         socket.on("newUserSignup", (input) => {
           // firebase
-          // .auth()
+            // .auth()
+            // .createUserWithEmailAndPassword(auth, input.email, input.password)
+            //   .then(() => {
+                // const user = firebaseApp.auth().currentUser;
+                // user.updateProfile({ displayName: input.username })
           createUserWithEmailAndPassword(auth, input.email, input.password)
-          .then((userCredential) => {
-            // const user = firebaseApp.auth().currentUser;
-            // user.updateProfile({ displayName: input.username })
-            const user = userCredential.user
+            .then(() => {
+              if (auth.currentUser) {
+                // if the new user sign up successfully, update the username as displayName
+                // I didn't find out where to create the new column in firebase, so use the property photoURL to store number_of_wins
+                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
+                .then(() => {
+                  // get the user info
+                  const user = auth.currentUser
+                  // use socket.emit to send the sign up success and the user info
+                  socket.emit("signUpSuccess", {
+                    username: user.displayName,
+                    email: user.email,
+                    number_of_wins: Number(user.photoURL)
+                  })
+                })
+              }
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/email-already-in-use
+              var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
 
-            console.log("...here is the newUser...", user)
-            socket.emit("signUpSuccess", { username: user.displayName, email: user.email})
-          })
-          .catch((error) => {
-            var errorCode = error.code; // example: auth/email-already-in-use
-            var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
-            var errorMessageUpperCase = error.customData._tokenResponse.error.message // EMAIL_EXIST
-            console.log('signup error----', errorMessageUpperCase);
-            socket.emit("newUserInfoNotValid", errorCode.slice(5))
-          })
+              console.log('signup error----', errorCode);
+              socket.emit("newUserInfoNotValid", errorCode.slice(5))
+            })
+
         })
 
         socket.on("userLogin", (input) => {
-          // firebase
-          // .auth()
           signInWithEmailAndPassword(auth, input.email, input.password)
-          .then((userCredential) => {
-            // const user = firebaseApp.auth().currentUser;
-            // user.updateProfile({ displayName: input.username })
-            const user = userCredential.user
+            .then(() => {
+              const user = auth.currentUser
+              socket.emit("LoginSuccess", {
+                username: user.displayName,
+                email: user.email,
+                number_of_wins: Number(user.photoURL)
+              })
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/wrong-password
+              var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
 
-            console.log("...here is the user...", user)
-            socket.emit("LoginSuccess", { username: user.displayName, email: user.email})
-          })
-          .catch((error) => {
-            var errorCode = error.code; // example: auth/wrong-password
-            var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
-
-            console.log('login error----', error.code);
-            socket.emit("userInfoNotValid", errorCode.slice(5))
-          })
+              console.log('login error----', errorCode);
+              socket.emit("userInfoNotValid", errorCode.slice(5))
+            })
         })
     });
 }
