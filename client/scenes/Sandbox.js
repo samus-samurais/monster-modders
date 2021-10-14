@@ -1,5 +1,5 @@
 import Phaser from "phaser"
-import Platform from "../sprites/platform.js";
+import Platform from "../sprites/Platform.js";
 import Player from "../sprites/Player.js"
 
 export default class Sandbox extends Phaser.Scene {
@@ -28,38 +28,30 @@ export default class Sandbox extends Phaser.Scene {
     this.staticPlatforms.create(200, 600, 'platform');
     this.staticPlatforms.create(1000, 200, 'platform');
 
+    this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
+    //this.userPlatforms = this.physics.add.group();
+
+    this.platformMaker.on('pointerdown', (pointer) => {
+      console.log("HELLO IM HERE")
+      this.userPlatforms = new Platform(self, pointer.x, pointer.y, "platform", null)
+      // this.userPlatforms.add(new Platform(self, pointer.x, pointer.y, "platform", null));
+    })
+
     //Creates player, adds collider between player and platforms
-    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.platform, this.staticPlatform)
-    this.physics.add.collider(this.player, this.staticPlatforms);
-
-
-    //platformMaker = this.physics.add.image(100,100,'sandboxButton').setInteractive();
-    //userPlatforms = this.physics.add.group();
-
-
-    //platformMaker.on('pointerdown', (pointer) => {
-    //  userPlatforms.add(new Platform(self,pointer.x,pointer.y,"platform"));
-    //})
-    // create the platforms for player to choose and drag
-    /*
-    this.platform = this.physics.add.image(200, 200, 'platform').setImmovable(true);
-    this.platform.body.setAllowGravity(false);
-    this.platform.setInteractive({ draggable: true })
-
-    this.input.setDraggable(this.platform);
-    */
+    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.userPlatforms, this.staticPlatform)
+    this.input.setDraggable(this.userPlatforms);
 
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
       gameObject.y = dragY;
     })
 
-        //Sets up controls
+    //Sets up controls
     this.cursors = this.input.keyboard.addKeys({
-        up: Phaser.Input.Keyboard.KeyCodes.W,
-        down: Phaser.Input.Keyboard.KeyCodes.S,
-        left: Phaser.Input.Keyboard.KeyCodes.A,
-        right: Phaser.Input.Keyboard.KeyCodes.D
+      up: Phaser.Input.Keyboard.KeyCodes.W,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D
     });
   }
 
