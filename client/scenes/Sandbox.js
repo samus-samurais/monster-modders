@@ -20,6 +20,7 @@ export default class Sandbox extends Phaser.Scene {
   }
 
   create() {
+    console.log("HERE I AM");
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
@@ -29,17 +30,24 @@ export default class Sandbox extends Phaser.Scene {
     this.staticPlatforms.create(1000, 200, 'platform');
 
     this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
-    //this.userPlatforms = this.physics.add.group();
+    this.allPlatforms = this.add.group();
+    this.allPlatforms.children.iterate(function (child) {
+      child.setAllowGravity(false)
+    })
+
+     // create static platforms as begining and goal place.
+     //this.userPlatforms = new Platform(self, 200, 200, "platform", null);
 
     this.platformMaker.on('pointerdown', (pointer) => {
       console.log("HELLO IM HERE")
-      this.userPlatforms = new Platform(self, pointer.x, pointer.y, "platform", null)
-      // this.userPlatforms.add(new Platform(self, pointer.x, pointer.y, "platform", null));
+      this.userPlatforms = new Platform(self, pointer.x, pointer.y, "platform", null);
+      this.allPlatforms.add(this.userPlatforms);
+      this.input.setDraggable(this.userPlatforms);
     })
-
+    
     //Creates player, adds collider between player and platforms
-    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.userPlatforms, this.staticPlatform)
-    this.input.setDraggable(this.userPlatforms);
+    console.log(this.input)
+    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.allPlatforms, this.staticPlatforms)
 
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
@@ -60,7 +68,7 @@ export default class Sandbox extends Phaser.Scene {
       this.player.update(this.cursors);
     }
   }
-
-
-
 }
+
+
+
