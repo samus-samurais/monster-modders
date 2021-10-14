@@ -1,23 +1,28 @@
 import 'phaser';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, spriteKey, status, socket) {
+    constructor(scene, x, y, spriteKey, status, socket, username, platform, staticPlatform) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
+        this.username = username;
         if(status === 'PC'){
             console.log("This is",this)
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
+            // add some colliders function between player and platforms
+            this.scene.physics.add.collider(this, staticPlatform, null, null, this);
+            this.scene.physics.add.collider(this, platform, null, null, this);
         }
+
         this.scene.add.existing(this);
         this.movementState = {
             x,
             y,
             currentAnim: 'turn'
         };
-        
+
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),

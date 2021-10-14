@@ -4,19 +4,19 @@ import Player from "../sprites/Player.js"
 export default class Sandbox extends Phaser.Scene {
   constructor() {
     super("Sandbox");
+    this.player = null;
   }
 
   init(data){
     this.socket = data.socket;
     this.playerId = data.socket.id;
-    this.playerInfo = data.user;
-    console.log('check its a login user or guest', this.player)
+    this.playerUsername = data.user ? data.user.username : 'guest';
+    console.log('check its a login user or guest--', this.playerUsername)
   }
 
   preload() {
     this.load.image('sky', 'assets/sky.png');
-    this.load.image('platform', 'assets/platform/falsePlatform.png');
-    // this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 })
+    this.load.image('platform', 'assets/platform/falseShortPlatform.png');
   }
 
   create() {
@@ -24,32 +24,27 @@ export default class Sandbox extends Phaser.Scene {
 
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
-    // this.socket.emit('playerJoined');
-    // this.socket.on('sentPlayerInfo', function (players, scene = self) {
-    //     scene.addPlayers(players);
-    // });
+    this.socket.emit('playerJoined');
+    this.socket.on('sentPlayerInfo', function (players, scene = self) {
+        scene.addPlayers(players);
+    });
 
-    // this.player = this.physics.add.sprite(50, 550, 'dude')
-    // this.player.setCollideWorldBounds(true);
+    // create static platfrom as begining and goal place.
+    this.staticPlatform = this.physics.add.staticGroup();
+    this.staticPlatform.create(200, 600, 'platform');
+    this.staticPlatform.create(1000, 200, 'platform');
 
-    this.platform = this.add.image(200, 600, 'platform')
-    this.platform.setInteractive({ draggable: true, dropZone: true })
+    // create the platforms for player to choose and drag
+    this.platform = this.physics.add.image(200, 200, 'platform').setImmovable(true);
+    this.platform.body.setAllowGravity(false);
+    this.platform.setInteractive({ draggable: true })
 
-    this.platform.on('dragstart', (pointer, dragX, dragY) => {
-      console.log('/////')
-      this.platform.x = dragX;
-      this.platform.y = dragY;
+    this.input.setDraggable(this.platform);
+
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+      gameObject.x = dragX;
+      gameObject.y = dragY;
     })
-    this.platform.on('drag', (pointer, dragX, dragY) => {
-      console.log('?????')
-      this.platform.x = dragX;
-      this.platform.y = dragY;
-    })
-    this.platform.on('dragend', (pointer, dragX, dragY) => {
-      this.platform.x = dragX;
-      this.platform.y = dragY;
-    })
-
 
     //Sets up controls
     this.cursors = this.input.keyboard.addKeys({
@@ -60,10 +55,30 @@ export default class Sandbox extends Phaser.Scene {
     });
   }
 
-  update (){
+  update () {
     if(this.player){
         this.player.update(this.cursors);
     }
+
   }
+
+  addPlayers(players){
+    console.log("Players object: ",players);
+    console.log("Socket: ",this.socket);
+    let ids = Object.keys(players);
+    for(let i = 0; i < ids.length; i++){
+        if(ids[i] === this.playerId){
+            console.log("Match found!"); //PC == Playable Character!
+
+            // add new arguments in to the Player class
+            this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerUsername, this.platform, this.staticPlatform)
+
+            // not sure whether we need the otherPlayers functionality here or not
+        } else {
+            console.log("Different player"); //NPC = Non-playable Character
+            this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude','NPC')
+        }
+    }
+}
 
 }
