@@ -20,14 +20,8 @@ export default class Sandbox extends Phaser.Scene {
   }
 
   create() {
-    const self = this;
 
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
-
-    this.socket.emit('playerJoined');
-    this.socket.on('sentPlayerInfo', function (players, scene = self) {
-        scene.addPlayers(players);
-    });
 
     // create static platfrom as begining and goal place.
     this.staticPlatform = this.physics.add.staticGroup();
@@ -46,39 +40,10 @@ export default class Sandbox extends Phaser.Scene {
       gameObject.y = dragY;
     })
 
-    //Sets up controls
-    this.cursors = this.input.keyboard.addKeys({
-        up: Phaser.Input.Keyboard.KeyCodes.W,
-        down: Phaser.Input.Keyboard.KeyCodes.S,
-        left: Phaser.Input.Keyboard.KeyCodes.A,
-        right: Phaser.Input.Keyboard.KeyCodes.D
-    });
-  }
-
-  update () {
-    if(this.player){
-        this.player.update(this.cursors);
-    }
+    // add new arguments in to the Player class
+    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.platform, this.staticPlatform)
 
   }
 
-  addPlayers(players){
-    console.log("Players object: ",players);
-    console.log("Socket: ",this.socket);
-    let ids = Object.keys(players);
-    for(let i = 0; i < ids.length; i++){
-        if(ids[i] === this.playerId){
-            console.log("Match found!"); //PC == Playable Character!
-
-            // add new arguments in to the Player class
-            this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerUsername, this.platform, this.staticPlatform)
-
-            // not sure whether we need the otherPlayers functionality here or not
-        } else {
-            console.log("Different player"); //NPC = Non-playable Character
-            this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude','NPC')
-        }
-    }
-}
 
 }
