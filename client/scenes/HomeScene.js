@@ -33,6 +33,7 @@ export default class HomeScene extends Phaser.Scene {
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.multiplayerButton.on('pointerdown', () => {
+          this.music.stop(); //stop playing music when this scene is pressed by user
           this.scene.launch('Prototype',{socket: this.socket});
           this.multiplayerButton.disableInteractive();
         })
