@@ -7,28 +7,39 @@ export default class LoginScene extends Phaser.Scene {
 
   init(data) {
     this.socket = data.socket
+    this.homeSceneUI = data.homeSceneUI
   }
 
   create() {
-    this.add.image(640, 360, 'background');
-
+    //Disables the Home Scene UI
+    this.homeSceneUI.children.iterate((child) => {
+      child.disableInteractive()
+      child.visible = false;
+    })
     this.inputElementLogin = this.add.dom(640, 360).createFromCache("loginform");
     this.inputElementLogin.addListener('click');
     this.inputElementLogin.on('click', (event) => {
+      //Prevents our form from refreshing the page
+      event.preventDefault();
       if (event.target.name === 'loginButton') {
         const email = this.inputElementLogin.getChildByName('email').value;
         const password = this.inputElementLogin.getChildByName('password').value;
 
+        //Emits a signal to our server denoting that a user has logged in
         this.socket.emit("userLogin", {
           email,
           password
         })
       } else if (event.target.name === 'createAccountButton') {
         this.scene.stop("LoginScene");
-        this.scene.launch("SignupScene", { socket: this.socket })
+        this.scene.launch("SignupScene", {socket: this.socket, homeSceneUI: this.homeSceneUI})
       } else if (event.target.name === 'cancel') {
+        //Re-enables the Home Scene UI
+        this.homeSceneUI.children.iterate((child) => {
+          child.setInteractive()
+          child.visible = true;
+        })
         this.scene.stop("LoginScene");
-        // this.scene.launch("HomeScene", { socket: this.socket })
       }
     })
 
@@ -38,11 +49,11 @@ export default class LoginScene extends Phaser.Scene {
     })
 
     this.socket.on("LoginSuccess", (user) => {
-      this.scene.stop("LoginScene");
-      this.scene.launch("Sandbox", {
-        socket: this.socket,
-        user: user
+      this.homeSceneUI.children.iterate((child) => {
+        child.setInteractive()
+        child.visible = true;
       })
+      this.scene.stop("LoginScene");
     })
 
   }

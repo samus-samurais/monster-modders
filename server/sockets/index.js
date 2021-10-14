@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 const firebase = require("firebase/app");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} = require("firebase/auth")
+const { doc, setDoc, getFirestore } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -20,6 +21,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
+const db = getFirestore();
 
 var players = {};
 
@@ -59,30 +61,16 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
-          // firebase
-            // .auth()
-            // .createUserWithEmailAndPassword(auth, input.email, input.password)
-            //   .then(() => {
-                // const user = firebaseApp.auth().currentUser;
-                // user.updateProfile({ displayName: input.username })
-          createUserWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              if (auth.currentUser) {
-                // if the new user sign up successfully, update the username as displayName
-                // I didn't find out where to create the new column in firebase, so use the property photoURL to store number_of_wins
-                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
-                .then(() => {
-                  // get the user info
-                  const user = auth.currentUser
-                  // use socket.emit to send the sign up success and the user info
-                  socket.emit("signUpSuccess", {
-                    username: user.displayName,
-                    email: user.email,
-                    number_of_wins: Number(user.photoURL)
-                  })
-                })
-              }
-            })
+          console.log("User signup attempted!")
+          createUserWithEmailAndPassword(auth,input.email, input.password).then(cred => {
+            return setDoc(doc(db, "users", cred.user.uid), {
+              username: input.username,
+              jumps: 0
+            }).then((user) => {
+              console.log("Is this a user?",user);
+              socket.emit("signUpSuccess");
+            });
+          })
             .catch((error) => {
               var errorCode = error.code; // example: auth/email-already-in-use
               var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
@@ -92,6 +80,7 @@ module.exports = (io) => {
             })
 
         })
+
 
         socket.on("userLogin", (input) => {
           signInWithEmailAndPassword(auth, input.email, input.password)

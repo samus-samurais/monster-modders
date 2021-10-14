@@ -8,7 +8,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.username = username;
         if(status === 'PC'){
-            console.log("This is",this)
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
