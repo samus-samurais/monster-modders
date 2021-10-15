@@ -61,6 +61,7 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
+<<<<<<< HEAD
           console.log("User signup attempted!")
           createUserWithEmailAndPassword(auth,input.email, input.password).then(cred => {
             return setDoc(doc(db, "users", cred.user.uid), {
@@ -71,6 +72,27 @@ module.exports = (io) => {
               socket.emit("signUpSuccess");
             });
           })
+=======
+
+          createUserWithEmailAndPassword(auth, input.email, input.password)
+            .then(() => {
+              if (auth.currentUser) {
+                // if the new user sign up successfully, update the username as displayName
+                // I didn't find out where to create the new column in firebase, so use the property photoURL to store number_of_wins
+                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
+                .then(() => {
+                  // get the user info
+                  const user = auth.currentUser
+                  // use socket.emit to send the sign up success and the user info
+                  socket.emit("signUpSuccess", {
+                    username: user.displayName,
+                    email: user.email,
+                    number_of_wins: Number(user.photoURL)
+                  })
+                })
+              }
+            })
+>>>>>>> cece677a8aabf5ba5eb84bbe11d3b0c634f7e020
             .catch((error) => {
               var errorCode = error.code; // example: auth/email-already-in-use
               var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)

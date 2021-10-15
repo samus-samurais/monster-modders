@@ -11,8 +11,8 @@ export default class Sandbox extends Phaser.Scene {
   init(data){
     this.socket = data.socket;
     this.playerId = data.socket.id;
-    this.playerUsername = data.user ? data.user.username : 'guest';
-    console.log('check its a login user or guest--', this.playerUsername)
+    this.playerInfo = data.user ? data.user : { username: 'guest' };
+    console.log('check its a login user or guest--', this.playerInfo)
   }
 
   preload() {
@@ -20,7 +20,6 @@ export default class Sandbox extends Phaser.Scene {
   }
 
   create() {
-    console.log("HERE I AM");
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
@@ -29,26 +28,25 @@ export default class Sandbox extends Phaser.Scene {
     this.staticPlatforms.create(200, 600, 'platform');
     this.staticPlatforms.create(1000, 200, 'platform');
 
-    this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
     this.allPlatforms = this.add.group();
     this.allPlatforms.children.iterate(function (child) {
       child.setAllowGravity(false)
-    })
+    });
 
-     // create static platforms as begining and goal place.
-     //this.userPlatforms = new Platform(self, 200, 200, "platform", null);
-
-    this.platformMaker.on('pointerdown', (pointer) => {
-      console.log("HELLO IM HERE")
-      this.userPlatforms = new Platform(self, pointer.x, pointer.y, "platform", null);
+    this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
+    this.platformMaker.on('pointerdown', () => {
+      this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);
     })
-    
-    //Creates player, adds collider between player and platforms
-    console.log(this.input)
-    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerUsername, this.allPlatforms, this.staticPlatforms)
 
+    //Creates player, adds collider between player and platforms
+    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
+
+    // put the username above the player
+    this.username = this.add.text(this.player.x, this.player.y - 10, `${this.playerInfo.username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px '});
+
+    // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
       gameObject.y = dragY;
@@ -66,6 +64,10 @@ export default class Sandbox extends Phaser.Scene {
   update (){
     if(this.player){
       this.player.update(this.cursors);
+
+      // make the username move follow the player
+      this.username.x = this.player.body.position.x;
+      this.username.y = this.player.body.position.y - 10;
     }
   }
 }

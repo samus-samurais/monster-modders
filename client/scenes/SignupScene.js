@@ -41,9 +41,16 @@ export default class SignupScene extends Phaser.Scene {
     })
 
     this.socket.on("signUpSuccess", (user) => {
+<<<<<<< HEAD
       this.homeSceneUI.children.iterate((child) => {
         child.setInteractive()
         child.visible = true;
+=======
+      this.scene.stop("SignupScene");
+      this.scene.launch("UserProfileScene", {
+        socket: this.socket,
+        user: user
+>>>>>>> cece677a8aabf5ba5eb84bbe11d3b0c634f7e020
       })
       this.scene.stop("SignupScene");
     })

@@ -1,12 +1,13 @@
 import 'phaser';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, spriteKey, status, socket, username, platform, staticPlatform) {
+    constructor(scene, x, y, spriteKey, status, socket, playerInfo, platform, staticPlatform) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
-        this.username = username;
+        this.username = playerInfo.username;
+
         if(status === 'PC'){
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
@@ -49,13 +50,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (cursors.left.isDown){
             this.setVelocityX(-190);
             this.anims.play('left', true);
-            animation = 'left'
+            animation = 'left';
         }
 
         else if (cursors.right.isDown){
             this.setVelocityX(190);
             this.anims.play('right', true);
-            animation = 'right'
+            animation = 'right';
         } else {
             this.setVelocityX(0);
             this.anims.play('turn');
