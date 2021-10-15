@@ -71,12 +71,6 @@ export default class Sandbox extends Phaser.Scene {
   update () {
     if(this.player){
       this.player.update(this.cursors);
-<<<<<<< HEAD
-      // make the username move follow the player
-      this.username.x = this.player.body.position.x;
-      this.username.y = this.player.body.position.y - 10;
-=======
->>>>>>> 939716479454be6c9c3d1107ffdf37f4044a89c7
     }
 
     if (this.allPlatforms.children.entries.length) {
