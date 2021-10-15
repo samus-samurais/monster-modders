@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 const firebase = require("firebase/app");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} = require("firebase/auth")
+const { doc, setDoc, getFirestore } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -20,8 +21,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
+const db = getFirestore();
 
 var players = {};
+var loggedInUser = null;
 
 const addPlayerToSocket = (socket) => {
   players[socket.id] = {
@@ -29,6 +32,9 @@ const addPlayerToSocket = (socket) => {
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50
   };
+  if(loggedInUser){
+    players[socket.id].username = loggedInUser;
+  }
 }
 
 module.exports = (io) => {
@@ -59,7 +65,6 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
-
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               if (auth.currentUser) {
@@ -69,6 +74,7 @@ module.exports = (io) => {
                 .then(() => {
                   // get the user info
                   const user = auth.currentUser
+                  loggedInUser = user.displayName
                   // use socket.emit to send the sign up success and the user info
                   socket.emit("signUpSuccess", {
                     username: user.displayName,
@@ -88,10 +94,12 @@ module.exports = (io) => {
 
         })
 
+
         socket.on("userLogin", (input) => {
           signInWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               const user = auth.currentUser
+              loggedInUser = user.displayName
               socket.emit("LoginSuccess", {
                 username: user.displayName,
                 email: user.email,

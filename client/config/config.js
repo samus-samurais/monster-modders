@@ -2,8 +2,16 @@ import 'phaser'
 
 export default {
     type: Phaser.AUTO,
-    width: 1280,
-    height: 720,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        width: 1280,
+        height: 720,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        max: {
+            width: 1920,
+            height: 1080
+        }
+    },
     physics: {
         default: 'arcade',
         arcade: {

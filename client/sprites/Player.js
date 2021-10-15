@@ -1,15 +1,17 @@
 import 'phaser';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, spriteKey, status, socket, playerInfo, platform, staticPlatform) {
+    constructor(scene, x, y, spriteKey, status, socket, username, platform, staticPlatform) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
-        this.username = playerInfo.username;
+        this.currentAnim = 'turn'
+        const displayName = (username ? username : "Guest" + Math.floor(Math.random() *  9999))
+         //Add player username to scene
+         this.username = this.scene.add.text(x, y - 37, `${displayName}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
         if(status === 'PC'){
-            console.log("This is",this)
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
@@ -66,6 +68,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityY(-330);
         }
 
+        // make the username move to follow the player
+        this.username.setPosition(this.x,this.y-37);
+
         //Sends new player position to other players
         if (this.socket) {
             this.movementState.x = this.x
@@ -77,7 +82,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     updateOtherPlayer(movementState){
         this.setPosition(movementState.x, movementState.y);
-        this.anims.play(movementState.currentAnim)
+        if(this.currentAnim !== movementState.currentAnim){
+            this.anims.play(movementState.currentAnim)
+            this.currentAnim = movementState.currentAnim
+        }
+
+        // make the username move to follow the player
+        this.username.setPosition(this.x,this.y-37);
+    }
+
+    delete(){
+        this.username.destroy();
+        this.destroy();
     }
 
 }
