@@ -57,6 +57,9 @@ export default class SignupScene extends Phaser.Scene {
     backButton.on("pointerover", () => {
       backButton.setTint(0xFF0000);
     });
+    backButton.on("pointerout", () => {
+      backButton.clearTint();
+    })
     backButton.on("pointerup", () => {
       this.scene.stop("Sandbox");
       this.scene.start("HomeScene");
