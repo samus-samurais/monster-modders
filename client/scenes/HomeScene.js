@@ -11,9 +11,11 @@ export default class HomeScene extends Phaser.Scene {
       this.socket = data.socket;
     }
 
-    create(){
+    create(){ 
+        this.UI = this.add.group();
         this.add.image(640, 360, 'background');
-        this.add.image(640, 250, 'logo');
+        this.logo = this.add.image(640, 250, 'logo');
+        this.UI.add(this.logo);
 
         this.music = this.sound.add("lobbyMusic");
 
@@ -23,26 +25,24 @@ export default class HomeScene extends Phaser.Scene {
         // make sandbox mode button
         // need to navigate to the real sandbox mode
         this.sandboxButton = this.add.image(320, 540, 'sandboxButton').setInteractive();
+        this.UI.add(this.sandboxButton);
         this.sandboxButton.on('pointerdown', () => {
-          this.scene.stop('HomeScene');
-          this.music.stop(); //stop playing music when this scene is pressed by user
-          this.scene.launch('Sandbox', {socket: this.socket});
-          this.sandboxButton.disableInteractive();
+          this.scene.start('Sandbox', {socket: this.socket});
         });
 
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
+        this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.music.stop(); //stop playing music when this scene is pressed by user
-          this.scene.launch('Prototype',{socket: this.socket});
-          this.multiplayerButton.disableInteractive();
+          this.scene.start('Prototype',{socket: this.socket});
         })
 
         // make multiplayer mode button
         this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
+        this.UI.add(this.loginSignupButton);
         this.loginSignupButton.on('pointerdown', () => {
-          this.scene.launch('LoginScene', {socket: this.socket});
-          this.loginSignupButton.disableInteractive();
+          console.log("Logging in");
+          this.scene.launch('LoginScene', {socket: this.socket, homeSceneUI: this.UI});
         })
     }
 }

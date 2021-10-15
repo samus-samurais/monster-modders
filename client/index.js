@@ -28,7 +28,7 @@ class Game extends Phaser.Game {
     this.scene.add('Sandbox', Sandbox)
     this.scene.add('UserProfileScene', UserProfileScene)
 
-    //Starts prototype (we'll replace this later)
+    //Starts the loader
     this.scene.start('InitialLoader',{socket: this.socket})
   }
 }
