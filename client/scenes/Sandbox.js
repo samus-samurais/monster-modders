@@ -6,7 +6,8 @@ export default class Sandbox extends Phaser.Scene {
   constructor() {
     super("Sandbox");
     this.player = null;
-    this.buttonToggle = false;
+    this.addButtonToggle = false;
+    this.removeButtonToggle = false;
   }
 
   init(data){
@@ -32,24 +33,22 @@ export default class Sandbox extends Phaser.Scene {
 
     this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
+      this.addButtonToggle = true;
       this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);
     });
 
-    this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformChangeButton").setInteractive();
-    this.platformDestroyer.on('pointerdown', (pointer) => {
-      //this.allPlatforms.remove(this.userPlatforms);
-      this.buttonToggle = true
-      this.add.image(600, 100, '')
-      this.input.on('gameobjectdown', this.onClicked.bind(this));
-
+    this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
+    this.platformDestroyer.on('pointerdown', () => {
+      // remove button don't work until user creates at least one platform
+      if (this.addButtonToggle) {
+        this.removeButtonToggle = true
+        // change the button color to show that in this state user could delete a platform.
+        this.platformDestroyer.setTint(0xff0000);
+        this.input.on('gameobjectdown', this.onClicked.bind(this));
+      }
     })
-
-    if (this.buttonToggle) {
-      this.platformDestroyer.setTint(0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff);
-    }
-
 
     //Creates player, adds collider between player and platforms
     this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
@@ -72,22 +71,30 @@ export default class Sandbox extends Phaser.Scene {
     });
   }
 
-  update (){
+  update () {
     if(this.player){
       this.player.update(this.cursors);
-
       // make the username move follow the player
       this.username.x = this.player.body.position.x;
       this.username.y = this.player.body.position.y - 10;
     }
+
+    if (this.allPlatforms.children.entries.length) {
+      this.addButtonToggle = true;
+    } else {
+      this.addButtonToggle = false;
+    }
+
   }
- onClicked(pointer, objectClicked) {
-        if(this.allPlatforms.children.entries.includes(objectClicked) && this.buttonToggle === true){
-          this.allPlatforms.remove(objectClicked);
-          objectClicked.destroy();
-          this.buttonToggle = false;
-        }
-     }
+
+  onClicked(pointer, objectClicked) {
+    if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      this.allPlatforms.remove(objectClicked);
+      objectClicked.destroy();
+      this.removeButtonToggle = false;
+      this.platformDestroyer.clearTint();
+    }
+  }
 }
 
 
