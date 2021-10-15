@@ -38,7 +38,7 @@ export default class SignupScene extends Phaser.Scene {
 
     this.socket.on("signUpSuccess", (user) => {
       this.scene.stop("SignupScene");
-      this.scene.launch("Prototype", {
+      this.scene.launch("UserProfileScene", {
         socket: this.socket,
         user: user
       })
