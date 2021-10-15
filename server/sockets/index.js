@@ -24,6 +24,7 @@ const auth = getAuth();
 const db = getFirestore();
 
 var players = {};
+var loggedInUser = null;
 
 const addPlayerToSocket = (socket) => {
   players[socket.id] = {
@@ -31,6 +32,9 @@ const addPlayerToSocket = (socket) => {
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50
   };
+  if(loggedInUser){
+    players[socket.id].username = loggedInUser;
+  }
 }
 
 module.exports = (io) => {
@@ -70,6 +74,7 @@ module.exports = (io) => {
                 .then(() => {
                   // get the user info
                   const user = auth.currentUser
+                  loggedInUser = user.displayName
                   // use socket.emit to send the sign up success and the user info
                   socket.emit("signUpSuccess", {
                     username: user.displayName,
@@ -94,6 +99,7 @@ module.exports = (io) => {
           signInWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               const user = auth.currentUser
+              loggedInUser = user.displayName
               socket.emit("LoginSuccess", {
                 username: user.displayName,
                 email: user.email,

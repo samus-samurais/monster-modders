@@ -29,7 +29,7 @@ export default class UserProfileScene extends Phaser.Scene {
 
     this.multiplayerButton = this.add.image(765, 540, 'multiplayerButton').setInteractive();
     this.multiplayerButton.on('pointerdown', () => {
-      this.scene.start('Prototype', {socket: this.socket, user: this.player});
+      this.scene.start('Prototype', {socket: this.socket});
       this.multiplayerButton.disableInteractive();
     })
 

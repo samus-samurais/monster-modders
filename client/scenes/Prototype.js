@@ -10,8 +10,6 @@ export default class Prototype extends Phaser.Scene {
     init(data){
         this.socket = data.socket;
         this.playerId = data.socket.id;
-        this.playerInfo = data.user ? data.user : { username: 'guest' };
-        console.log('user info', this.playerInfo)
     }
 
     create(){
@@ -71,13 +69,13 @@ export default class Prototype extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
-                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo)
+                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username)
 
                 //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
                 //this.player.setCollideWorldBounds(true);
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
-                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC')
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username)
 
             }
         }
@@ -86,12 +84,12 @@ export default class Prototype extends Phaser.Scene {
 
     addNewPlayer(player){
         console.log("Updating scene with new player:",player);
-        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC')
+        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC', null, player.username)
     }
 
     removePlayer(id){
         console.log("Removing player with id:",id)
-        this.otherPlayers[id].destroy();
+        this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
     }
 }

@@ -41,7 +41,7 @@ export default class Sandbox extends Phaser.Scene {
     })
 
     //Creates player, adds collider between player and platforms
-    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
+    this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo.username, this.allPlatforms, this.staticPlatforms)
 
     // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
