@@ -6,6 +6,7 @@ export default class Sandbox extends Phaser.Scene {
   constructor() {
     super("Sandbox");
     this.player = null;
+    this.buttonToggle = false;
   }
 
   init(data){
@@ -38,7 +39,16 @@ export default class Sandbox extends Phaser.Scene {
       this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);
+    });
+
+    this.platformDestroyer = this.add.image(600, 100, 'sandboxButton').setInteractive();
+    this.platformDestroyer.on('pointerdown', (pointer) => {
+      //this.allPlatforms.remove(this.userPlatforms);
+      this.buttonToggle = true
+      this.input.on('gameobjectdown', this.onClicked.bind(this));
+      
     })
+    
 
     //Creates player, adds collider between player and platforms
     this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
@@ -70,6 +80,13 @@ export default class Sandbox extends Phaser.Scene {
       this.username.y = this.player.body.position.y - 10;
     }
   }
+ onClicked(pointer, objectClicked) {
+        if(this.allPlatforms.children.entries.includes(objectClicked) && this.buttonToggle === true){
+          this.allPlatforms.remove(objectClicked);
+          objectClicked.destroy();
+          this.buttonToggle = false;
+        }
+     } 
 }
 
 
