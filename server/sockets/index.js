@@ -61,19 +61,6 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
-<<<<<<< HEAD
-          console.log("User signup attempted!")
-          createUserWithEmailAndPassword(auth,input.email, input.password).then(cred => {
-            return setDoc(doc(db, "users", cred.user.uid), {
-              username: input.username,
-              jumps: 0
-            }).then((user) => {
-              console.log("Is this a user?",user);
-              socket.emit("signUpSuccess");
-            });
-          })
-=======
-
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               if (auth.currentUser) {
@@ -92,7 +79,6 @@ module.exports = (io) => {
                 })
               }
             })
->>>>>>> cece677a8aabf5ba5eb84bbe11d3b0c634f7e020
             .catch((error) => {
               var errorCode = error.code; // example: auth/email-already-in-use
               var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)

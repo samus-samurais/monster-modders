@@ -6,7 +6,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
-        this.username = playerInfo.username;
+        this.playerInfo = playerInfo
+         //Add player username to scene
+         this.username = this.scene.add.text(x-20, y - 35, `${playerInfo.username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px '});
 
         if(status === 'PC'){
             this.scene.physics.world.enable(this);
@@ -65,6 +67,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setVelocityY(-330);
         }
 
+        // make the username move to follow the player
+        this.username.setPosition(this.x-20,this.y-35);
+
         //Sends new player position to other players
         if (this.socket) {
             this.movementState.x = this.x
@@ -77,6 +82,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     updateOtherPlayer(movementState){
         this.setPosition(movementState.x, movementState.y);
         this.anims.play(movementState.currentAnim)
+
+        // make the username move to follow the player
+        this.username.setPosition(this.x-20,this.y-35);
     }
 
 }

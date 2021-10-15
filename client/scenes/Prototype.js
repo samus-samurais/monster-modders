@@ -61,10 +61,6 @@ export default class Prototype extends Phaser.Scene {
     update() {
         if(this.player){
             this.player.update(this.cursors);
-
-            // make the username move follow the player
-            this.username.x = this.player.body.position.x;
-            this.username.y = this.player.body.position.y - 10;
         }
     }
 
@@ -76,9 +72,6 @@ export default class Prototype extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
                 this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo)
-
-                // put the username above the player
-                this.username = this.add.text(players[ids[i]].x, players[ids[i]].y - 10, `${this.playerInfo.username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px '});
 
                 //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
                 //this.player.setCollideWorldBounds(true);

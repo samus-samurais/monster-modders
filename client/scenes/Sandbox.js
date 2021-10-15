@@ -43,9 +43,6 @@ export default class Sandbox extends Phaser.Scene {
     //Creates player, adds collider between player and platforms
     this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
 
-    // put the username above the player
-    this.username = this.add.text(this.player.x, this.player.y - 10, `${this.playerInfo.username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px '});
-
     // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = dragX;
@@ -64,10 +61,6 @@ export default class Sandbox extends Phaser.Scene {
   update (){
     if(this.player){
       this.player.update(this.cursors);
-
-      // make the username move follow the player
-      this.username.x = this.player.body.position.x;
-      this.username.y = this.player.body.position.y - 10;
     }
   }
 }
