@@ -16,10 +16,6 @@ export default class Sandbox extends Phaser.Scene {
     console.log('check its a login user or guest--', this.playerInfo)
   }
 
-  preload() {
-    this.load.image('platform', 'assets/platform/falseShortPlatform.png');
-  }
-
   create() {
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
@@ -34,21 +30,26 @@ export default class Sandbox extends Phaser.Scene {
       child.setAllowGravity(false)
     });
 
-    this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
+    this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
       this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);
     });
 
-    this.platformDestroyer = this.add.image(600, 100, 'sandboxButton').setInteractive();
+    this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformChangeButton").setInteractive();
     this.platformDestroyer.on('pointerdown', (pointer) => {
       //this.allPlatforms.remove(this.userPlatforms);
       this.buttonToggle = true
+      this.add.image(600, 100, '')
       this.input.on('gameobjectdown', this.onClicked.bind(this));
-      
+
     })
-    
+
+    if (this.buttonToggle) {
+      this.platformDestroyer.setTint(0xff00ff, 0xff00ff, 0xff00ff, 0xff00ff);
+    }
+
 
     //Creates player, adds collider between player and platforms
     this.player = new Player(this, 200, 550, 'dude', 'PC', null, this.playerInfo, this.allPlatforms, this.staticPlatforms)
@@ -86,7 +87,7 @@ export default class Sandbox extends Phaser.Scene {
           objectClicked.destroy();
           this.buttonToggle = false;
         }
-     } 
+     }
 }
 
 
