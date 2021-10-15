@@ -5,15 +5,16 @@ export default class Prototype extends Phaser.Scene {
         super(key);
         this.player = null
         this.otherPlayers = {}
-      }
+    }
 
-      init(data){
-            this.socket = data.socket;
-            this.playerId = data.socket.id;
-            console.log('user info', data.user)
-      }
+    init(data){
+        this.socket = data.socket;
+        this.playerId = data.socket.id;
+        this.playerInfo = data.user ? data.user : { username: 'guest' };
+        console.log('user info', this.playerInfo)
+    }
 
-      create(){
+    create(){
         const self = this;
         //Initializes player
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
@@ -57,9 +58,13 @@ export default class Prototype extends Phaser.Scene {
         });
     }
 
-      update (){
+    update() {
         if(this.player){
             this.player.update(this.cursors);
+
+            // make the username move follow the player
+            this.username.x = this.player.body.position.x;
+            this.username.y = this.player.body.position.y - 10;
         }
     }
 
@@ -70,12 +75,17 @@ export default class Prototype extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
-                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket)
+                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo)
+
+                // put the username above the player
+                this.username = this.add.text(players[ids[i]].x, players[ids[i]].y - 10, `${this.player.username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px '});
+
                 //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
                 //this.player.setCollideWorldBounds(true);
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
-                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude','NPC')
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC')
+
             }
         }
         //console.log("Other players object: ",this.otherPlayers);
@@ -83,7 +93,7 @@ export default class Prototype extends Phaser.Scene {
 
     addNewPlayer(player){
         console.log("Updating scene with new player:",player);
-        this.otherPlayers[player.playerId] = new Player(this, player.x,player.y, 'dude','NPC')
+        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC')
     }
 
     removePlayer(id){

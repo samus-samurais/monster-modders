@@ -59,12 +59,7 @@ module.exports = (io) => {
         });
 
         socket.on("newUserSignup", (input) => {
-          // firebase
-            // .auth()
-            // .createUserWithEmailAndPassword(auth, input.email, input.password)
-            //   .then(() => {
-                // const user = firebaseApp.auth().currentUser;
-                // user.updateProfile({ displayName: input.username })
+
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               if (auth.currentUser) {
