@@ -38,6 +38,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("sky", "assets/sky.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
+    this.load.image("backButton", "assets/images/backButton.png");
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");

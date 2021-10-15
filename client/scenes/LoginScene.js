@@ -45,5 +45,27 @@ export default class LoginScene extends Phaser.Scene {
       })
     })
 
+    this.goBack();
   }
+
+  goBack() {
+    const backButton = this.add
+      .image(this.scale.width - 20, 20, 'backButton')
+      .setScrollFactor(0)
+      .setOrigin(1, 0)
+      .setScale(2);
+    backButton.setInteractive();
+    backButton.on("pointerdown", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerover", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerup", () => {
+      this.scene.stop("Sandbox");
+      this.scene.start("HomeScene");
+    })
+  }
+
+  
 }
