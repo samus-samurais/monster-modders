@@ -26,13 +26,7 @@ export default class SignupScene extends Phaser.Scene {
           email,
           password
         })
-      } else if (event.target.name === 'cancel') {
-        this.homeSceneUI.children.iterate((child) => {
-          child.setInteractive()
-          child.visible = true;
-        })
-        this.scene.stop("SignupScene");
-      }
+      } 
     })
 
     this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: 'Arial', fontSize: '32px '})
@@ -49,5 +43,28 @@ export default class SignupScene extends Phaser.Scene {
       this.scene.stop("SignupScene");
     })
 
+    this.goBack();
+  }
+
+  goBack() {
+    const backButton = this.add
+      .image(this.scale.width - 20, 20, 'backButton')
+      .setScrollFactor(0)
+      .setOrigin(1, 0)
+      .setScale(2);
+    backButton.setInteractive();
+    backButton.on("pointerdown", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerover", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerout", () => {
+      backButton.clearTint();
+    })
+    backButton.on("pointerup", () => {
+      this.scene.stop("Sandbox");
+      this.scene.start("HomeScene");
+    })
   }
 }
