@@ -16,16 +16,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
-            this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
-            this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
-            this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
+            // this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+            // this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+            // this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
         }
+
+        this.colliderInfo = colliderInfo;
+
+        this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+        this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+        this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
 
         this.scene.add.existing(this);
         this.movementState = {
             x,
             y,
-            currentAnim: 'turn'
+            currentAnim: 'turn',
         };
 
         this.anims.create({
