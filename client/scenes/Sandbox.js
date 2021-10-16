@@ -75,6 +75,8 @@ export default class Sandbox extends Phaser.Scene {
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D
     });
+
+    this.goBack();
   }
 
   update () {
@@ -97,6 +99,28 @@ export default class Sandbox extends Phaser.Scene {
       this.removeButtonToggle = false;
       this.platformDestroyer.clearTint();
     }
+  }
+
+  goBack() {
+    const backButton = this.add
+      .image(this.scale.width - 20, 20, 'backButton')
+      .setScrollFactor(0)
+      .setOrigin(1, 0)
+      .setScale(2);
+    backButton.setInteractive();
+    backButton.on("pointerdown", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerover", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerout", () => {
+      backButton.clearTint();
+    })
+    backButton.on("pointerup", () => {
+      this.scene.stop("Sandbox");
+      this.scene.start("HomeScene");
+    })
   }
 }
 
