@@ -38,6 +38,11 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("sky", "assets/sky.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
+    this.load.image('platform', 'assets/platform/falseShortPlatform.png');
+    this.load.image('addPlatformButton', 'assets/testImage/falseAddPlatformButton.png');
+    this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
+    this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
+
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
@@ -65,11 +70,11 @@ export default class InitialLoader extends Phaser.Scene {
 
   complete() {
     console.log("COMPLETE");
-    
+
   }
 
   create() {
-    this.scene.stop("InitialLoader"); 
+    this.scene.stop("InitialLoader");
     this.scene.start("HomeScene", { socket: this.socket });
   }
 }

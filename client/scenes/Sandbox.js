@@ -6,6 +6,8 @@ export default class Sandbox extends Phaser.Scene {
   constructor() {
     super("Sandbox");
     this.player = null;
+    this.addButtonToggle = false;
+    this.removeButtonToggle = false;
   }
 
   init(data){
@@ -13,10 +15,6 @@ export default class Sandbox extends Phaser.Scene {
     this.playerId = data.socket.id;
     this.playerInfo = data.user ? data.user : { username: 'guest' };
     console.log('check its a login user or guest--', this.playerInfo)
-  }
-
-  preload() {
-    this.load.image('platform', 'assets/platform/falseShortPlatform.png');
   }
 
   create() {
@@ -33,11 +31,23 @@ export default class Sandbox extends Phaser.Scene {
       child.setAllowGravity(false)
     });
 
-    this.platformMaker = this.add.image(100, 100, 'sandboxButton').setInteractive();
+    this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
+      this.addButtonToggle = true;
       this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);
+    });
+
+    this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
+    this.platformDestroyer.on('pointerdown', () => {
+      // remove button don't work until user creates at least one platform
+      if (this.addButtonToggle) {
+        this.removeButtonToggle = true
+        // change the button color to show that in this state user could delete a platform.
+        this.platformDestroyer.setTint(0xff0000);
+        this.input.on('gameobjectdown', this.onClicked.bind(this));
+      }
     })
 
     //Creates player, adds collider between player and platforms
@@ -58,9 +68,25 @@ export default class Sandbox extends Phaser.Scene {
     });
   }
 
-  update (){
+  update () {
     if(this.player){
       this.player.update(this.cursors);
+    }
+
+    if (this.allPlatforms.children.entries.length) {
+      this.addButtonToggle = true;
+    } else {
+      this.addButtonToggle = false;
+    }
+
+  }
+
+  onClicked(pointer, objectClicked) {
+    if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      this.allPlatforms.remove(objectClicked);
+      objectClicked.destroy();
+      this.removeButtonToggle = false;
+      this.platformDestroyer.clearTint();
     }
   }
 }
