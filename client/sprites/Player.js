@@ -1,12 +1,13 @@
 import 'phaser';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, spriteKey, status, socket, username, platform, staticPlatform) {
+    constructor(scene, x, y, spriteKey, status, socket, username, colliderInfo) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
         this.currentAnim = 'turn'
+        console.log("Collider info is: ",colliderInfo)
         const displayName = (username ? username : "Guest" + Math.floor(Math.random() *  9999))
          //Add player username to scene
          this.username = this.scene.add.text(x, y - 37, `${displayName}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
@@ -15,8 +16,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
-            this.scene.physics.add.collider(this, staticPlatform, null, null, this);
-            this.scene.physics.add.collider(this, platform, null, null, this);
+            this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+            this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+            this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
         }
 
         this.scene.add.existing(this);
@@ -94,6 +96,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     delete(){
         this.username.destroy();
         this.destroy();
+    }
+
+    outOfBounds(){
+        console.log("Oops!");
+        this.setPosition(200,535);
+        this.setVelocityY(0);
     }
 
 }

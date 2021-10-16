@@ -39,6 +39,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('platform', 'assets/platform/falseShortPlatform.png');
+    this.load.image('fallDetector',"assets/outOfBounds.jpeg");
     this.load.image('addPlatformButton', 'assets/testImage/falseAddPlatformButton.png');
     this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
     this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
