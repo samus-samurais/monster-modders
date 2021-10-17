@@ -63,7 +63,7 @@ module.exports = (io) => {
             players[key].x = 200,
             players[key].y = 535
           }
-          socket.broadcast.emit('startedGame');
+          io.emit('startedGame', players);
         })
 
         socket.on('disconnect', () => {
