@@ -11,7 +11,7 @@ export default class HomeScene extends Phaser.Scene {
       this.socket = data.socket;
     }
 
-    create(){ 
+    create(){
         this.UI = this.add.group();
         this.add.image(640, 360, 'background');
         this.logo = this.add.image(640, 250, 'logo');
@@ -20,7 +20,7 @@ export default class HomeScene extends Phaser.Scene {
         // this.music = this.sound.add("lobbyMusic");
 
         //lobby music... plays continuously
-        // this.music.play({volume: 0.2, loop: true}); 
+        // this.music.play({volume: 0.2, loop: true});
 
         // make sandbox mode button
         // need to navigate to the real sandbox mode

@@ -34,7 +34,6 @@ export default class Sandbox extends Phaser.Scene {
 
     this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
-      this.addButtonToggle = true;
       this.userPlatforms = new Platform(self, 300, 100, "platform", null);
       this.allPlatforms.add(this.userPlatforms);
       this.input.setDraggable(this.userPlatforms);

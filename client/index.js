@@ -7,6 +7,7 @@ import Prototype from './scenes/Prototype'
 import InitialLoader from './scenes/Loader'
 import Sandbox from './scenes/Sandbox'
 import UserProfileScene from './scenes/UserProfileScene'
+import MultiplayerTest from './scenes/MultiplayerTest'
 import { io } from 'socket.io-client';
 
 // eslint-disable-next-line no-undef
@@ -27,6 +28,7 @@ class Game extends Phaser.Game {
     this.scene.add('InitialLoader', InitialLoader)
     this.scene.add('Sandbox', Sandbox)
     this.scene.add('UserProfileScene', UserProfileScene)
+    this.scene.add('MultiplayerTest', MultiplayerTest)
 
     //Starts the loader
     this.scene.start('InitialLoader',{socket: this.socket})

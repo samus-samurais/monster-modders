@@ -25,8 +25,6 @@ export default class Prototype extends Phaser.Scene {
         this.startButton.visible = false;
         this.startButton.disableInteractive();
         this.startButton.on('pointerdown', () => {
-            console.log("Starting game");
-            //this.scene.start('MultiplayerTest', {socket: this.socket});
             this.socket.emit('gameStart');
           })
 
@@ -57,9 +55,8 @@ export default class Prototype extends Phaser.Scene {
             }
         });
 
-        this.socket.on('startedGame', function (){
-            console.log("Starting game");
-            //this.scene.start('MultiplayerTest', {socket: this.socket});
+        this.socket.on('startedGame', function (players, scene = self){
+            scene.startGame(players)
         });
 
         //this.player = new Player(100,450,'dude',this.socket);
@@ -133,5 +130,10 @@ export default class Prototype extends Phaser.Scene {
             this.startButton.visible = false;
             this.startButton.disableInteractive();
         }
+    }
+
+    startGame(players){
+        console.log("Starting game...");
+        this.scene.start('MultiplayerTest', {socket: this.socket, players});
     }
 }
