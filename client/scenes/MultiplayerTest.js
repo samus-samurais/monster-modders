@@ -46,6 +46,12 @@ export default class MultiplayerTest extends Phaser.Scene {
             }
         });
 
+        // this.socket.on('updatePlayerPlatforms', function (colliderInfo, scene = self) {
+        //   if (scene.otherPlayers[colliderInfo.playerId]) {
+        //     console.log('...updatePlayerPlatform', colliderInfo)
+        //   }
+        // })
+
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -108,10 +114,10 @@ export default class MultiplayerTest extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
-                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username, this.colliderInfo)
+                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC', this.socket, players[ids[i]].username, this.colliderInfo)
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
-                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username, this.colliderInfo)
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username)
 
             }
         }
@@ -120,7 +126,7 @@ export default class MultiplayerTest extends Phaser.Scene {
 
     addNewPlayer(player){
         console.log("Updating scene with new player:", player);
-        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC', null, player.username, this.colliderInfo)
+        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC', null, player.username)
     }
 
     removePlayer(id){

@@ -25,6 +25,7 @@ const db = getFirestore();
 
 var players = {};
 var loggedInUser = null;
+var platforms = {};
 
 const addPlayerToSocket = (socket) => {
   players[socket.id] = {
@@ -54,7 +55,7 @@ module.exports = (io) => {
         //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
         socket.on('updatePlayer', (movementState) => {
           movementState.playerId = socket.id
-          socket.broadcast.emit('playerMoved',movementState);
+          socket.broadcast.emit('playerMoved', movementState);
         })
 
         socket.on('disconnect', () => {

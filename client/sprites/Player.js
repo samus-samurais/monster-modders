@@ -16,16 +16,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.physics.world.enable(this);
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
-            // this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
-            // this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
-            // this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
+            this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+            this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+            this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
         }
 
         this.colliderInfo = colliderInfo;
 
-        this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
-        this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
-        this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
+        // this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+        // this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+        // this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
 
         this.scene.add.existing(this);
         this.movementState = {
@@ -85,7 +85,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.movementState.y = this.y
             this.movementState.currentAnim = animation;
             this.socket.emit('updatePlayer', this.movementState);
-          }
+        }
+
+        // if (this.colliderInfo) {
+        //     this.socket.emit('updatePlayerPlatforms', this.colliderInfo);
+        // }
     }
 
     updateOtherPlayer(movementState){
@@ -97,6 +101,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         // make the username move to follow the player
         this.username.setPosition(this.x,this.y-37);
+    }
+
+    updateOtherPlatforms() {
+
     }
 
     delete(){
