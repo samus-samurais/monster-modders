@@ -28,11 +28,6 @@ export default class MultiplayerTest extends Phaser.Scene {
             scene.addPlayers(players);
         });
 
-        //Adds new player if player joins
-        this.socket.on('newPlayer', function (newPlayer, scene = self) {
-            scene.addNewPlayer(newPlayer);
-        });
-
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
             scene.removePlayer(id)
@@ -45,12 +40,6 @@ export default class MultiplayerTest extends Phaser.Scene {
             scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
             }
         });
-
-        // this.socket.on('updatePlayerPlatforms', function (colliderInfo, scene = self) {
-        //   if (scene.otherPlayers[colliderInfo.playerId]) {
-        //     console.log('...updatePlayerPlatform', colliderInfo)
-        //   }
-        // })
 
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({

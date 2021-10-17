@@ -59,6 +59,10 @@ module.exports = (io) => {
         })
 
         socket.on('gameStart', () => {
+          for (const key of Object.keys(players)) {
+            players[key].x = 200,
+            players[key].y = 535
+          }
           socket.broadcast.emit('startedGame');
         })
 
