@@ -58,6 +58,10 @@ module.exports = (io) => {
           socket.broadcast.emit('playerMoved', movementState);
         })
 
+        socket.on('gameStart', () => {
+          socket.broadcast.emit('startedGame');
+        })
+
         socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
           //delete player
