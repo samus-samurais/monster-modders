@@ -5,6 +5,8 @@ export default class Prototype extends Phaser.Scene {
         super(key);
         this.player = null
         this.otherPlayers = {}
+        this.startButton = null;
+        this.playerCounter = null;
     }
 
     init(data){
@@ -18,6 +20,19 @@ export default class Prototype extends Phaser.Scene {
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
         this.socket.emit('playerJoined');
 
+        //Initializes start button
+        this.startButton = this.add.image(100,50,'multiplayerButton').setScale(0.5);
+        this.startButton.visible = false;
+        this.startButton.disableInteractive();
+        this.startButton.on('pointerdown', () => {
+            console.log("Starting game");
+            //this.scene.start('MultiplayerTest', {socket: this.socket});
+            this.socket.emit('gameStart');
+          })
+
+        //Initializes player counter
+        this.playerCounter = this.add.text(900,10,"Players in lobby: ");
+
         //Gets info from server to load self and existing players
         this.socket.on('sentPlayerInfo', function (players, scene = self) {
             scene.addPlayers(players);
@@ -26,6 +41,7 @@ export default class Prototype extends Phaser.Scene {
         //Adds new player if player joins
         this.socket.on('newPlayer', function (newPlayer, scene = self) {
             scene.addNewPlayer(newPlayer);
+
         });
 
         //Removes player if player disconnects
@@ -39,6 +55,11 @@ export default class Prototype extends Phaser.Scene {
             if(scene.otherPlayers[movementState.playerId]){
             scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
             }
+        });
+
+        this.socket.on('startedGame', function (){
+            console.log("Starting game");
+            //this.scene.start('MultiplayerTest', {socket: this.socket});
         });
 
         //this.player = new Player(100,450,'dude',this.socket);
@@ -79,17 +100,38 @@ export default class Prototype extends Phaser.Scene {
 
             }
         }
-        //console.log("Other players object: ",this.otherPlayers);
+        //Set up player counter, show button if enough players to start game
+        this.playerCounter.text = `Players in lobby: ${ids.length}/4`
+        if(ids.length>=2){
+            this.startButton.visible = true;
+            this.startButton.setInteractive();
+        }
     }
 
     addNewPlayer(player){
         console.log("Updating scene with new player:",player);
         this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC', null, player.username)
+        console.log("other players are",this.otherPlayers);
+        let ids = Object.keys(this.otherPlayers);
+        //Update player counter, show button if enough players to start game
+        this.playerCounter.text = `Players in lobby: ${ids.length+1}/4`
+        if(ids.length+1>=2){
+            this.startButton.visible = true;
+            this.startButton.setInteractive();
+
+        }
     }
 
     removePlayer(id){
         console.log("Removing player with id:",id)
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
+        let ids = Object.keys(this.otherPlayers);
+        //Update player counter, hide button if not enough players to start game
+        this.playerCounter.text = `Players in lobby: ${ids.length+1}/4`
+        if(ids.length+1<2){
+            this.startButton.visible = false;
+            this.startButton.disableInteractive();
+        }
     }
 }
