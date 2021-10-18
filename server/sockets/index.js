@@ -73,6 +73,13 @@ module.exports = (io) => {
           delete players[socket.id];
         });
 
+        socket.on('leftLobby', (id) => {
+          console.log('user',socket.id, 'left lobby');
+          //delete player
+          socket.broadcast.emit("playerLeft",socket.id);
+          delete players[socket.id];
+        });
+
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {

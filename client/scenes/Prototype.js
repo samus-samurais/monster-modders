@@ -158,6 +158,7 @@ export default class Prototype extends Phaser.Scene {
         backButton.on("pointerup", () => {
           this.scene.stop("Sandbox");
           this.scene.start("HomeScene");
+          this.socket.emit('leftLobby',this.playerId);
         })
       }
 }
