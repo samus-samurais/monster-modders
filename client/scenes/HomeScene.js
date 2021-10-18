@@ -9,6 +9,7 @@ export default class HomeScene extends Phaser.Scene {
     init(data) {
       console.log('here is the init data', data);
       this.socket = data.socket;
+      this.playerInfo = data.user ? data.user : null;
     }
 
     create(){
@@ -27,22 +28,24 @@ export default class HomeScene extends Phaser.Scene {
         this.sandboxButton = this.add.image(320, 540, 'sandboxButton').setInteractive();
         this.UI.add(this.sandboxButton);
         this.sandboxButton.on('pointerdown', () => {
-          this.scene.start('Sandbox', {socket: this.socket});
+          this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo});
         });
 
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.start('Prototype',{socket: this.socket});
+          this.scene.start('Prototype',{socket: this.socket, user: this.playerInfo});
         })
 
-        // make multiplayer mode button
-        this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
-        this.UI.add(this.loginSignupButton);
-        this.loginSignupButton.on('pointerdown', () => {
-          console.log("Logging in");
-          this.scene.launch('LoginScene', {socket: this.socket, homeSceneUI: this.UI});
-        })
+        if (this.playerInfo === null || this.playerInfo.email === undefined) {
+          // if there is no login user that create login/singup button
+          this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
+          this.UI.add(this.loginSignupButton);
+          this.loginSignupButton.on('pointerdown', () => {
+            console.log("Logging in");
+            this.scene.launch('LoginScene', {socket: this.socket, homeSceneUI: this.UI});
+          })
+        }
     }
 }

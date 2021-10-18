@@ -12,6 +12,8 @@ export default class Prototype extends Phaser.Scene {
     init(data){
         this.socket = data.socket;
         this.playerId = data.socket.id;
+        this.playerInfo = data.user ? data.user : {username: undefined};
+        console.log('...prototype init data', data)
     }
 
     create(){
@@ -91,11 +93,14 @@ export default class Prototype extends Phaser.Scene {
                 console.log("Match found!"); //PC == Playable Character!
                 this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username)
 
+                this.socket.emit('updateUsername', {playerId: this.playerId, username: this.player.name})
                 //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
                 //this.player.setCollideWorldBounds(true);
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username)
+
+                // this.socket.emit('updateUsername', this.otherPlayers[ids[i]])
 
             }
         }
@@ -125,6 +130,7 @@ export default class Prototype extends Phaser.Scene {
         console.log("Removing player with id:",id)
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
+        console.log("...........this.otherPlayers", this.otherPlayers)
         let ids = Object.keys(this.otherPlayers);
         //Update player counter, hide button if not enough players to start game
         this.playerCounter.text = `Players in lobby: ${ids.length+1}/4`
@@ -157,8 +163,8 @@ export default class Prototype extends Phaser.Scene {
         })
         backButton.on("pointerup", () => {
           this.scene.stop("Sandbox");
-          this.scene.start("HomeScene");
+          this.scene.start("HomeScene", {socket: this.socket});
           this.socket.emit('leftLobby',this.playerId);
         })
-      }
+    }
 }

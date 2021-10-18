@@ -17,7 +17,7 @@ export default class Sandbox extends Phaser.Scene {
   init(data){
     this.socket = data.socket;
     this.playerId = data.socket.id;
-    this.playerInfo = data.user ? data.user : { username: 'guest' };
+    this.playerInfo = data.user ? data.user : { username: "guest"};
     console.log('check its a login user or guest--', this.playerInfo)
   }
 
@@ -57,7 +57,7 @@ export default class Sandbox extends Phaser.Scene {
         this.input.on('gameobjectdown', this.onClicked.bind(this));
       }
     })
-    
+
     //Generates "Fall Detector" sprite to signal when player has fallen off lower end of the map
     this.fallDetector = new FallDetector(this,this.socket);
 
@@ -137,7 +137,13 @@ export default class Sandbox extends Phaser.Scene {
     })
     backButton.on("pointerup", () => {
       this.scene.stop("Sandbox");
-      this.scene.start("HomeScene");
+      // if (this.playerInfo.email) {
+
+      //   this.scene.start("UserProfileScene", {socket: this.socket, user: this.playerInfo})
+      // } else {
+      //   this.scene.start("HomeScene", {socket: this.socket});
+      // }
+      this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     })
   }
 }

@@ -35,6 +35,7 @@ const addPlayerToSocket = (socket) => {
   };
   if(loggedInUser){
     players[socket.id].username = loggedInUser;
+    loggedInUser = null;
   }
 }
 
@@ -50,6 +51,11 @@ module.exports = (io) => {
           // send the players object to the new player
           // update all other players of the new player
           socket.broadcast.emit('newPlayer', players[socket.id]);
+        })
+
+        socket.on('updateUsername', function(player) {
+          console.log('///////////////updateUsername', player);
+          players[player.playerId].username = player.username
         })
 
         //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
