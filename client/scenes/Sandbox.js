@@ -25,10 +25,6 @@ export default class Sandbox extends Phaser.Scene {
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
-    //Sets up dummy platform well out of harm's way to allow a later onclick to work
-    this.platformBeingPlaced = new Platform(self,-1000,-1000,"platform",null);
-    this.platformBeingPlaced.sticky = false;
-
     //Sets world such that players can go past top and bottom of screen, but not sides
     this.physics.world.setBoundsCollision(true,true,false,false);
 
@@ -77,7 +73,7 @@ export default class Sandbox extends Phaser.Scene {
 
     //Drops off sticky platforms upon click
     this.input.on('pointerup',() => {
-      if(this.platformBeingPlaced.sticky){
+      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
         this.platformBeingPlaced.place();
       }
     })
