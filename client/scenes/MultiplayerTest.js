@@ -13,6 +13,9 @@ export default class MultiplayerTest extends Phaser.Scene {
         this.platformMaker = null;
         this.platformDestroyer = null;
         this.platformBeingPlaced = null;
+        //For multiplayer, platforms are stored in a platform table as well as a group 
+        //This lets us access and manipulate specific platforms via sockets more easily!
+        this.platformTable = {};
     }
 
     init(data){
@@ -22,6 +25,7 @@ export default class MultiplayerTest extends Phaser.Scene {
     }
 
     create(){
+      
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
@@ -50,8 +54,10 @@ export default class MultiplayerTest extends Phaser.Scene {
             this.input.setDraggable(this.platformBeingPlaced,false);
           }
           //Generates new platform, sets it to platform being placed
-          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", null);
+          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
+          //Adds platform to both group and table
           this.allPlatforms.add(userPlatform);
+          this.platformTable[userPlatform.id] = userPlatform
           this.input.setDraggable(userPlatform);
           this.platformBeingPlaced = userPlatform
         });
@@ -69,7 +75,7 @@ export default class MultiplayerTest extends Phaser.Scene {
 
         //Drops off sticky platforms upon click
         this.input.on('pointerup',() => {
-          if(this.platformBeingPlaced.sticky){
+          if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
           this.platformBeingPlaced.place();
           }
         })
@@ -98,8 +104,27 @@ export default class MultiplayerTest extends Phaser.Scene {
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
           gameObject.x = dragX;
           gameObject.y = dragY;
+          gameObject.update();
         })
 
+
+        //Socket stuff is below
+
+        //Adds new platform when other player creates
+        this.socket.on('platformAdded', function(platformInfo, scene = self){
+          console.log("Adding platform w info",platformInfo);
+          scene.addPlatform(platformInfo);
+        })
+
+        //Updates when player moves their platform
+        this.socket.on('platformMoved', function(platformInfo, scene = self){
+          scene.updatePlatform(platformInfo);
+        })
+
+        //Updates when player places their platform
+        this.socket.on('platformPlaced', function(platformInfo, scene = self){
+          scene.platformPlaced(platformInfo);
+        })
                 
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
@@ -121,7 +146,7 @@ export default class MultiplayerTest extends Phaser.Scene {
         this.player.update(this.cursors);
       }
   
-      if(this.platformBeingPlaced){
+      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
   
@@ -131,6 +156,26 @@ export default class MultiplayerTest extends Phaser.Scene {
         this.addButtonToggle = false;
       }
   
+    }
+
+    addPlatform(platformInfo){
+          console.log("Platform being added");
+          //Generates new platform, sets it to platform being placed by opponent
+          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, null, true);
+          //Adds platform to both group and table
+          this.allPlatforms.add(userPlatform);
+          this.input.setDraggable(userPlatform,false);
+          this.platformTable[userPlatform.id] = userPlatform
+    }
+
+    updatePlatform(platformInfo){
+      console.log("Platform being updated");
+      this.platformTable[platformInfo.id].setPosition(platformInfo.x,platformInfo.y)
+    }
+
+    platformPlaced(platformInfo){
+      console.log("Platform being placed");
+      this.platformTable[platformInfo.id].alpha = 1.0;
     }
 
     onClicked(pointer, objectClicked) {

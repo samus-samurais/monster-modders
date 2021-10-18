@@ -35,6 +35,19 @@ const addPlayerToSocket = (socket) => {
   };
   if(loggedInUser){
     players[socket.id].username = loggedInUser;
+  } else {
+    players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
+  }
+}
+
+const addPlatformToSocket = (platform) => {
+  platforms[platform.platformId] = platform;
+}
+
+const updatePlatform = (platform) => {
+  if(platforms[platform.platformId]){
+    platforms[platform.platformId].x = platform.x;
+    platforms[platform.platformId].y = platform.y;
   }
 }
 
@@ -64,6 +77,25 @@ module.exports = (io) => {
             players[key].y = 535
           }
           io.emit('startedGame', players);
+        })
+
+        socket.on('newPlatform', (platform) => {
+          addPlatformToSocket(platform);
+          socket.broadcast.emit("platformAdded",platform);
+        })
+
+        socket.on('movePlatform', (platform) => {
+          updatePlatform(platform);
+          socket.broadcast.emit("platformMoved",platform);
+        })
+
+        socket.on('placePlatform', (platform) => {
+          socket.broadcast.emit("platformPlaced",platform);
+        })
+
+        socket.on('removePlatform', (platformId) => {
+          delete platforms[platformId];
+          socket.broadcast.emit("platformRemoved",platformId);
         })
 
         socket.on('disconnect', () => {
