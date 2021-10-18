@@ -35,6 +35,7 @@ const addPlayerToSocket = (socket) => {
   };
   if(loggedInUser){
     players[socket.id].username = loggedInUser;
+    loggedInUser = null;
   } else {
     players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
   }

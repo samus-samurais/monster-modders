@@ -3,7 +3,7 @@ import Platform from "../sprites/Platform.js";
 import Player from "../sprites/Player.js"
 import FallDetector from "../sprites/FallDetector.js";
 
-export default class MultiplayerTest extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
     constructor(key) {
         super(key);
         this.player = null
@@ -138,7 +138,6 @@ export default class MultiplayerTest extends Phaser.Scene {
           scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
           }
       });
-
     }
 
     update () {
