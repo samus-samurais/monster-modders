@@ -8,9 +8,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene;
         this.currentAnim = 'turn'
         console.log("This runs?")
-        this.name = (username ? username : "Guest" + Math.floor(Math.random() *  9999))
          //Add player username to scene
-         this.username = this.scene.add.text(x, y - 37, `${this.name}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
+         this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
         if(status === 'PC'){
             this.scene.physics.world.enable(this);

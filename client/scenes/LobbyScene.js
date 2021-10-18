@@ -1,6 +1,6 @@
 import Player from "../sprites/Player.js"
 
-export default class Prototype extends Phaser.Scene {
+export default class LobbyScene extends Phaser.Scene {
     constructor(key) {
         super(key);
         this.player = null
@@ -142,7 +142,9 @@ export default class Prototype extends Phaser.Scene {
 
     startGame(players){
         console.log("Starting game...");
-        this.scene.start('MultiplayerTest', {socket: this.socket, players});
+        //VERY IMPORTANT for functioning sockets - always call this when swapping scenes w socket.on calls
+        this.socket.removeAllListeners();
+        this.scene.start('GameScene', {socket: this.socket, players});
     }
 
     goBack() {

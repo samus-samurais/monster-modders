@@ -35,7 +35,7 @@ export default class HomeScene extends Phaser.Scene {
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.start('Prototype',{socket: this.socket, user: this.playerInfo});
+          this.scene.start('LobbyScene',{socket: this.socket});
         })
 
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
