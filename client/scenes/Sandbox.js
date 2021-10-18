@@ -9,6 +9,9 @@ export default class Sandbox extends Phaser.Scene {
     this.player = null;
     this.addButtonToggle = false;
     this.removeButtonToggle = false;
+    this.platformMaker = null;
+    this.platformDestroyer = null;
+    this.platformBeingPlaced = null
   }
 
   init(data){
@@ -22,6 +25,10 @@ export default class Sandbox extends Phaser.Scene {
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
+    //Sets up dummy platform well out of harm's way to allow a later onclick to work
+    this.platformBeingPlaced = new Platform(self,-1000,-1000,"platform",null);
+    this.platformBeingPlaced.sticky = false;
+
     //Sets world such that players can go past top and bottom of screen, but not sides
     this.physics.world.setBoundsCollision(true,true,false,false);
 
@@ -34,9 +41,10 @@ export default class Sandbox extends Phaser.Scene {
 
     this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
-      this.userPlatforms = new Platform(self, 300, 100, "platform", null);
-      this.allPlatforms.add(this.userPlatforms);
-      this.input.setDraggable(this.userPlatforms);
+      const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", null);
+      this.allPlatforms.add(userPlatform);
+      this.input.setDraggable(userPlatform);
+      this.platformBeingPlaced = userPlatform
     });
 
     this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
@@ -67,6 +75,13 @@ export default class Sandbox extends Phaser.Scene {
       gameObject.y = dragY;
     })
 
+    //Drops off sticky platforms upon click
+    this.input.on('pointerup',() => {
+      if(this.platformBeingPlaced.sticky){
+        this.platformBeingPlaced.place();
+      }
+    })
+
     //Sets up controls
     this.cursors = this.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -81,6 +96,10 @@ export default class Sandbox extends Phaser.Scene {
   update () {
     if(this.player){
       this.player.update(this.cursors);
+    }
+
+    if(this.platformBeingPlaced){
+      this.platformBeingPlaced.update(this.input.mousePointer);
     }
 
     if (this.allPlatforms.children.entries.length) {

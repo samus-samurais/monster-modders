@@ -10,6 +10,9 @@ export default class MultiplayerTest extends Phaser.Scene {
         this.otherPlayers = {}
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
+        this.platformMaker = null;
+        this.platformDestroyer = null;
+        this.platformBeingPlaced = null;
     }
 
     init(data){
@@ -42,9 +45,15 @@ export default class MultiplayerTest extends Phaser.Scene {
 
         this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
         this.platformMaker.on('pointerdown', () => {
-          this.userPlatforms = new Platform(self, 300, 100, "platform", null);
-          this.allPlatforms.add(this.userPlatforms);
-          this.input.setDraggable(this.userPlatforms);
+          //Sets it so that only the most recently placed platform can be draggable
+          if(this.platformBeingPlaced){
+            this.input.setDraggable(this.platformBeingPlaced,false);
+          }
+          //Generates new platform, sets it to platform being placed
+          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", null);
+          this.allPlatforms.add(userPlatform);
+          this.input.setDraggable(userPlatform);
+          this.platformBeingPlaced = userPlatform
         });
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
@@ -58,10 +67,17 @@ export default class MultiplayerTest extends Phaser.Scene {
           }
         })
 
+        //Drops off sticky platforms upon click
+        this.input.on('pointerup',() => {
+          if(this.platformBeingPlaced.sticky){
+          this.platformBeingPlaced.place();
+          }
+        })
+
         //Generates "Fall Detector" sprite to signal when player has fallen off lower end of the map
         this.fallDetector = new FallDetector(this,this.socket);
 
-        //Creates player, adds collider between player and platforms
+        //Creates players, passes in world objects for collider initializations in player constructor
         this.colliderInfo = {
           staticPlatforms: this.staticPlatforms,
           platforms: this.allPlatforms,
@@ -100,16 +116,21 @@ export default class MultiplayerTest extends Phaser.Scene {
 
     }
 
-    update() {
-        if(this.player){
-            this.player.update(this.cursors);
-        }
-
-        if (this.allPlatforms.children.entries.length) {
-          this.addButtonToggle = true;
-        } else {
-          this.addButtonToggle = false;
-        }
+    update () {
+      if(this.player){
+        this.player.update(this.cursors);
+      }
+  
+      if(this.platformBeingPlaced){
+        this.platformBeingPlaced.update(this.input.mousePointer);
+      }
+  
+      if (this.allPlatforms.children.entries.length) {
+        this.addButtonToggle = true;
+      } else {
+        this.addButtonToggle = false;
+      }
+  
     }
 
     onClicked(pointer, objectClicked) {
@@ -127,25 +148,4 @@ export default class MultiplayerTest extends Phaser.Scene {
         delete this.otherPlayers[id];
     }
 
-    goBack() {
-      const backButton = this.add
-        .image(this.scale.width - 20, 20, 'backButton')
-        .setScrollFactor(0)
-        .setOrigin(1, 0)
-        .setScale(2);
-      backButton.setInteractive();
-      backButton.on("pointerdown", () => {
-        backButton.setTint(0xFF0000);
-      });
-      backButton.on("pointerover", () => {
-        backButton.setTint(0xFF0000);
-      });
-      backButton.on("pointerout", () => {
-        backButton.clearTint();
-      })
-      backButton.on("pointerup", () => {
-        this.scene.stop("Sandbox");
-        this.scene.start("HomeScene");
-      })
-    }
 }
