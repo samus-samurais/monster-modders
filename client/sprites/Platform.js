@@ -16,12 +16,15 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
         //Only sets platform to follow cursor if user-placed
         this.alpha = 0.5
         this.id = id;
+        if(!this.socket){
+            this.sticky = true;
+        }
         if(!this.id){
             //If no existing ID, then platform must be being placed by user. Ergo, platform set to sticky
             this.sticky = true;
             //Generates unique platform ID
             this.id = ""
-            while(this.id.length<6){
+            while(this.id.length<8){
                 let unicodeVal = Math.floor(Math.random()*988)+32;
                 this.id += String.fromCharCode(unicodeVal);
             }
