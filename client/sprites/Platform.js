@@ -1,7 +1,7 @@
 
 
 export default class Platform extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, spriteKey, socket, placedByOpponent) {
+    constructor(scene, x, y, spriteKey, socket, id) {
         super(scene, x, y, spriteKey);
         this.spriteKey = spriteKey;
         this.socket = socket;
@@ -14,12 +14,11 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
         this.body.setImmovable(true);
         this.setInteractive({ draggable: true })
         //Only sets platform to follow cursor if user-placed
-        if(!placedByOpponent){
-            this.sticky = true;
-        }
         this.alpha = 0.5
-        
-        if(this.socket){
+        this.id = id;
+        if(!this.id){
+            //If no existing ID, then platform must be being placed by user. Ergo, platform set to sticky
+            this.sticky = true;
             //Generates unique platform ID
             this.id = ""
             while(this.id.length<6){

@@ -125,6 +125,11 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on('platformPlaced', function(platformInfo, scene = self){
           scene.platformPlaced(platformInfo);
         })
+
+        //Updates when player places their platform
+        this.socket.on('platformRemoved', function(platformInfo, scene = self){
+          scene.removePlatform(platformInfo.platformId);
+        })
                 
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
@@ -158,9 +163,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     addPlatform(platformInfo){
-          console.log("Platform being added");
           //Generates new platform, sets it to platform being placed by opponent
-          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, null, true);
+          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, null, platformInfo.platformId);
           //Adds platform to both group and table
           this.allPlatforms.add(userPlatform);
           this.input.setDraggable(userPlatform,false);
@@ -168,18 +172,24 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updatePlatform(platformInfo){
-      console.log("Platform being updated");
-      this.platformTable[platformInfo.id].setPosition(platformInfo.x,platformInfo.y)
+      this.platformTable[platformInfo.platformId].setPosition(platformInfo.x,platformInfo.y)
     }
 
     platformPlaced(platformInfo){
-      console.log("Platform being placed");
-      this.platformTable[platformInfo.id].alpha = 1.0;
+      this.platformTable[platformInfo.platformId].alpha = 1.0;
+    }
+
+    removePlatform(id){
+      console.log("ID to remove:",id)
+      console.log("Platform table",this.platformTable);
+      this.platformTable[id].destroy();
+      delete this.platformTable[id];
     }
 
     onClicked(pointer, objectClicked) {
       if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
         this.allPlatforms.remove(objectClicked);
+        this.socket.emit("removePlatform",{platformId: objectClicked.id});
         objectClicked.destroy();
         this.removeButtonToggle = false;
         this.platformDestroyer.clearTint();
