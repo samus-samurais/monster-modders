@@ -143,9 +143,7 @@ export default class GameScene extends Phaser.Scene {
       });
 
       this.socket.on('platformRemoved', function (platform, scene = self) {
-        // if (scene.platformTable[platformId]) {
-          scene.removePlatform(platform)
-        // }
+        scene.removePlatform(platform)
       })
     }
 
@@ -191,15 +189,10 @@ export default class GameScene extends Phaser.Scene {
 
       if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky === false){
 
-        console.log('......onClicked', objectClicked)
-        console.log('*******onClicked-table', this.platformTable)
         this.socket.emit('removePlatform', {id: objectClicked.id, platform: objectClicked})
         this.allPlatforms.remove(objectClicked);
         objectClicked.destroy();
-        // this.platformTable[objectClicked.id].delete();
-        delete this.platformTable[objectClicked.id];
 
-        console.log('onClicked-table.......', this.platformTable)
         this.removeButtonToggle = false;
         this.platformDestroyer.clearTint();
 
@@ -207,14 +200,20 @@ export default class GameScene extends Phaser.Scene {
     }
 
     removePlatform(platform) {
-      console.log('the other platform remove====++', platform.platform);
-      console.log('the platformTable', this.allPlatforms);
-      this.allPlatforms.remove(platform.platform);
-      // platform.destroy();
-      // this.platformTable[id].delete();
-      // delete this.platformTable[id];
+      this.removePlatform = this.allPlatforms.children.entries.filter(child => {
+        if (child.x === platform.platform.x && child.y === platform.platform.y) {
+          return child
+        }
+      })[0]
+      // this.allPlatforms.remove(this.removePlatform);
+      let keys = Object.keys(this.platformTable);
+      for (let i=0; i < keys.length; i++) {
+        if (this.platformTable[keys[i]].x === platform.platform.x && this.platformTable[keys[i]].y === platform.platform.y) {
+          this.platformTable[keys[i]].destroy();
+          delete this.platformTable[keys[i]];
+        }
+      }
 
-      console.log('+++++', this.allPlatforms);
       this.removeButtonToggle = false;
       this.platformDestroyer.clearTint();
     }
