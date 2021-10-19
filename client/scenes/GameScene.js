@@ -64,10 +64,12 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
-          console.log(';;;;;;;sticky', this.allPlatforms.children.entries.filter(child => child.sticky === true))
+          console.log(';;;;;;;sticky=false', this.allPlatforms.children.entries.filter(child => child.sticky === false))
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
             this.removeButtonToggle = true
+
+
             // change the button color to show that in this state user could delete a platform.
             this.platformDestroyer.setTint(0xff0000);
             this.input.on('gameobjectdown', this.onClicked.bind(this));
@@ -150,7 +152,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
 
-      if (this.allPlatforms.children.entries.filter(child => child.sticky === true).length) {
+      if (this.allPlatforms.children.entries.filter(child => child.sticky === false).length) {
         this.addButtonToggle = true;
       } else {
         this.addButtonToggle = false;
@@ -163,9 +165,12 @@ export default class GameScene extends Phaser.Scene {
           //Generates new platform, sets it to platform being placed by opponent
           const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, null, true);
           //Adds platform to both group and table
+          userPlatform.sticky = true
           this.allPlatforms.add(userPlatform);
           this.input.setDraggable(userPlatform,false);
           this.platformTable[userPlatform.id] = userPlatform
+
+          console.log('.........addPlatform', userPlatform)
     }
 
     updatePlatform(platformInfo){
@@ -179,8 +184,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      console.log('......allPlatforms', objectClicked)
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky){
+      console.log('......onClicked', objectClicked.sticky)
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky === false){
         this.allPlatforms.remove(objectClicked);
         objectClicked.destroy();
         this.removeButtonToggle = false;

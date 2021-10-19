@@ -6,8 +6,8 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
-        this.sticky = false;
-        this.new = true; 
+        this.sticky = placedByOpponent ? false : true;
+        this.new = true;
         this.scene.physics.world.enable(this);
         this.scene.add.existing(this);
         this.body.setAllowGravity(false);
@@ -18,7 +18,7 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
             this.sticky = true;
         }
         this.alpha = 0.5
-        
+
         if(this.socket){
             //Generates unique platform ID
             this.id = ""
@@ -32,7 +32,7 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
                 x: this.x,
                 y: this.y,
                 platformId: this.id,
-                spriteKey: this.spriteKey
+                spriteKey: this.spriteKey,
             });
         }
     }
