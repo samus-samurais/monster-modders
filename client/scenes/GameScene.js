@@ -13,7 +13,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformMaker = null;
         this.platformDestroyer = null;
         this.platformBeingPlaced = null;
-        //For multiplayer, platforms are stored in a platform table as well as a group 
+        //For multiplayer, platforms are stored in a platform table as well as a group
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
     }
@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create(){
-      
+
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
@@ -64,6 +64,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
+          console.log(';;;;;;;sticky', this.allPlatforms.children.entries.filter(child => child.sticky === true))
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
             this.removeButtonToggle = true
@@ -125,7 +126,7 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on('platformPlaced', function(platformInfo, scene = self){
           scene.platformPlaced(platformInfo);
         })
-                
+
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
           scene.removePlayer(id)
@@ -144,17 +145,17 @@ export default class GameScene extends Phaser.Scene {
       if(this.player){
         this.player.update(this.cursors);
       }
-  
+
       if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
-  
-      if (this.allPlatforms.children.entries.length) {
+
+      if (this.allPlatforms.children.entries.filter(child => child.sticky === true).length) {
         this.addButtonToggle = true;
       } else {
         this.addButtonToggle = false;
       }
-  
+
     }
 
     addPlatform(platformInfo){
@@ -178,7 +179,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      console.log('......allPlatforms', objectClicked)
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky){
         this.allPlatforms.remove(objectClicked);
         objectClicked.destroy();
         this.removeButtonToggle = false;

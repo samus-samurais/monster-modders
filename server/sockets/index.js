@@ -66,11 +66,6 @@ module.exports = (io) => {
           socket.broadcast.emit('newPlayer', players[socket.id]);
         })
 
-        socket.on('updateUsername', function(player) {
-          console.log('///////////////updateUsername', player);
-          players[player.playerId].username = player.username
-        })
-
         //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
         socket.on('updatePlayer', (movementState) => {
           movementState.playerId = socket.id

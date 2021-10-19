@@ -133,12 +133,6 @@ export default class Sandbox extends Phaser.Scene {
     })
     backButton.on("pointerup", () => {
       this.scene.stop("Sandbox");
-      // if (this.playerInfo.email) {
-
-      //   this.scene.start("UserProfileScene", {socket: this.socket, user: this.playerInfo})
-      // } else {
-      //   this.scene.start("HomeScene", {socket: this.socket});
-      // }
       this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     })
   }
