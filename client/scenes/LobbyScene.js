@@ -158,9 +158,10 @@ export default class LobbyScene extends Phaser.Scene {
           backButton.clearTint();
         })
         backButton.on("pointerup", () => {
-          this.scene.stop("Sandbox");
-          this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
-          this.socket.emit('leftLobby',this.playerId);
+            this.socket.removeAllListeners();
+            this.scene.stop("Sandbox");
+            this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
+            this.socket.emit('leftLobby', this.playerId);
         })
     }
 }

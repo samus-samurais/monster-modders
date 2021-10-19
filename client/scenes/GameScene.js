@@ -129,6 +129,14 @@ export default class GameScene extends Phaser.Scene {
           scene.platformPlaced(platformInfo);
         })
 
+<<<<<<< HEAD
+=======
+        //Updates when player places their platform
+        this.socket.on('platformRemoved', function(platformInfo, scene = self){
+          scene.removePlatform(platformInfo.platformId);
+        })
+                
+>>>>>>> a5defb3e193c1d4f06a41b78c43b2c46fa660306
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
           scene.removePlayer(id)
@@ -165,9 +173,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     addPlatform(platformInfo){
-          console.log("Platform being added");
           //Generates new platform, sets it to platform being placed by opponent
-          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, null, true);
+          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
           //Adds platform to both group and table
           userPlatform.sticky = true
           this.allPlatforms.add(userPlatform);
@@ -176,13 +183,18 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updatePlatform(platformInfo){
-      console.log("Platform being updated");
-      this.platformTable[platformInfo.id].setPosition(platformInfo.x,platformInfo.y)
+      this.platformTable[platformInfo.platformId].setPosition(platformInfo.x,platformInfo.y)
     }
 
     platformPlaced(platformInfo){
-      console.log("Platform being placed");
-      this.platformTable[platformInfo.id].alpha = 1.0;
+      this.platformTable[platformInfo.platformId].alpha = 1.0;
+    }
+
+    removePlatform(id){
+      console.log("ID to remove:",id)
+      console.log("Platform table",this.platformTable);
+      this.platformTable[id].destroy();
+      delete this.platformTable[id];
     }
 
     onClicked(pointer, objectClicked) {
@@ -191,6 +203,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.socket.emit('removePlatform', {id: objectClicked.id, platform: objectClicked})
         this.allPlatforms.remove(objectClicked);
+        this.socket.emit("removePlatform",{platformId: objectClicked.id});
         objectClicked.destroy();
 
         this.removeButtonToggle = false;
