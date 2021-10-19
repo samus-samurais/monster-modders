@@ -2,6 +2,7 @@ import Phaser from "phaser"
 import Platform from "../sprites/Platform.js";
 import Player from "../sprites/Player.js"
 import FallDetector from "../sprites/FallDetector.js";
+import Countdown from "./Countdown.js";
 
 export default class GameScene extends Phaser.Scene {
     constructor(key) {
@@ -16,6 +17,7 @@ export default class GameScene extends Phaser.Scene {
         //For multiplayer, platforms are stored in a platform table as well as a group 
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
+        this.countdown = null;
     }
 
     init(data){
@@ -100,6 +102,14 @@ export default class GameScene extends Phaser.Scene {
             }
         }
 
+        //create finish flag
+        this.createFlag();
+
+        //create the countdown timer
+        const { width } = this.scale;
+        const timerLabel = this.add.text(width * 0.5, 50, "20", { fontSize: 35 }).setOrigin(0.5);
+        this.countdown = new Countdown(this, timerLabel);
+
         // create drag action
         this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
           gameObject.x = dragX;
@@ -107,8 +117,15 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
+        //START THE COUNTDOWN
+        this.socket.emit("countdown");
 
         //Socket stuff is below
+
+        //everyone's timer starts at the same time
+        this.socket.on("startTimer", () => {
+        this.countdown.start(this.countdownFinished.bind(this));
+        });
 
         //Adds new platform when other player creates
         this.socket.on('platformAdded', function(platformInfo, scene = self){
@@ -143,6 +160,27 @@ export default class GameScene extends Phaser.Scene {
           scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
           }
       });
+
+      //runs when someones crosses the finish line
+      this.socket.on("winnerCrowned", () => {
+        const { width, height } = this.scale;
+        this.add
+          .text(
+          width * 0.5,
+          height * 0.5,
+          "Someone else has corssed the finish line! :(",
+          {
+            fontSize: 35,
+          }
+        )
+        .setOrigin(0.5);
+      });
+
+      //doesn't let the players move after someone crosses the finish line
+      this.socket.on("stopMoving", () => {
+        this.physics.pause(); //shows the winner running in place on other's screens
+        this.countdown.stop();
+      });
     }
 
     update () {
@@ -159,6 +197,9 @@ export default class GameScene extends Phaser.Scene {
       } else {
         this.addButtonToggle = false;
       }
+
+      //update the countdown every second
+      this.countdown.update();
   
     }
 
@@ -201,5 +242,31 @@ export default class GameScene extends Phaser.Scene {
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
     }
+
+    // creates the end flag and sets the win condition
+  createFlag() {
+    //create the flag
+    this.flag = this.physics.add.staticSprite(1000, 150, "flag");
+
+    //when flag is touched, stop the countdown and show text to winner and show to other players (need to add text for other players)
+    this.physics.add.overlap(this.player, this.flag, () => {
+      this.socket.emit("flagTouched");
+      const { width, height } = this.scale;
+      this.add
+        .text(width * 0.5, height * 0.5, "Winner!", {
+          fontSize: 50,
+        })
+        .setOrigin(0.5);
+    });
+  }
+
+  //countdown has reached 0 and there is no winner
+  countdownFinished() {
+    const { width, height } = this.scale;
+    this.add
+      .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
+      .setOrigin(0.5);
+    this.physics.pause(); //make players stop moving once time is up
+  }
 
 }

@@ -113,6 +113,15 @@ module.exports = (io) => {
           delete players[socket.id];
         });
 
+        socket.on("countdown", () => {
+          io.emit("startTimer");
+        });
+
+        socket.on("flagTouched", () => {
+          socket.broadcast.emit("winnerCrowned");
+          io.emit("stopMoving");
+        });
+
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
