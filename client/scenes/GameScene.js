@@ -141,6 +141,12 @@ export default class GameScene extends Phaser.Scene {
           scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
           }
       });
+
+      this.socket.on('platformRemoved', function (platform, scene = self) {
+        // if (scene.platformTable[platformId]) {
+          scene.removePlatform(platform)
+        // }
+      })
     }
 
     update () {
@@ -169,8 +175,6 @@ export default class GameScene extends Phaser.Scene {
           this.allPlatforms.add(userPlatform);
           this.input.setDraggable(userPlatform,false);
           this.platformTable[userPlatform.id] = userPlatform
-
-          console.log('.........addPlatform', userPlatform)
     }
 
     updatePlatform(platformInfo){
@@ -184,13 +188,35 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      console.log('......onClicked', objectClicked.sticky)
+
       if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky === false){
+
+        console.log('......onClicked', objectClicked)
+        console.log('*******onClicked-table', this.platformTable)
+        this.socket.emit('removePlatform', {id: objectClicked.id, platform: objectClicked})
         this.allPlatforms.remove(objectClicked);
         objectClicked.destroy();
+        // this.platformTable[objectClicked.id].delete();
+        delete this.platformTable[objectClicked.id];
+
+        console.log('onClicked-table.......', this.platformTable)
         this.removeButtonToggle = false;
         this.platformDestroyer.clearTint();
+
       }
+    }
+
+    removePlatform(platform) {
+      console.log('the other platform remove====++', platform.platform);
+      console.log('the platformTable', this.allPlatforms);
+      this.allPlatforms.remove(platform.platform);
+      // platform.destroy();
+      // this.platformTable[id].delete();
+      // delete this.platformTable[id];
+
+      console.log('+++++', this.allPlatforms);
+      this.removeButtonToggle = false;
+      this.platformDestroyer.clearTint();
     }
 
     removePlayer(id){

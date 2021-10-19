@@ -94,9 +94,9 @@ module.exports = (io) => {
           socket.broadcast.emit("platformPlaced",platform);
         })
 
-        socket.on('removePlatform', (platformId) => {
-          delete platforms[platformId];
-          socket.broadcast.emit("platformRemoved",platformId);
+        socket.on('removePlatform', (platform) => {
+          delete platforms[platform.id];
+          socket.broadcast.emit("platformRemoved",platform);
         })
 
         socket.on('disconnect', () => {

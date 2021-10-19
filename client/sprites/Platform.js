@@ -6,7 +6,7 @@ export default class Platform extends Phaser.Physics.Arcade.Sprite {
         this.spriteKey = spriteKey;
         this.socket = socket;
         this.scene = scene;
-        this.sticky = placedByOpponent ? false : true;
+        this.sticky = false;
         this.new = true;
         this.scene.physics.world.enable(this);
         this.scene.add.existing(this);
