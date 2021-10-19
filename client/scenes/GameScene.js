@@ -64,12 +64,9 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
-          console.log(';;;;;;;sticky=false', this.allPlatforms.children.entries.filter(child => child.sticky === false))
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
             this.removeButtonToggle = true
-
-
             // change the button color to show that in this state user could delete a platform.
             this.platformDestroyer.setTint(0xff0000);
             this.input.on('gameobjectdown', this.onClicked.bind(this));
@@ -129,30 +126,23 @@ export default class GameScene extends Phaser.Scene {
           scene.platformPlaced(platformInfo);
         })
 
-<<<<<<< HEAD
-=======
         //Updates when player places their platform
         this.socket.on('platformRemoved', function(platformInfo, scene = self){
           scene.removePlatform(platformInfo.platformId);
         })
-                
->>>>>>> a5defb3e193c1d4f06a41b78c43b2c46fa660306
+
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
           scene.removePlayer(id)
-      });
+        });
 
 
-      //Updates other players when they move
-      this.socket.on('playerMoved', function (movementState, scene = self) {
-          if(scene.otherPlayers[movementState.playerId]){
-          scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
-          }
-      });
-
-      this.socket.on('platformRemoved', function (platform, scene = self) {
-        scene.removePlatform(platform)
-      })
+        //Updates other players when they move
+        this.socket.on('playerMoved', function (movementState, scene = self) {
+            if(scene.otherPlayers[movementState.playerId]){
+              scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
+            }
+        });
     }
 
     update () {
@@ -164,7 +154,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
 
-      if (this.allPlatforms.children.entries.filter(child => child.sticky === false).length) {
+      if (this.allPlatforms.children.entries.length) {
         this.addButtonToggle = true;
       } else {
         this.addButtonToggle = false;
@@ -173,13 +163,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     addPlatform(platformInfo){
-          //Generates new platform, sets it to platform being placed by opponent
-          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
-          //Adds platform to both group and table
-          userPlatform.sticky = true
-          this.allPlatforms.add(userPlatform);
-          this.input.setDraggable(userPlatform,false);
-          this.platformTable[userPlatform.id] = userPlatform
+      //Generates new platform, sets it to platform being placed by opponent
+      const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
+      //Adds platform to both group and table
+      this.allPlatforms.add(userPlatform);
+      this.input.setDraggable(userPlatform,false);
+      this.platformTable[userPlatform.id] = userPlatform
     }
 
     updatePlatform(platformInfo){
@@ -198,37 +187,13 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && objectClicked.sticky === false){
-
-        this.socket.emit('removePlatform', {id: objectClicked.id, platform: objectClicked})
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
         this.allPlatforms.remove(objectClicked);
         this.socket.emit("removePlatform",{platformId: objectClicked.id});
         objectClicked.destroy();
-
         this.removeButtonToggle = false;
         this.platformDestroyer.clearTint();
-
       }
-    }
-
-    removePlatform(platform) {
-      this.removePlatform = this.allPlatforms.children.entries.filter(child => {
-        if (child.x === platform.platform.x && child.y === platform.platform.y) {
-          return child
-        }
-      })[0]
-      // this.allPlatforms.remove(this.removePlatform);
-      let keys = Object.keys(this.platformTable);
-      for (let i=0; i < keys.length; i++) {
-        if (this.platformTable[keys[i]].x === platform.platform.x && this.platformTable[keys[i]].y === platform.platform.y) {
-          this.platformTable[keys[i]].destroy();
-          delete this.platformTable[keys[i]];
-        }
-      }
-
-      this.removeButtonToggle = false;
-      this.platformDestroyer.clearTint();
     }
 
     removePlayer(id){
