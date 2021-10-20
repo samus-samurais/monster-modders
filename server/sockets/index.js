@@ -24,7 +24,7 @@ const auth = getAuth();
 const db = getFirestore();
 
 var players = {};
-var loggedInUser = null;
+var loggedInUserInfo = {};
 var platforms = {};
 
 const addPlayerToSocket = (socket) => {
@@ -33,9 +33,9 @@ const addPlayerToSocket = (socket) => {
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50
   };
-  if(loggedInUser){
-    players[socket.id].username = loggedInUser;
-    loggedInUser = null;
+  if(loggedInUserInfo[socket.id]){
+    // make suer each login user has correct username in every different scene
+    players[socket.id].username = loggedInUserInfo[socket.id];
   } else {
     players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
   }
@@ -102,8 +102,9 @@ module.exports = (io) => {
         socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
           //delete player
-          socket.broadcast.emit("playerLeft",socket.id);
+          socket.broadcast.emit("playerLeft", socket.id);
           delete players[socket.id];
+          delete loggedInUserInfo[socket.id];
         });
 
         socket.on('leftLobby', (id) => {
@@ -118,12 +119,14 @@ module.exports = (io) => {
             .then(() => {
               if (auth.currentUser) {
                 // if the new user sign up successfully, update the username as displayName
-                // I didn't find out where to create the new column in firebase, so use the property photoURL to store number_of_wins
+                // use the property photoURL to store number_of_wins temporarily
                 updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
                 .then(() => {
                   // get the user info
                   const user = auth.currentUser
-                  loggedInUser = user.displayName
+                  // when user login/singup successfully, the socket.id and the username are bound
+                  loggedInUserInfo[socket.id] = user.displayName;
+
                   // use socket.emit to send the sign up success and the user info
                   socket.emit("signUpSuccess", {
                     username: user.displayName,
@@ -148,7 +151,8 @@ module.exports = (io) => {
           signInWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
               const user = auth.currentUser
-              loggedInUser = user.displayName
+              loggedInUserInfo[socket.id] = user.displayName;
+
               socket.emit("LoginSuccess", {
                 username: user.displayName,
                 email: user.email,

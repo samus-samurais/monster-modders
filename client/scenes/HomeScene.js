@@ -35,7 +35,7 @@ export default class HomeScene extends Phaser.Scene {
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.start('LobbyScene',{socket: this.socket});
+          this.scene.start('LobbyScene',{socket: this.socket, user: this.playerInfo});
         })
 
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
@@ -45,6 +45,14 @@ export default class HomeScene extends Phaser.Scene {
           this.loginSignupButton.on('pointerdown', () => {
             console.log("Logging in");
             this.scene.launch('LoginScene', {socket: this.socket, homeSceneUI: this.UI});
+          })
+        } else {
+          // if there is login user that create UserProfile button
+          this.playerInfoButton = this.add.image(960, 540, 'playerInfoButton').setInteractive();
+          this.UI.add(this.playerInfoButton);
+          this.playerInfoButton.on('pointerdown', () => {
+            console.log("Going to user's information");
+            this.scene.start('UserProfileScene', {socket: this.socket, user: this.playerInfo});
           })
         }
     }
