@@ -174,12 +174,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     addPlatform(platformInfo){
-      //Generates new platform, sets it to platform being placed by opponent
-      const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
-      //Adds platform to both group and table
-      this.allPlatforms.add(userPlatform);
-      this.input.setDraggable(userPlatform,false);
-      this.platformTable[userPlatform.id] = userPlatform
+          //Generates new platform, sets it to platform being placed by opponent
+          const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
+          //Adds platform to both group and table
+          this.allPlatforms.add(userPlatform);
+          this.input.setDraggable(userPlatform,false);
+          this.platformTable[userPlatform.id] = userPlatform
     }
 
     updatePlatform(platformInfo){
