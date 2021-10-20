@@ -141,10 +141,9 @@ export default class GameScene extends Phaser.Scene {
           scene.removePlatform(platformInfo.platformId);
         })
 
-        //Removes player if player disconnects
-        this.socket.on('playerLeft', function (id, scene = self) {
-          scene.removePlayer(id)
-        });
+        this.socket.on('finishedGame', function(info, scene = self){
+          scene.closeGame();
+        })
 
 
         //Updates other players when they move
@@ -219,6 +218,12 @@ export default class GameScene extends Phaser.Scene {
         this.removeButtonToggle = false;
       }
 
+    }
+
+    closeGame(){
+      console.log("Game is over");
+      this.socket.removeAllListeners();
+      this.scene.start("HomeScene");
     }
 
     removePlayer(id){
