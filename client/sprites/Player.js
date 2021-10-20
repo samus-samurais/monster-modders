@@ -7,7 +7,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.socket = socket;
         this.scene = scene;
         this.currentAnim = 'turn'
-        console.log("This runs?")
+        this.fallCount = 0;
         //Add player username to scene
         this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
@@ -108,6 +108,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         console.log("Oops!");
         this.setPosition(200,535);
         this.setVelocityY(0);
+        this.fallCount++;
+        console.log('8======fallCount', this.fallCount)
     }
 
 }
