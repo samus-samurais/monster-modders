@@ -28,30 +28,6 @@ var players = {};
 var loggedInUserInfo = {};
 var platforms = {};
 
-const addPlayerToSocket = (socket) => {
-  players[socket.id] = {
-    playerId: socket.id,
-    x: Math.floor(Math.random() * 700) + 50,
-    y: Math.floor(Math.random() * 500) + 50
-  };
-  if(loggedInUserInfo[socket.id]){
-    // make suer each login user has correct username in every different scene
-    players[socket.id].username = loggedInUserInfo[socket.id];
-  } else {
-    players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
-  }
-}
-
-const addPlatformToSocket = (platform) => {
-  platforms[platform.platformId] = platform;
-}
-
-const updatePlatform = (platform) => {
-  if(platforms[platform.platformId]){
-    platforms[platform.platformId].x = platform.x;
-    platforms[platform.platformId].y = platform.y;
-  }
-}
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -137,8 +113,6 @@ module.exports = (io) => {
 
         socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
-          //delete player
-          delete players[socket.id];
           delete loggedInUserInfo[socket.id];
         });
         /*
@@ -185,13 +159,6 @@ module.exports = (io) => {
           delete platforms[platform.id];
         })
         */
-
-        socket.on('disconnect', () => {
-          console.log('user',socket.id, 'disconnected');
-          //delete player
-          delete players[socket.id];
-          delete loggedInUserInfo[socket.id];
-        });
 
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
