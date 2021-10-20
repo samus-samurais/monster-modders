@@ -107,7 +107,7 @@ export default class GameScene extends Phaser.Scene {
 
         //create the countdown timer
         const { width } = this.scale;
-        const timerLabel = this.add.text(width * 0.5, 50, "20", { fontSize: 35 }).setOrigin(0.5);
+        const timerLabel = this.add.text(width * 0.5, 20, "20", { fontSize: 35 }).setOrigin(0.5);
         this.countdown = new Countdown(this, timerLabel);
 
         // create drag action
