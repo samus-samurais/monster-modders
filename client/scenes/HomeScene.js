@@ -34,7 +34,8 @@ export default class HomeScene extends Phaser.Scene {
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, homeSceneUI: this.UI});
+          console.log("Important data");
+          this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
         })
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
           // if there is no login user that create login/singup button

@@ -8,14 +8,14 @@ export default class RoomSelector extends Phaser.Scene {
     init(data) {
       this.socket = data.socket;
       this.playerInfo = data.user ? data.user : null;
-      this.homeSceneUI = data.homeSceneUI
+      this.prevSceneUI = data.prevSceneUI
     }
 
     create(){
 
         this.socket.emit("getRoomData");
 
-        this.homeSceneUI.children.iterate((child) => {
+        this.prevSceneUI.children.iterate((child) => {
             child.disableInteractive()
             child.visible = false;
           })
@@ -116,10 +116,11 @@ export default class RoomSelector extends Phaser.Scene {
           backButton.clearTint();
         })
         backButton.on("pointerup", () => {
-          this.homeSceneUI.children.iterate((child) => {
+          this.prevSceneUI.children.iterate((child) => {
             child.setInteractive()
             child.visible = true;
           })
+          this.socket.removeAllListeners();
           this.scene.stop("RoomSelector");
         })
       }

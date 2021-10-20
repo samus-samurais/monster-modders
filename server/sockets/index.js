@@ -28,30 +28,6 @@ var players = {};
 var loggedInUserInfo = {};
 var platforms = {};
 
-const addPlayerToSocket = (socket) => {
-  players[socket.id] = {
-    playerId: socket.id,
-    x: Math.floor(Math.random() * 700) + 50,
-    y: Math.floor(Math.random() * 500) + 50
-  };
-  if(loggedInUserInfo[socket.id]){
-    // make suer each login user has correct username in every different scene
-    players[socket.id].username = loggedInUserInfo[socket.id];
-  } else {
-    players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
-  }
-}
-
-const addPlatformToSocket = (platform) => {
-  platforms[platform.platformId] = platform;
-}
-
-const updatePlatform = (platform) => {
-  if(platforms[platform.platformId]){
-    platforms[platform.platformId].x = platform.x;
-    platforms[platform.platformId].y = platform.y;
-  }
-}
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -137,62 +113,9 @@ module.exports = (io) => {
 
         socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
-          //delete player
-          delete players[socket.id];
           delete loggedInUserInfo[socket.id];
         });
-        /*
-
-        //Wait for scene to signal it is ready thorugh "playerJoined" emission
-        socket.on('playerJoined', (playerSocket = socket) => {
-          addPlayerToSocket(playerSocket);
-          socket.emit("sentPlayerInfo",players);
-          // send the players object to the new player
-          // update all other players of the new player
-          socket.broadcast.emit('newPlayer', players[socket.id]);
-        })
-
-        //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
-        socket.on('updatePlayer', (movementState) => {
-          movementState.playerId = socket.id
-          socket.broadcast.emit('playerMoved', movementState);
-        })
-
-        socket.on('gameStart', () => {
-          for (const key of Object.keys(players)) {
-            players[key].x = 200,
-            players[key].y = 535
-          }
-          io.emit('startedGame', players);
-        })
-
-        socket.on('newPlatform', (platform) => {
-          addPlatformToSocket(platform);
-          socket.broadcast.emit("platformAdded",platform);
-        })
-
-        socket.on('movePlatform', (platform) => {
-          updatePlatform(platform);
-          socket.broadcast.emit("platformMoved",platform);
-        })
-
-        socket.on('placePlatform', (platform) => {
-          socket.broadcast.emit("platformPlaced",platform);
-        })
-
-        socket.on('removePlatform', (platform) => {
-          socket.broadcast.emit("platformRemoved",platform);
-          delete platforms[platform.id];
-        })
-        */
-
-        socket.on('disconnect', () => {
-          console.log('user',socket.id, 'disconnected');
-          //delete player
-          delete players[socket.id];
-          delete loggedInUserInfo[socket.id];
-        });
-
+        
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {
