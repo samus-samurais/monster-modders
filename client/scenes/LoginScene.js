@@ -77,8 +77,11 @@ export default class LoginScene extends Phaser.Scene {
       backButton.clearTint();
     })
     backButton.on("pointerup", () => {
-      this.scene.stop("Sandbox");
-      this.scene.start("HomeScene");
+      this.homeSceneUI.children.iterate((child) => {
+        child.setInteractive()
+        child.visible = true;
+      })
+      this.scene.stop("LoginScene");
     })
   }
 }

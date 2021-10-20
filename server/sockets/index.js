@@ -22,6 +22,7 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
+const roomList = require("./rooms");
 
 var players = {};
 var loggedInUserInfo = {};
@@ -56,6 +57,91 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('user',socket.id, 'connected');
         // create a new player and add it to our players object
+
+        socket.on("getRoomData", () => {
+          socket.emit("roomDataSent", roomList);
+        })
+
+        socket.on('joinedRoom', (info) => {
+          const currentRoom = roomList[info.roomKey];
+          currentRoom.addPlayer(socket, loggedInUserInfo[socket.id]);
+          inRoom = true
+          socket.join(info.roomKey);
+          socket.emit("sentPlayerInfo",currentRoom.players);
+
+          socket.to(info.roomKey).emit("newPlayer",currentRoom.getPlayer(socket.id));
+          
+          if(!currentRoom.isOpen){
+            console.log("Closing full capacity room");
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+          }
+          
+            //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
+          socket.on('updatePlayer', (movementState) => {
+            movementState.playerId = socket.id
+            currentRoom.updatePlayer(movementState)
+            socket.to(info.roomKey).emit('playerMoved', movementState);
+          })
+
+          socket.on('newPlatform', (platform) => {
+            currentRoom.addPlatform(platform)
+            socket.to(info.roomKey).emit("platformAdded",platform);
+          })
+
+          socket.on('movePlatform', (platform) => {
+            currentRoom.placePlatform(platform)
+            socket.to(info.roomKey).emit("platformMoved",platform);
+          })
+
+          socket.on('placePlatform', (platform) => {
+            currentRoom.placePlatform(platform)
+            socket.to(info.roomKey).emit("platformPlaced",platform);
+          })
+
+          socket.on('removePlatform', (platform) => {
+            currentRoom.removePlatform(platform)
+            socket.to(info.roomKey).emit("platformRemoved",platform);
+          })
+
+          socket.on('leftLobby', (id) => {
+            currentRoom.removePlayer(id)
+            socket.to(info.roomKey).emit("playerLeft",socket.id);
+            socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
+          });
+
+          socket.on('gameStart', () => {
+            currentRoom.startGame();
+            const playerInfo = currentRoom.players;
+            io.in(info.roomKey).emit('startedGame', playerInfo);
+            console.log("Game in progress - closing room");
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+          })
+
+          socket.on('gameOver', () => {
+            currentRoom.endGame();
+            io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
+            socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
+          })
+
+          socket.on('disconnect', () => {
+            if(currentRoom.gameStarted){
+              currentRoom.endGame();
+              io.in(info.roomKey).emit('finishedGame', {cause: "disconnect"});
+            } else {
+              currentRoom.removePlayer(socket.id)
+              socket.to(info.roomKey).emit("playerLeft",socket.id);
+              socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
+            }
+          });
+        })
+
+        socket.on('disconnect', () => {
+          console.log('user',socket.id, 'disconnected');
+          //delete player
+          delete players[socket.id];
+          delete loggedInUserInfo[socket.id];
+        });
+        /*
 
         //Wait for scene to signal it is ready thorugh "playerJoined" emission
         socket.on('playerJoined', (playerSocket = socket) => {
@@ -98,20 +184,13 @@ module.exports = (io) => {
           socket.broadcast.emit("platformRemoved",platform);
           delete platforms[platform.id];
         })
+        */
 
         socket.on('disconnect', () => {
           console.log('user',socket.id, 'disconnected');
           //delete player
-          socket.broadcast.emit("playerLeft", socket.id);
           delete players[socket.id];
           delete loggedInUserInfo[socket.id];
-        });
-
-        socket.on('leftLobby', (id) => {
-          console.log('user',socket.id, 'left lobby');
-          //delete player
-          socket.broadcast.emit("playerLeft",socket.id);
-          delete players[socket.id];
         });
 
         socket.on("newUserSignup", (input) => {

@@ -28,7 +28,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create(){
-
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
