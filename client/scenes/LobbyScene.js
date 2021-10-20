@@ -12,6 +12,8 @@ export default class LobbyScene extends Phaser.Scene {
     init(data){
         this.socket = data.socket;
         this.playerId = data.socket.id;
+        this.playerInfo = data.user ? data.user : null
+        console.log('======lobby data', data)
     }
 
     create(){
@@ -89,14 +91,14 @@ export default class LobbyScene extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
-                this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username)
-
-                //this.player = this.physics.add.sprite(players[ids[i]].x,players[ids[i]].y,'dude');
-                //this.player.setCollideWorldBounds(true);
+                if (this.playerInfo && this.playerInfo.email) {
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo.username);
+                } else {
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username)
+                }
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username)
-
             }
         }
         //Set up player counter, show button if enough players to start game
@@ -160,8 +162,8 @@ export default class LobbyScene extends Phaser.Scene {
         backButton.on("pointerup", () => {
             this.socket.removeAllListeners();
             this.scene.stop("Sandbox");
-            this.scene.start("HomeScene");
-            this.socket.emit('leftLobby',this.playerId);
+            this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
+            this.socket.emit('leftLobby', this.playerId);
         })
-      }
+    }
 }

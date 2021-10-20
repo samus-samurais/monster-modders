@@ -8,14 +8,17 @@ export default class GameScene extends Phaser.Scene {
         super(key);
         this.player = null
         this.otherPlayers = {}
+        // make sure that lost player couldn't use platformMaker button
+        this.allowAddPlatform = true;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
         this.platformMaker = null;
         this.platformDestroyer = null;
         this.platformBeingPlaced = null;
-        //For multiplayer, platforms are stored in a platform table as well as a group 
+        //For multiplayer, platforms are stored in a platform table as well as a group
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
+        this.lives = 3;
     }
 
     init(data){
@@ -25,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create(){
-      
+
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
@@ -49,23 +52,26 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
         this.platformMaker.on('pointerdown', () => {
-          //Sets it so that only the most recently placed platform can be draggable
-          if(this.platformBeingPlaced){
-            this.input.setDraggable(this.platformBeingPlaced,false);
+
+          if (this.allowAddPlatform) {
+            //Sets it so that only the most recently placed platform can be draggable
+            if(this.platformBeingPlaced){
+              this.input.setDraggable(this.platformBeingPlaced,false);
+            }
+            //Generates new platform, sets it to platform being placed
+            const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
+            //Adds platform to both group and table
+            this.allPlatforms.add(userPlatform);
+            this.platformTable[userPlatform.id] = userPlatform
+            this.input.setDraggable(userPlatform);
+            this.platformBeingPlaced = userPlatform
           }
-          //Generates new platform, sets it to platform being placed
-          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
-          //Adds platform to both group and table
-          this.allPlatforms.add(userPlatform);
-          this.platformTable[userPlatform.id] = userPlatform
-          this.input.setDraggable(userPlatform);
-          this.platformBeingPlaced = userPlatform
         });
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
-          if (this.addButtonToggle) {
+          if (this.addButtonToggle && this.allowAddPlatform) {
             this.removeButtonToggle = true
             // change the button color to show that in this state user could delete a platform.
             this.platformDestroyer.setTint(0xff0000);
@@ -94,6 +100,8 @@ export default class GameScene extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Player built in multiplayer file!"); //PC == Playable Character!
                 this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'dude', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
+
+                console.log(';;;;;player', this.player)
             } else {
                 console.log("NPC built in multiplayer file"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'dude','NPC', null, this.players[ids[i]].username)
@@ -107,6 +115,9 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
+        this.livesText = this.add.text(100, 620, `Your have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
+
+        this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
         //Socket stuff is below
 
@@ -130,36 +141,36 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on('platformRemoved', function(platformInfo, scene = self){
           scene.removePlatform(platformInfo.platformId);
         })
-                
+
         //Removes player if player disconnects
         this.socket.on('playerLeft', function (id, scene = self) {
           scene.removePlayer(id)
-      });
+        });
 
 
-      //Updates other players when they move
-      this.socket.on('playerMoved', function (movementState, scene = self) {
-          if(scene.otherPlayers[movementState.playerId]){
-          scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
-          }
-      });
+        //Updates other players when they move
+        this.socket.on('playerMoved', function (movementState, scene = self) {
+            if(scene.otherPlayers[movementState.playerId]){
+              scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
+            }
+        });
     }
 
     update () {
       if(this.player){
         this.player.update(this.cursors);
       }
-  
+
       if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
-  
+
       if (this.allPlatforms.children.entries.length) {
         this.addButtonToggle = true;
       } else {
         this.addButtonToggle = false;
       }
-  
+
     }
 
     addPlatform(platformInfo){
@@ -194,6 +205,21 @@ export default class GameScene extends Phaser.Scene {
         this.removeButtonToggle = false;
         this.platformDestroyer.clearTint();
       }
+    }
+
+    lostTheGame() {
+      this.lives -= 1;
+      this.livesText.setText(`Your have ${this.lives} lives`)
+
+      if (!this.lives) {
+        this.livesText.setText('');
+        this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
+        this.physics.pause()
+        this.allowAddPlatform = false;
+        this.addButtonToggle = false;
+        this.removeButtonToggle = false;
+      }
+
     }
 
     removePlayer(id){

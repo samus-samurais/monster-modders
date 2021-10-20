@@ -7,9 +7,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.socket = socket;
         this.scene = scene;
         this.currentAnim = 'turn'
-        console.log("This runs?")
-         //Add player username to scene
-         this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
+        this.fallCount = 0;
+        //Add player username to scene
+        this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
         if(status === 'PC'){
             this.scene.physics.world.enable(this);
@@ -56,17 +56,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     update(cursors){
         //Updates player movement
         let animation = 'turn';
+        if (this.scene) {
+
         if (cursors.left.isDown){
             this.setVelocityX(-190);
             this.anims.play('left', true);
             animation = 'left';
-        }
-
-        else if (cursors.right.isDown){
+        } else if (cursors.right.isDown){
             this.setVelocityX(190);
             this.anims.play('right', true);
             animation = 'right';
-        } else {
+        } else if (this.scene) {
             this.setVelocityX(0);
             this.anims.play('turn');
         }
@@ -77,6 +77,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // make the username move to follow the player
         this.username.setPosition(this.x,this.y-37);
 
+        }
         //Sends new player position to other players
         if (this.socket) {
             this.movementState.x = this.x
@@ -107,6 +108,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         console.log("Oops!");
         this.setPosition(200,535);
         this.setVelocityY(0);
+        this.fallCount++;
+        console.log('8======fallCount', this.fallCount)
     }
 
 }
