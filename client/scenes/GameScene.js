@@ -114,7 +114,7 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
-        this.livesText = this.add.text(100, 620, `Your have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
+        this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
@@ -208,7 +208,7 @@ export default class GameScene extends Phaser.Scene {
 
     lostTheGame() {
       this.lives -= 1;
-      this.livesText.setText(`Your have ${this.lives} lives`)
+      this.livesText.setText(`You have ${this.lives} lives`)
 
       if (!this.lives) {
         this.livesText.setText('');
