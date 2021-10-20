@@ -13,14 +13,14 @@ export default class LobbyScene extends Phaser.Scene {
         this.socket = data.socket;
         this.playerId = data.socket.id;
         this.playerInfo = data.user ? data.user : null
-        console.log('======lobby data', data)
+        this.roomKey = data.roomKey;
     }
 
     create(){
         const self = this;
         //Initializes player
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
-        this.socket.emit('playerJoined');
+        this.socket.emit('joinedRoom',{roomKey: this.roomKey});
 
         //Initializes start button
         this.startButton = this.add.image(100,50,'multiplayerButton').setScale(0.5);
@@ -58,6 +58,7 @@ export default class LobbyScene extends Phaser.Scene {
         });
 
         this.socket.on('startedGame', function (players, scene = self){
+            console.log("players here are",players);
             scene.startGame(players)
         });
 
@@ -138,6 +139,7 @@ export default class LobbyScene extends Phaser.Scene {
 
     startGame(players){
         console.log("Starting game...");
+        console.log('players are', players);
         //VERY IMPORTANT for functioning sockets - always call this when swapping scenes w socket.on calls
         this.socket.removeAllListeners();
         this.scene.start('GameScene', {socket: this.socket, players});

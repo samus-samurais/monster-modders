@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import io from 'socket.io-client'
 
 export default class HomeScene extends Phaser.Scene {
     constructor() {
@@ -35,9 +34,8 @@ export default class HomeScene extends Phaser.Scene {
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
         this.multiplayerButton.on('pointerdown', () => {
-          this.scene.start('LobbyScene',{socket: this.socket, user: this.playerInfo});
+          this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, homeSceneUI: this.UI});
         })
-
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
           // if there is no login user that create login/singup button
           this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
