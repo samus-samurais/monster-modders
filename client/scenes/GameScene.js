@@ -120,21 +120,22 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
         const {width} = this.scale;
-        this.platformTimer = this.add.text(width * 0.5, 20, "Time to Place Platforms: 10", {fontSize: 30}).setOrigin(0.5);
+        //Platform timer text initially rendered as "Players loading" until all players are ready
+        this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 30}).setOrigin(0.5);
         //Socket stuff is below
 
-        this.socket.emit("startPlatformTimer");
-
         this.socket.on("updatePlatformTimer", (time) => {
+          console.log("Platform timer updated");
           this.platformTimer.setText(`Time to Place Platforms: ${time}`);
-          if(time === 1) {
+          if(time === 0) {
             this.startGameTimer();
           }
         })
 
         this.socket.on("updateGameTimer", (time) => {
+          console.log("Game timer updated");
           this.gameTimer.setText(`${time}`);
-          if(time === 1) {
+          if(time === 0) {
             this.timesUp();
           }
         })
@@ -171,6 +172,8 @@ export default class GameScene extends Phaser.Scene {
               scene.otherPlayers[movementState.playerId].updateOtherPlayer(movementState);
             }
         });
+
+        this.socket.emit("readyToBuild");
     }
 
     update () {
@@ -254,8 +257,8 @@ export default class GameScene extends Phaser.Scene {
     startGameTimer() {
       this.platformTimer.destroy();
       const { width, height } = this.scale
-      this.gameTimer = this.add.text(width * 0.5, 20, "20", {fontSize: 30}).setOrigin(0.5);
-      this.socket.emit("startGameTimer");
+      this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
+      this.socket.emit("readyToRace");
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
         .setOrigin(0.5);

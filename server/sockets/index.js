@@ -107,26 +107,36 @@ module.exports = (io) => {
             socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Game in progress"})
           })
 
-          socket.on("startPlatformTimer", () => {
-            const interval = setInterval(() => {
-              if(currentRoom.platformTimer > 0) {
+          socket.on("readyToBuild", () => {
+              currentRoom.playersLoaded += 1
+              if(currentRoom.playersLoaded === currentRoom.playerCount){
+                currentRoom.playersLoaded = 0;
                 io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                currentRoom.runPlatformTimer();
-              } else {
-                clearInterval(interval);
-              }
-            }, 1000);
+                const interval = setInterval(() => {
+                  if(currentRoom.platformTimer > 0) {
+                    currentRoom.runPlatformTimer();
+                    io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
+                  } else {
+                    clearInterval(interval);
+                  }
+                }, 1000);
+            }
           });
 
-          socket.on("startGameTimer", () => {
-            const interval = setInterval(() => {
-              if(currentRoom.gameTimer > 0) {
-                io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
-                currentRoom.runGameTimer();
-              } else {
-                clearInterval(interval);
-              }
-            }, 1000);
+          socket.on("readyToRace", () => {
+            currentRoom.playersLoaded += 1
+            if(currentRoom.playersLoaded === currentRoom.playerCount){
+              currentRoom.playersLoaded = 0;
+              io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+              const interval = setInterval(() => {
+                if(currentRoom.gameTimer > 0) {
+                  currentRoom.runGameTimer();
+                  io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+                } else {
+                  clearInterval(interval);
+                }
+              }, 1000);
+            }
           });
 
           socket.on('gameOver', () => {
