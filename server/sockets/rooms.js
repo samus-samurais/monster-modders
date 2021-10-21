@@ -9,6 +9,7 @@ class Room {
       this.gameTimer = 16;
       this.platformTimer = 11;
       this.playersLoaded = 0;
+      this.timerId = null;
     }
 
     runGameTimer() {
@@ -94,14 +95,13 @@ class Room {
             this.players[key].x = 200,
             this.players[key].y = 535
           }
+        this.playersLoaded = 0
         this.isOpen = false;
         this.gameStarted = true;
     }
 
     endGame(){
-        this.players = {}
         this.platforms = {}
-        this.playerCount = 0;
         this.playersLoaded = 0;
         this.isOpen = true
         this.gameStarted = false;

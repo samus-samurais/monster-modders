@@ -128,9 +128,10 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on("updatePlatformTimer", (time) => {
           console.log("Platform timer updated");
           this.platformTimer.setText(`Time to Place Platforms: ${time}`);
-          if(time === 0) {
-            this.startGameTimer();
-          }
+        })
+
+        this.socket.on("buildPhaseOver", (scene = self) => {
+            scene.startGameTimer();
         })
 
         this.socket.on("updateGameTimer", (time) => {
@@ -184,6 +185,7 @@ export default class GameScene extends Phaser.Scene {
           }
         })
 
+        console.log("This loads");
         this.socket.emit("readyToBuild");
 
     }
@@ -283,6 +285,8 @@ export default class GameScene extends Phaser.Scene {
     closeGame(){
       console.log("Game is over");
       this.socket.removeAllListeners();
+      //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
+      this.socket.emit('leftLobby', this.playerId);
       this.scene.start("HomeScene");
     }
 
