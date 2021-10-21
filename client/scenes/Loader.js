@@ -37,6 +37,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
     this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
+    this.load.image("tutorialButton", "assets/testImage/falseLoginSignupButton.png"); //tutorial button
     this.load.image("sky", "assets/sky.png");
     this.load.image("star", "assets/star.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
