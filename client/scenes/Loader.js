@@ -56,6 +56,7 @@ export default class InitialLoader extends Phaser.Scene {
     //html
     this.load.html('loginform', 'assets/text/loginform.html');
     this.load.html('signupform', 'assets/text/signupform.html');
+    this.load.html("tutorialtext", "assets/text/tutorialtext.html");
 
     this.load.on("progress", this.updateBar, {
       newGraphics: this.newGraphics,
