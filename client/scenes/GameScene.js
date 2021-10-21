@@ -100,6 +100,8 @@ export default class GameScene extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Player built in multiplayer file!"); //PC == Playable Character!
                 this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'dude', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
+
+                console.log('here is the PC player-----', this.player);
             } else {
                 console.log("NPC built in multiplayer file"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'dude','NPC', null, this.players[ids[i]].username)
@@ -160,6 +162,9 @@ export default class GameScene extends Phaser.Scene {
         })
 
         this.socket.on('finishedGame', function(info, scene = self){
+          if(info.cause === "disconnect"){
+            scene.handleDisconnect();
+          }
           scene.closeGame();
         })
 
@@ -196,6 +201,14 @@ export default class GameScene extends Phaser.Scene {
         if (this.platformBeingPlaced) {
           this.input.setDraggable(this.platformBeingPlaced,false);
         }
+      }
+
+      if (this.platformButtonsState && this.player || this.lives <= 0) {
+        this.player.body.moves = false;
+        // this.player.body.allowGravity = false;
+      } else if (this.player) {
+        this.player.body.moves = true;
+        // this.player.body.allowGravity = true;
       }
 
     }
@@ -240,16 +253,26 @@ export default class GameScene extends Phaser.Scene {
     lostTheGame() {
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
-
+      console.log('///this.player', this.player);
       if (this.lives <= 0) {
-        this.livesText.setText('');
+        this.livesText.destroy();
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
-        this.physics.pause()
+        this.player.body.moves = false;
+        this.player.setVisible(false);
         this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
+        console.log('lost all lives+++++---', this.player.scene.playerId, this.player)
+        // this.socket.emit('playerLostAllLives', this.player.scene.playerId)
+
       }
 
+    }
+
+    handleDisconnect(){
+        //TODO: Send a message informing the player that the game has quit due to disconnect
+        console.log("Stopping timer");
+        this.socket.emit("stopTimer");
     }
 
     closeGame(){
@@ -285,6 +308,7 @@ export default class GameScene extends Phaser.Scene {
         .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
         .setOrigin(0.5);
     }
+
 
     destroyText(timerText) {
       setTimeout(function() {
