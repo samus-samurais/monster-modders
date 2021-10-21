@@ -18,16 +18,17 @@ const firebaseConfig = {
   appId: "1:377619460143:web:6413eb21e95cb1bd8d96da"
 };
 
-// Initialize Firebase
+// Initialize Firebase stuff and room list
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
 const roomList = require("./rooms");
 
-var loggedInUserInfo = {};
+//Stores information of all logged in users
+const loggedInUserInfo = {};
 
-//Defines array of all events in a room that would require listeners
-//This lets us iterate through this array to remove said listeners upon room exit
+//Defines array of all events in a room that require listeners
+//This lets us iterate through this array to remove said listeners when a player leaves a room
 const roomEvents = [
   'updatePlayer',
   'newPlatform',
@@ -39,38 +40,40 @@ const roomEvents = [
   'gameOver',
   'disconnect'
 ];
-//roomEvents.forEach((evt) => socket.removeAllListeners(evt));
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('user',socket.id, 'connected');
-        // create a new player and add it to our players object
 
+        //Sends the room list to players in RoomSelector for initial room button setup
         socket.on("getRoomData", () => {
           socket.emit("roomDataSent", roomList);
         })
 
+        //Handles everything that goes on in a room
         socket.on('joinedRoom', (info) => {
           const currentRoom = roomList[info.roomKey];
           currentRoom.addPlayer(socket, loggedInUserInfo[socket.id]);
-          inRoom = true
           socket.join(info.roomKey);
           socket.emit("sentPlayerInfo",currentRoom.players);
 
+          //Sends newly joined player info to all players currently in room
           socket.to(info.roomKey).emit("newPlayer",currentRoom.getPlayer(socket.id));
           
+          //Closes room if room is now full
           if(!currentRoom.isOpen){
             console.log("Closing full capacity room");
-            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Room is full"})
           }
           
-            //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
+          //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
           socket.on('updatePlayer', (movementState) => {
             movementState.playerId = socket.id
             currentRoom.updatePlayer(movementState)
             socket.to(info.roomKey).emit('playerMoved', movementState);
           })
 
+          //If player adds/changes/places/removes a platform, its information is broadcasted to everyone else
           socket.on('newPlatform', (platform) => {
             currentRoom.addPlatform(platform)
             socket.to(info.roomKey).emit("platformAdded",platform);
@@ -91,10 +94,13 @@ module.exports = (io) => {
             socket.to(info.roomKey).emit("platformRemoved",platform);
           })
 
+          //If a player leaves room during a LobbyScene, their departure is broadcasted and the room is opened up if full
           socket.on('leftLobby', (id) => {
             currentRoom.removePlayer(id)
             socket.to(info.roomKey).emit("playerLeft",socket.id);
-            socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
+            if(!currentRoom.isOpen){
+              socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
+            }
             roomEvents.forEach((evt) => socket.removeAllListeners(evt));
             socket.leave(info.roomKey);
           });
@@ -104,7 +110,7 @@ module.exports = (io) => {
             const playerInfo = currentRoom.players;
             io.in(info.roomKey).emit('startedGame', playerInfo);
             console.log("Game in progress - closing room");
-            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Game in progress"})
           })
 
           socket.on('gameOver', () => {
@@ -119,6 +125,7 @@ module.exports = (io) => {
             if(currentRoom.gameStarted){
               currentRoom.endGame();
               io.in(info.roomKey).emit('finishedGame', {cause: "disconnect"});
+              socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
             } else {
               currentRoom.removePlayer(socket.id)
               socket.to(info.roomKey).emit("playerLeft",socket.id);
