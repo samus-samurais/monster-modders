@@ -101,10 +101,23 @@ module.exports = (io) => {
 
           socket.on('gameStart', () => {
             currentRoom.startGame();
+            currentRoom.resetGameTimer();
+            currentRoom.resetPlatformTimer();
             const playerInfo = currentRoom.players;
             io.in(info.roomKey).emit('startedGame', playerInfo);
             console.log("Game in progress - closing room");
             socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+          })
+
+          socket.on("startTimer", () => {
+            const interval = setInterval(() => {
+              if(currentRoom.platformTimer > 0) {
+                io.in(info.roomKey).emit("updateTimer", currentRoom.platformTimer);
+                currentRoom.runPlatformTimer();
+              } else {
+                clearInterval(interval);
+              }
+            }, 1000);
           })
 
           socket.on('gameOver', () => {

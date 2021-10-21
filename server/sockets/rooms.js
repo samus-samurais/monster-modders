@@ -5,6 +5,28 @@ class Room {
       this.platforms = {}
       this.isOpen = true;
       this.gameStarted = false;
+      this.gameTimer = 15;
+      this.platformTimer = 10;
+    }
+
+    runGameTimer() {
+        if(this.gameTimer > 0) {
+            this.gameTimer -= 1;
+        }
+    }
+
+    runPlatformTimer() {
+        if(this.platformTimer > 0) {
+            this.platformTimer -= 1;
+        }
+    }
+
+    resetPlatformTimer() {
+        this.platformTimer = 10;
+    }
+
+    resetGameTimer() {
+        this.gameTimer = 15;
     }
 
     getPlayer(id){

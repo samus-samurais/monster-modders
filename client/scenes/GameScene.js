@@ -118,7 +118,16 @@ export default class GameScene extends Phaser.Scene {
 
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
+        const {width} = this.scale;
+        this.timer = this.add.text(width * 0.5, 20, "10", {fontSize: 35}).setOrigin(0.5);
         //Socket stuff is below
+
+        this.socket.emit("startTimer");
+
+        this.socket.on("updateTimer", (time) => {
+          this.timer.setFontSize("30px");
+          this.timer.setText(`${time}`)
+        })
 
         //Adds new platform when other player creates
         this.socket.on('platformAdded', function(platformInfo, scene = self){
