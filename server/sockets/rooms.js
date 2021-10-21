@@ -30,8 +30,10 @@ class Room {
     }
 
     updatePlayer(movementState){
-        this.players[movementState.playerId].x = movementState.x
-        this.players[movementState.playerId].y = movementState.y
+        if(this.players[movementState.playerId]){
+            this.players[movementState.playerId].x = movementState.x
+            this.players[movementState.playerId].y = movementState.y
+        }
     }
 
     removePlayer(id){
@@ -75,6 +77,7 @@ class Room {
     endGame(){
         this.players = {}
         this.platforms = {}
+        this.playerCount = 0;
         this.isOpen = true
         this.gameStarted = false;
     }

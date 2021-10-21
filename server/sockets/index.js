@@ -24,10 +24,22 @@ const auth = getAuth();
 const db = getFirestore();
 const roomList = require("./rooms");
 
-var players = {};
 var loggedInUserInfo = {};
-var platforms = {};
 
+//Defines array of all events in a room that would require listeners
+//This lets us iterate through this array to remove said listeners upon room exit
+const roomEvents = [
+  'updatePlayer',
+  'newPlatform',
+  'movePlatform',
+  'placePlatform',
+  'removePlatform',
+  'leftLobby',
+  'gameStart',
+  'gameOver',
+  'disconnect'
+];
+//roomEvents.forEach((evt) => socket.removeAllListeners(evt));
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -83,6 +95,8 @@ module.exports = (io) => {
             currentRoom.removePlayer(id)
             socket.to(info.roomKey).emit("playerLeft",socket.id);
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
+            roomEvents.forEach((evt) => socket.removeAllListeners(evt));
+            socket.leave(info.roomKey);
           });
 
           socket.on('gameStart', () => {
@@ -97,6 +111,8 @@ module.exports = (io) => {
             currentRoom.endGame();
             io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
+            roomEvents.forEach((evt) => socket.removeAllListeners(evt));
+            socket.leave(info.roomKey);
           })
 
           socket.on('disconnect', () => {
