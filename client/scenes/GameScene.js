@@ -20,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformTable = {};
         this.lives = 3;
         this.gameTimer = null;
+        this.platformButtonsState = true;
     }
 
     init(data){
@@ -188,6 +189,15 @@ export default class GameScene extends Phaser.Scene {
         this.addButtonToggle = false;
       }
 
+      if (!this.platformButtonsState) {
+        // when gameTimer begin to work, platformButtons should be disappeared.
+        this.platformMaker.setVisible(false);
+        this.platformDestroyer.setVisible(false);
+        if (this.platformBeingPlaced) {
+          this.input.setDraggable(this.platformBeingPlaced,false);
+        }
+      }
+
     }
 
     addPlatform(platformInfo){
@@ -255,6 +265,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     startGameTimer() {
+      this.platformButtonsState = false;
       this.platformTimer.destroy();
       const { width, height } = this.scale
       this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
@@ -262,7 +273,7 @@ export default class GameScene extends Phaser.Scene {
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
         .setOrigin(0.5);
-  
+
       this.destroyText(this.text);
     }
 
