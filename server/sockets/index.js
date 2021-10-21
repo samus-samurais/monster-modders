@@ -101,7 +101,7 @@ module.exports = (io) => {
 
           socket.on('gameStart', () => {
             currentRoom.startGame();
-            currentRoom.resetGameTimer();
+            currentRoom.resetGameTimer(); //make sure timers are reset in each room
             currentRoom.resetPlatformTimer();
             const playerInfo = currentRoom.players;
             io.in(info.roomKey).emit('startedGame', playerInfo);
@@ -109,16 +109,27 @@ module.exports = (io) => {
             socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
           })
 
-          socket.on("startTimer", () => {
+          socket.on("startPlatformTimer", () => {
             const interval = setInterval(() => {
               if(currentRoom.platformTimer > 0) {
-                io.in(info.roomKey).emit("updateTimer", currentRoom.platformTimer);
+                io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                 currentRoom.runPlatformTimer();
               } else {
                 clearInterval(interval);
               }
             }, 1000);
-          })
+          });
+
+          socket.on("startGameTimer", () => {
+            const interval = setInterval(() => {
+              if(currentRoom.gameTimer > 0) {
+                io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+                currentRoom.runGameTimer();
+              } else {
+                clearInterval(interval);
+              }
+            }, 1000);
+          });
 
           socket.on('gameOver', () => {
             currentRoom.endGame();

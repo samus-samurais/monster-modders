@@ -19,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
         this.lives = 3;
+        this.gameTimer = null;
     }
 
     init(data){
@@ -119,14 +120,25 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
         const {width} = this.scale;
-        this.timer = this.add.text(width * 0.5, 20, "10", {fontSize: 35}).setOrigin(0.5);
+        this.platformTimer = this.add.text(width * 0.5, 20, "10", {fontSize: 35}).setOrigin(0.5);
         //Socket stuff is below
 
-        this.socket.emit("startTimer");
+        this.socket.emit("startPlatformTimer");
 
-        this.socket.on("updateTimer", (time) => {
-          this.timer.setFontSize("30px");
-          this.timer.setText(`${time}`)
+        this.socket.on("updatePlatformTimer", (time) => {
+          this.platformTimer.setFontSize("30px"); //needed?
+          this.platformTimer.setText(`${time}`);
+          if(time === 1) {
+            this.startGameTimer();
+          }
+        })
+
+        this.socket.on("updateGameTimer", (time) => {
+          this.gameTimer.setFontSize("30px");
+          this.gameTimer.setText(`${time}`);
+          if(time === 1) {
+            this.timesUp();
+          }
         })
 
         //Adds new platform when other player creates
@@ -239,6 +251,33 @@ export default class GameScene extends Phaser.Scene {
         console.log("Removing player with id:",id)
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
+    }
+
+    startGameTimer() {
+      this.platformTimer.destroy();
+      const { width, height } = this.scale
+      this.gameTimer = this.add.text(width * 0.5, 20, "20", {fontSize: 35}).setOrigin(0.5);
+      this.socket.emit("startGameTimer");
+      this.text = this.add
+        .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
+        .setOrigin(0.5);
+  
+      this.destroyText(this.text);
+    }
+
+    timesUp() {
+      this.gameTimer.destroy();
+      this.physics.pause(); //don't let players move if time runs out
+      const { width, height } = this.scale;
+      this.text = this.add
+        .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
+        .setOrigin(0.5);
+    }
+
+    destroyText(timerText) {
+      setTimeout(function() {
+        timerText.destroy();
+      }, 2000)
     }
 
 }
