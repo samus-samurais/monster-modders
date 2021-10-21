@@ -8,8 +8,8 @@ export default class GameScene extends Phaser.Scene {
         super(key);
         this.player = null
         this.otherPlayers = {}
-        // make sure that lost player couldn't use platformMaker button
-        this.allowAddPlatform = true;
+        // // make sure that lost player couldn't use platformMaker button
+        // this.allowAddPlatform = true;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
         this.platformMaker = null;
@@ -53,25 +53,23 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
         this.platformMaker.on('pointerdown', () => {
-          if (this.allowAddPlatform) {
-            //Sets it so that only the most recently placed platform can be draggable
-            if(this.platformBeingPlaced){
-              this.input.setDraggable(this.platformBeingPlaced,false);
-            }
-            //Generates new platform, sets it to platform being placed
-            const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
-            //Adds platform to both group and table
-            this.allPlatforms.add(userPlatform);
-            this.platformTable[userPlatform.id] = userPlatform
-            this.input.setDraggable(userPlatform);
-            this.platformBeingPlaced = userPlatform
+
+          if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
+            this.input.setDraggable(this.platformBeingPlaced,false);
           }
+          //Generates new platform, sets it to platform being placed
+          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
+          //Adds platform to both group and table
+          this.allPlatforms.add(userPlatform);
+          this.platformTable[userPlatform.id] = userPlatform
+          this.input.setDraggable(userPlatform);
+          this.platformBeingPlaced = userPlatform
         });
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
-          if (this.addButtonToggle && this.allowAddPlatform) {
+          if (this.addButtonToggle) {
             this.removeButtonToggle = true
             // change the button color to show that in this state user could delete a platform.
             this.platformDestroyer.setTint(0xff0000);
@@ -195,7 +193,7 @@ export default class GameScene extends Phaser.Scene {
         this.player.update(this.cursors);
       }
 
-      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
+      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky && this.platformTable[this.platformBeingPlaced.id]){
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
 
@@ -247,7 +245,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && this.platformButtonsState){
         if (this.platformBeingPlaced && objectClicked.id === this.platformBeingPlaced.id) {
           this.platformBeingPlaced = null;
         }
@@ -262,12 +260,13 @@ export default class GameScene extends Phaser.Scene {
     lostTheGame() {
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
+
       if (this.lives <= 0) {
         this.livesText.destroy();
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
         this.player.disappear();
         this.player.setVisible(false);
-        this.allowAddPlatform = false;
+        // this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
 
