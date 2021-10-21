@@ -51,7 +51,6 @@ export default class GameScene extends Phaser.Scene {
 
         this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
         this.platformMaker.on('pointerdown', () => {
-
           if (this.allowAddPlatform) {
             //Sets it so that only the most recently placed platform can be draggable
             if(this.platformBeingPlaced){
@@ -99,8 +98,6 @@ export default class GameScene extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Player built in multiplayer file!"); //PC == Playable Character!
                 this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'dude', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
-
-                console.log(';;;;;player', this.player)
             } else {
                 console.log("NPC built in multiplayer file"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'dude','NPC', null, this.players[ids[i]].username)
@@ -197,6 +194,9 @@ export default class GameScene extends Phaser.Scene {
 
     onClicked(pointer, objectClicked) {
       if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+        if (this.platformBeingPlaced && objectClicked.id === this.platformBeingPlaced.id) {
+          this.platformBeingPlaced = null;
+        }
         this.allPlatforms.remove(objectClicked);
         this.socket.emit("removePlatform",{platformId: objectClicked.id});
         objectClicked.destroy();
