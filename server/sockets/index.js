@@ -117,7 +117,7 @@ module.exports = (io) => {
                 currentRoom.playersLoaded = 0;
                 io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                 timer = setInterval(() => {
-                  console.log("Timer runs");
+                  // console.log("Timer runs");
                   if(currentRoom.platformTimer > 0) {
                     currentRoom.runPlatformTimer();
                     io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
