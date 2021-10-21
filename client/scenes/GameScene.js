@@ -19,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
         this.lives = 3;
+        this.gameTimer = null;
     }
 
     init(data){
@@ -118,7 +119,25 @@ export default class GameScene extends Phaser.Scene {
 
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
+        const {width} = this.scale;
+        this.platformTimer = this.add.text(width * 0.5, 20, "Time to Place Platforms: 10", {fontSize: 30}).setOrigin(0.5);
         //Socket stuff is below
+
+        this.socket.emit("startPlatformTimer");
+
+        this.socket.on("updatePlatformTimer", (time) => {
+          this.platformTimer.setText(`Time to Place Platforms: ${time}`);
+          if(time === 1) {
+            this.startGameTimer();
+          }
+        })
+
+        this.socket.on("updateGameTimer", (time) => {
+          this.gameTimer.setText(`${time}`);
+          if(time === 1) {
+            this.timesUp();
+          }
+        })
 
         //Adds new platform when other player creates
         this.socket.on('platformAdded', function(platformInfo, scene = self){
@@ -230,6 +249,33 @@ export default class GameScene extends Phaser.Scene {
         console.log("Removing player with id:",id)
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
+    }
+
+    startGameTimer() {
+      this.platformTimer.destroy();
+      const { width, height } = this.scale
+      this.gameTimer = this.add.text(width * 0.5, 20, "20", {fontSize: 30}).setOrigin(0.5);
+      this.socket.emit("startGameTimer");
+      this.text = this.add
+        .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
+        .setOrigin(0.5);
+  
+      this.destroyText(this.text);
+    }
+
+    timesUp() {
+      this.gameTimer.destroy();
+      this.physics.pause(); //don't let players move if time runs out
+      const { width, height } = this.scale;
+      this.text = this.add
+        .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
+        .setOrigin(0.5);
+    }
+
+    destroyText(timerText) {
+      setTimeout(function() {
+        timerText.destroy();
+      }, 2000)
     }
 
 }
