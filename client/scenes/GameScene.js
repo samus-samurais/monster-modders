@@ -162,6 +162,9 @@ export default class GameScene extends Phaser.Scene {
         })
 
         this.socket.on('finishedGame', function(info, scene = self){
+          if(info.cause === "disconnect"){
+            scene.handleDisconnect();
+          }
           scene.closeGame();
         })
 
@@ -242,6 +245,12 @@ export default class GameScene extends Phaser.Scene {
 
     }
 
+    handleDisconnect(){
+        //TODO: Send a message informing the player that the game has quit due to disconnect
+        console.log("Stopping timer");
+        this.socket.emit("stopTimer");
+    }
+
     closeGame(){
       console.log("Game is over");
       this.socket.removeAllListeners();
@@ -274,6 +283,7 @@ export default class GameScene extends Phaser.Scene {
         .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
         .setOrigin(0.5);
     }
+    
 
     destroyText(timerText) {
       setTimeout(function() {
