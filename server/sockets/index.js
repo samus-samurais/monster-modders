@@ -36,6 +36,9 @@ const roomEvents = [
   'removePlatform',
   'leftLobby',
   'gameStart',
+  'readyToBuild',
+  'readyToRace',
+  'stopTimer',
   'gameOver',
   'disconnect'
 ];
@@ -51,6 +54,7 @@ module.exports = (io) => {
         })
 
         socket.on('joinedRoom', (info) => {
+          var timer = null;
           const currentRoom = roomList[info.roomKey];
           currentRoom.addPlayer(socket, loggedInUserInfo[socket.id]);
           inRoom = true
@@ -112,12 +116,13 @@ module.exports = (io) => {
               if(currentRoom.playersLoaded === currentRoom.playerCount){
                 currentRoom.playersLoaded = 0;
                 io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                const interval = setInterval(() => {
+                timer = setInterval(() => {
+                  console.log("Timer runs");
                   if(currentRoom.platformTimer > 0) {
                     currentRoom.runPlatformTimer();
                     io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                   } else {
-                    clearInterval(interval);
+                    clearInterval(timer);
                   }
                 }, 1000);
             }
@@ -128,12 +133,12 @@ module.exports = (io) => {
             if(currentRoom.playersLoaded === currentRoom.playerCount){
               currentRoom.playersLoaded = 0;
               io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
-              const interval = setInterval(() => {
+              timer = setInterval(() => {
                 if(currentRoom.gameTimer > 0) {
                   currentRoom.runGameTimer();
                   io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
                 } else {
-                  clearInterval(interval);
+                  clearInterval(timer);
                 }
               }, 1000);
             }
@@ -144,12 +149,23 @@ module.exports = (io) => {
             io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
             roomEvents.forEach((evt) => socket.removeAllListeners(evt));
+            timer = null;
             socket.leave(info.roomKey);
+          })
+
+          socket.on('stopTimer', () => {
+            if(timer){
+              console.log("Stopping timer");
+              clearInterval(timer);
+              timer = null;
+            }
           })
 
           socket.on('disconnect', () => {
             if(currentRoom.gameStarted){
               currentRoom.endGame();
+              //clearInterval(timer);
+              //timer = null;
               io.in(info.roomKey).emit('finishedGame', {cause: "disconnect"});
             } else {
               currentRoom.removePlayer(socket.id)
