@@ -75,6 +75,11 @@ export default class RoomSelector extends Phaser.Scene {
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room9"});
         });
 
+        //Sets up "status" text for each button denoting the reason for any room being closed
+        for (const key of Object.keys(roomButtons)) {
+          roomButtons[key].status = this.add.text(roomButtons[key].x, roomButtons[key].y+75, "", { color: 'white', fontFamily: 'Arial', fontSize: '24px', align: "center"}).setOrigin(0.5,0.5);
+        }
+
         this.goBack();
 
         this.socket.on("roomDataSent", (roomList) => {
@@ -82,6 +87,11 @@ export default class RoomSelector extends Phaser.Scene {
                 if(roomList[key].isOpen){
                     roomButtons[key].setInteractive();
                 } else {
+                    if(roomList[key].gameStarted){
+                      roomButtons[key].status.text = "Game in progress"
+                    } else {
+                      roomButtons[key].status.text = "Room is full"
+                    }
                     roomButtons[key].setTint(0x343b36);
                 }
               }
@@ -90,11 +100,13 @@ export default class RoomSelector extends Phaser.Scene {
         this.socket.on("openRoom", (roomInfo) => {
             roomButtons[roomInfo.roomKey].setInteractive();
             roomButtons[roomInfo.roomKey].clearTint();
+            roomButtons[roomInfo.roomKey].status.text = ""
         })
 
         this.socket.on("closeRoom", (roomInfo) => {
             roomButtons[roomInfo.roomKey].disableInteractive();
             roomButtons[roomInfo.roomKey].setTint(0x343b36);
+            roomButtons[roomInfo.roomKey].status.text = roomInfo.cause;
         })
 
     }

@@ -60,8 +60,7 @@ module.exports = (io) => {
           socket.to(info.roomKey).emit("newPlayer",currentRoom.getPlayer(socket.id));
 
           if(!currentRoom.isOpen){
-            console.log("Closing full capacity room");
-            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Room is full"})
           }
 
             //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
@@ -105,30 +104,39 @@ module.exports = (io) => {
             currentRoom.resetPlatformTimer();
             const playerInfo = currentRoom.players;
             io.in(info.roomKey).emit('startedGame', playerInfo);
-            console.log("Game in progress - closing room");
-            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey})
+            socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Game in progress"})
           })
 
-          socket.on("startPlatformTimer", () => {
-            const interval = setInterval(() => {
-              if(currentRoom.platformTimer > 0) {
+          socket.on("readyToBuild", () => {
+              currentRoom.playersLoaded += 1
+              if(currentRoom.playersLoaded === currentRoom.playerCount){
+                currentRoom.playersLoaded = 0;
                 io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                currentRoom.runPlatformTimer();
-              } else {
-                clearInterval(interval);
-              }
-            }, 1000);
+                const interval = setInterval(() => {
+                  if(currentRoom.platformTimer > 0) {
+                    currentRoom.runPlatformTimer();
+                    io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
+                  } else {
+                    clearInterval(interval);
+                  }
+                }, 1000);
+            }
           });
 
-          socket.on("startGameTimer", () => {
-            const interval = setInterval(() => {
-              if(currentRoom.gameTimer > 0) {
-                io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
-                currentRoom.runGameTimer();
-              } else {
-                clearInterval(interval);
-              }
-            }, 1000);
+          socket.on("readyToRace", () => {
+            currentRoom.playersLoaded += 1
+            if(currentRoom.playersLoaded === currentRoom.playerCount){
+              currentRoom.playersLoaded = 0;
+              io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+              const interval = setInterval(() => {
+                if(currentRoom.gameTimer > 0) {
+                  currentRoom.runGameTimer();
+                  io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+                } else {
+                  clearInterval(interval);
+                }
+              }, 1000);
+            }
           });
 
           socket.on('gameOver', () => {
@@ -146,8 +154,8 @@ module.exports = (io) => {
             } else {
               currentRoom.removePlayer(socket.id)
               socket.to(info.roomKey).emit("playerLeft",socket.id);
-              socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
             }
+            socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
           });
         })
 

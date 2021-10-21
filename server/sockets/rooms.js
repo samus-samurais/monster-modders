@@ -5,8 +5,10 @@ class Room {
       this.platforms = {}
       this.isOpen = true;
       this.gameStarted = false;
-      this.gameTimer = 15;
-      this.platformTimer = 10;
+      //Timers set to be one second above their actual values to account for updateTimer initializations
+      this.gameTimer = 16;
+      this.platformTimer = 11;
+      this.playersLoaded = 0;
     }
 
     runGameTimer() {
@@ -100,6 +102,7 @@ class Room {
         this.players = {}
         this.platforms = {}
         this.playerCount = 0;
+        this.playersLoaded = 0;
         this.isOpen = true
         this.gameStarted = false;
     }
