@@ -144,6 +144,10 @@ module.exports = (io) => {
             }
           });
 
+          socket.on('playerLostAllLives', (playerId) => {
+            io.in(info.roomKey).emit("disappearedPlayer", playerId);
+          })
+
           socket.on('gameOver', () => {
             currentRoom.endGame();
             io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});

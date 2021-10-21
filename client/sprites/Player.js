@@ -112,4 +112,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         console.log('8======fallCount', this.fallCount)
     }
 
+    disappear() {
+        console.log('username disappear!')
+        this.username.setVisible(false);
+    }
+
 }

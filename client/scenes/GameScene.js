@@ -122,6 +122,7 @@ export default class GameScene extends Phaser.Scene {
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
         this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 30}).setOrigin(0.5);
+
         //Socket stuff is below
 
         this.socket.on("updatePlatformTimer", (time) => {
@@ -176,7 +177,15 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
+        this.socket.on('disappearedPlayer', function(playerId, scene = self) {
+          if(scene.otherPlayers[playerId]){
+            scene.otherPlayers[playerId].disappear();
+            scene.otherPlayers[playerId].setVisible(false);
+          }
+        })
+
         this.socket.emit("readyToBuild");
+
     }
 
     update () {
@@ -205,10 +214,8 @@ export default class GameScene extends Phaser.Scene {
 
       if (this.platformButtonsState && this.player || this.lives <= 0) {
         this.player.body.moves = false;
-        // this.player.body.allowGravity = false;
       } else if (this.player) {
         this.player.body.moves = true;
-        // this.player.body.allowGravity = true;
       }
 
     }
@@ -253,18 +260,16 @@ export default class GameScene extends Phaser.Scene {
     lostTheGame() {
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
-      console.log('///this.player', this.player);
       if (this.lives <= 0) {
         this.livesText.destroy();
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
-        this.player.body.moves = false;
+        this.player.disappear();
         this.player.setVisible(false);
         this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
-        console.log('lost all lives+++++---', this.player.scene.playerId, this.player)
-        // this.socket.emit('playerLostAllLives', this.player.scene.playerId)
 
+        this.socket.emit('playerLostAllLives', this.player.scene.playerId)
       }
 
     }
