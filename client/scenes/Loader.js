@@ -9,8 +9,8 @@ export default class InitialLoader extends Phaser.Scene {
   preload() {
     this.graphics = this.add.graphics();
     this.newGraphics = this.add.graphics();
-    var progressBar = new Phaser.Geom.Rectangle(200, 200, 400, 50);
-    var progressBarFill = new Phaser.Geom.Rectangle(205, 205, 290, 40);
+    var progressBar = new Phaser.Geom.Rectangle(470, 280, 400, 50);
+    var progressBarFill = new Phaser.Geom.Rectangle(475, 285, 290, 40);
 
     this.graphics.fillStyle(0xffffff, 1);
     this.graphics.fillRectShape(progressBar);
@@ -18,7 +18,8 @@ export default class InitialLoader extends Phaser.Scene {
     this.newGraphics.fillStyle(0x3587e2, 1);
     this.newGraphics.fillRectShape(progressBarFill);
 
-    var loadingText = this.add.text(250, 260, "Loading: ", {
+    
+    const loadingText = this.add.text(500, 340, "Loading: ", {
       fontSize: "32px",
       fill: "#FFF",
     });
@@ -65,7 +66,7 @@ export default class InitialLoader extends Phaser.Scene {
   updateBar(percentage) {
     this.newGraphics.clear();
     this.newGraphics.fillStyle(0x3587e2, 1);
-    this.newGraphics.fillRectShape(new Phaser.Geom.Rectangle(205, 205, percentage * 390, 40));
+    this.newGraphics.fillRectShape(new Phaser.Geom.Rectangle(475, 285, percentage * 390, 40));
 
     percentage = percentage * 100;
     this.loadingText.setText("Loading: " + percentage.toFixed(2) + "%");
