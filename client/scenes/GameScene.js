@@ -120,21 +120,19 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
         const {width} = this.scale;
-        this.platformTimer = this.add.text(width * 0.5, 20, "10", {fontSize: 35}).setOrigin(0.5);
+        this.platformTimer = this.add.text(width * 0.5, 20, "Time to Place Platforms: 10", {fontSize: 30}).setOrigin(0.5);
         //Socket stuff is below
 
         this.socket.emit("startPlatformTimer");
 
         this.socket.on("updatePlatformTimer", (time) => {
-          this.platformTimer.setFontSize("30px"); //needed?
-          this.platformTimer.setText(`${time}`);
+          this.platformTimer.setText(`Time to Place Platforms: ${time}`);
           if(time === 1) {
             this.startGameTimer();
           }
         })
 
         this.socket.on("updateGameTimer", (time) => {
-          this.gameTimer.setFontSize("30px");
           this.gameTimer.setText(`${time}`);
           if(time === 1) {
             this.timesUp();
@@ -256,7 +254,7 @@ export default class GameScene extends Phaser.Scene {
     startGameTimer() {
       this.platformTimer.destroy();
       const { width, height } = this.scale
-      this.gameTimer = this.add.text(width * 0.5, 20, "20", {fontSize: 35}).setOrigin(0.5);
+      this.gameTimer = this.add.text(width * 0.5, 20, "20", {fontSize: 30}).setOrigin(0.5);
       this.socket.emit("startGameTimer");
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
