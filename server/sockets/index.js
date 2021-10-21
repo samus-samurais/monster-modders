@@ -54,12 +54,12 @@ module.exports = (io) => {
         })
 
         socket.on('joinedRoom', (info) => {
-          var timer = null;
           const currentRoom = roomList[info.roomKey];
           currentRoom.addPlayer(socket, loggedInUserInfo[socket.id]);
           inRoom = true
           socket.join(info.roomKey);
           socket.emit("sentPlayerInfo",currentRoom.players);
+          console.log("Room now: ",currentRoom.players);
 
           socket.to(info.roomKey).emit("newPlayer",currentRoom.getPlayer(socket.id));
           
@@ -96,7 +96,11 @@ module.exports = (io) => {
 
           socket.on('leftLobby', (id) => {
             currentRoom.removePlayer(id)
-            socket.to(info.roomKey).emit("playerLeft",socket.id);
+            //Broadcasts player leaving to all other players if game is in lobby state
+            //If game is not in lobby state and this triggers, everyone is leaving anyway, so this not necessary
+            if(!currentRoom.gameStarted){
+              socket.to(info.roomKey).emit("playerLeft",socket.id);
+            }
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
             roomEvents.forEach((evt) => socket.removeAllListeners(evt));
             socket.leave(info.roomKey);
@@ -113,16 +117,19 @@ module.exports = (io) => {
 
           socket.on("readyToBuild", () => {
               currentRoom.playersLoaded += 1
+              console.log("players loaded is",currentRoom.playersLoaded,"player count is",currentRoom.playerCount);
               if(currentRoom.playersLoaded === currentRoom.playerCount){
-                currentRoom.playersLoaded = 0;
                 io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                timer = setInterval(() => {
-                  console.log("Timer runs");
+                currentRoom.timerId = setInterval(() => {
+                  console.log("Build timer runs");
                   if(currentRoom.platformTimer > 0) {
                     currentRoom.runPlatformTimer();
                     io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                   } else {
-                    clearInterval(timer);
+                    currentRoom.playersLoaded = 0;
+                    console.log("build timer being cleared")
+                    io.in(info.roomKey).emit("buildPhaseOver");
+                    clearInterval(currentRoom.timerId);
                   }
                 }, 1000);
             }
@@ -130,15 +137,19 @@ module.exports = (io) => {
 
           socket.on("readyToRace", () => {
             currentRoom.playersLoaded += 1
+            console.log("players loaded is",currentRoom.playersLoaded,"player count is",currentRoom.playerCount);
             if(currentRoom.playersLoaded === currentRoom.playerCount){
-              currentRoom.playersLoaded = 0;
+              console.log("Race starting")
               io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
-              timer = setInterval(() => {
+              currentRoom.timerId = setInterval(() => {
+                console.log("Race timer runs");
                 if(currentRoom.gameTimer > 0) {
                   currentRoom.runGameTimer();
                   io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
                 } else {
-                  clearInterval(timer);
+                  currentRoom.playersLoaded = 0;
+                  console.log("race timer being cleared")
+                  clearInterval(currentRoom.timerId);
                 }
               }, 1000);
             }
@@ -154,21 +165,19 @@ module.exports = (io) => {
           })
 
           socket.on('stopTimer', () => {
-            if(timer){
+            if(currentRoom.timerId){
               console.log("Stopping timer");
-              clearInterval(timer);
-              timer = null;
+              clearInterval(currentRoom.timerId);
+              currentRoom.timerId = null;
             }
           })
 
           socket.on('disconnect', () => {
+            currentRoom.removePlayer(socket.id)
             if(currentRoom.gameStarted){
               currentRoom.endGame();
-              //clearInterval(timer);
-              //timer = null;
               io.in(info.roomKey).emit('finishedGame', {cause: "disconnect"});
             } else {
-              currentRoom.removePlayer(socket.id)
               socket.to(info.roomKey).emit("playerLeft",socket.id);
             }
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
