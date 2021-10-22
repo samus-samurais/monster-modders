@@ -33,6 +33,10 @@ export default class GameScene extends Phaser.Scene {
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
+        //stop waiting scene music
+        this.sound.stopAll();
+        //play game music here
+
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
