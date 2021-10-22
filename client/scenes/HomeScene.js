@@ -30,6 +30,13 @@ export default class HomeScene extends Phaser.Scene {
           this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo});
         });
 
+        //make tutorial button
+        this.tutorialButton = this.add.image(200, 200, 'tutorialButton').setInteractive();
+        this.UI.add(this.tutorialButton);
+        this.tutorialButton.on('pointerdown', () => {
+          this.scene.launch("TutorialScene", {socket: this.socket, homeSceneUI: this.UI});
+        })
+
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
