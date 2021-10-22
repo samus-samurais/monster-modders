@@ -18,7 +18,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.newGraphics.fillStyle(0x3587e2, 1);
     this.newGraphics.fillRectShape(progressBarFill);
 
-    
+
     const loadingText = this.add.text(500, 340, "Loading: ", {
       fontSize: "32px",
       fill: "#FFF",
@@ -37,6 +37,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
     this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
+    this.load.image('tutorialButton', 'assest/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
     this.load.image("star", "assets/star.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
@@ -47,6 +48,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
     this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
     this.load.image("backButton", "assets/testImage/backButton.png");
+    this.load.image('tutorialButton', 'assest/testImage/falseTutorialButton.png');
 
 
     //audio
@@ -55,6 +57,7 @@ export default class InitialLoader extends Phaser.Scene {
     //html
     this.load.html('loginform', 'assets/text/loginform.html');
     this.load.html('signupform', 'assets/text/signupform.html');
+    this.load.html("tutorialtext", "assets/text/tutorialtext.html");
 
     this.load.on("progress", this.updateBar, {
       newGraphics: this.newGraphics,

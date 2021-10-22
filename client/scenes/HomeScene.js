@@ -30,6 +30,13 @@ export default class HomeScene extends Phaser.Scene {
           this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo});
         });
 
+        //make tutorial button
+        this.tutorialButton = this.add.image(640, 400, 'tutorialButton').setInteractive();
+        this.UI.add(this.tutorialButton);
+        this.tutorialButton.on('pointerdown', () => {
+          this.scene.launch("TutorialScene", {socket: this.socket, homeSceneUI: this.UI, user: this.playerInfo});
+        })
+
         // make multiplayer mode button
         this.multiplayerButton = this.add.image(640, 540, 'multiplayerButton').setInteractive();
         this.UI.add(this.multiplayerButton);
@@ -37,6 +44,7 @@ export default class HomeScene extends Phaser.Scene {
           console.log("Important data");
           this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
         })
+
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
           // if there is no login user that create login/singup button
           this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
