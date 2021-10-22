@@ -31,7 +31,7 @@ export default class HomeScene extends Phaser.Scene {
         });
 
         //make tutorial button
-        this.tutorialButton = this.add.image(640, 400, 'tutorialButton').setInteractive();
+        this.tutorialButton = this.add.image(320, 150, 'tutorialButton').setInteractive();
         this.UI.add(this.tutorialButton);
         this.tutorialButton.on('pointerdown', () => {
           this.scene.launch("TutorialScene", {socket: this.socket, homeSceneUI: this.UI, user: this.playerInfo});

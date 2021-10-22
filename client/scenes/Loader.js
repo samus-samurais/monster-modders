@@ -37,7 +37,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
     this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
-    this.load.image('tutorialButton', 'assest/testImage/falseTutorialButton.png');
+    this.load.image('tutorialButton', 'assets/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
     this.load.image("star", "assets/star.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
@@ -48,7 +48,6 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
     this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
     this.load.image("backButton", "assets/testImage/backButton.png");
-    this.load.image('tutorialButton', 'assest/testImage/falseTutorialButton.png');
 
 
     //audio
