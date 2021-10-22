@@ -62,11 +62,11 @@ module.exports = (io) => {
           console.log("Room now: ",currentRoom.players);
 
           socket.to(info.roomKey).emit("newPlayer",currentRoom.getPlayer(socket.id));
-          
+
           if(!currentRoom.isOpen){
             socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Room is full"})
           }
-          
+
             //Upon recieving a signal that a player has moved, broadcasts emission to update player for all others
           socket.on('updatePlayer', (movementState) => {
             movementState.playerId = socket.id
@@ -155,6 +155,10 @@ module.exports = (io) => {
             }
           });
 
+          socket.on('playerLostAllLives', (playerId) => {
+            io.in(info.roomKey).emit("disappearedPlayer", playerId);
+          })
+
           socket.on('gameOver', () => {
             currentRoom.endGame();
             io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
@@ -188,7 +192,7 @@ module.exports = (io) => {
           console.log('user',socket.id, 'disconnected');
           delete loggedInUserInfo[socket.id];
         });
-        
+
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
             .then(() => {

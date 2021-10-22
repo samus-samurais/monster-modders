@@ -8,8 +8,8 @@ export default class GameScene extends Phaser.Scene {
         super(key);
         this.player = null
         this.otherPlayers = {}
-        // make sure that lost player couldn't use platformMaker button
-        this.allowAddPlatform = true;
+        // // make sure that lost player couldn't use platformMaker button
+        // this.allowAddPlatform = true;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
         this.platformMaker = null;
@@ -20,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformTable = {};
         this.lives = 3;
         this.gameTimer = null;
+        this.platformButtonsState = true;
     }
 
     init(data){
@@ -53,25 +54,22 @@ export default class GameScene extends Phaser.Scene {
         this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
         this.platformMaker.on('pointerdown', () => {
 
-          if (this.allowAddPlatform) {
-            //Sets it so that only the most recently placed platform can be draggable
-            if(this.platformBeingPlaced){
-              this.input.setDraggable(this.platformBeingPlaced,false);
-            }
-            //Generates new platform, sets it to platform being placed
-            const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
-            //Adds platform to both group and table
-            this.allPlatforms.add(userPlatform);
-            this.platformTable[userPlatform.id] = userPlatform
-            this.input.setDraggable(userPlatform);
-            this.platformBeingPlaced = userPlatform
+          if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
+            this.input.setDraggable(this.platformBeingPlaced,false);
           }
+          //Generates new platform, sets it to platform being placed
+          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
+          //Adds platform to both group and table
+          this.allPlatforms.add(userPlatform);
+          this.platformTable[userPlatform.id] = userPlatform
+          this.input.setDraggable(userPlatform);
+          this.platformBeingPlaced = userPlatform
         });
 
         this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
-          if (this.addButtonToggle && this.allowAddPlatform) {
+          if (this.addButtonToggle) {
             this.removeButtonToggle = true
             // change the button color to show that in this state user could delete a platform.
             this.platformDestroyer.setTint(0xff0000);
@@ -101,7 +99,7 @@ export default class GameScene extends Phaser.Scene {
                 console.log("Player built in multiplayer file!"); //PC == Playable Character!
                 this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'dude', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
 
-                console.log(';;;;;player', this.player)
+                console.log('here is the PC player-----', this.player);
             } else {
                 console.log("NPC built in multiplayer file"); //NPC = Non-playable Character
                 this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'dude','NPC', null, this.players[ids[i]].username)
@@ -122,6 +120,7 @@ export default class GameScene extends Phaser.Scene {
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
         this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 30}).setOrigin(0.5);
+
         //Socket stuff is below
 
         this.socket.on("updatePlatformTimer", (time) => {
@@ -177,8 +176,16 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
+        this.socket.on('disappearedPlayer', function(playerId, scene = self) {
+          if(scene.otherPlayers[playerId]){
+            scene.otherPlayers[playerId].disappear();
+            scene.otherPlayers[playerId].setVisible(false);
+          }
+        })
+
         console.log("This loads");
         this.socket.emit("readyToBuild");
+
     }
 
     update () {
@@ -186,7 +193,7 @@ export default class GameScene extends Phaser.Scene {
         this.player.update(this.cursors);
       }
 
-      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
+      if(this.platformBeingPlaced && this.platformBeingPlaced.sticky && this.platformTable[this.platformBeingPlaced.id]){
         this.platformBeingPlaced.update(this.input.mousePointer);
       }
 
@@ -194,6 +201,21 @@ export default class GameScene extends Phaser.Scene {
         this.addButtonToggle = true;
       } else {
         this.addButtonToggle = false;
+      }
+
+      if (!this.platformButtonsState) {
+        // when gameTimer begin to work, platformButtons should be disappeared.
+        this.platformMaker.setVisible(false);
+        this.platformDestroyer.setVisible(false);
+        if (this.platformBeingPlaced) {
+          this.input.setDraggable(this.platformBeingPlaced,false);
+        }
+      }
+
+      if (this.platformButtonsState && this.player || this.lives <= 0) {
+        this.player.body.moves = false;
+      } else if (this.player) {
+        this.player.body.moves = true;
       }
 
     }
@@ -223,7 +245,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && this.platformButtonsState){
+        if (this.platformBeingPlaced && objectClicked.id === this.platformBeingPlaced.id) {
+          this.platformBeingPlaced = null;
+        }
         this.allPlatforms.remove(objectClicked);
         this.socket.emit("removePlatform",{platformId: objectClicked.id});
         objectClicked.destroy();
@@ -236,13 +261,16 @@ export default class GameScene extends Phaser.Scene {
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
 
-      if (!this.lives) {
-        this.livesText.setText('');
+      if (this.lives <= 0) {
+        this.livesText.destroy();
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
-        this.physics.pause()
-        this.allowAddPlatform = false;
+        this.player.disappear();
+        this.player.setVisible(false);
+        // this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
+
+        this.socket.emit('playerLostAllLives', this.player.scene.playerId)
       }
 
     }
@@ -256,7 +284,7 @@ export default class GameScene extends Phaser.Scene {
     closeGame(){
       console.log("Game is over");
       this.socket.removeAllListeners();
-      //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends. 
+      //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
       this.socket.emit('leftLobby', this.playerId);
       this.scene.start("HomeScene");
     }
@@ -268,6 +296,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     startGameTimer() {
+      this.platformButtonsState = false;
       this.platformTimer.destroy();
       const { width, height } = this.scale
       this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
@@ -275,7 +304,7 @@ export default class GameScene extends Phaser.Scene {
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
         .setOrigin(0.5);
-  
+
       this.destroyText(this.text);
     }
 
@@ -287,7 +316,7 @@ export default class GameScene extends Phaser.Scene {
         .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
         .setOrigin(0.5);
     }
-    
+
 
     destroyText(timerText) {
       setTimeout(function() {

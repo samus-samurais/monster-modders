@@ -18,7 +18,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.newGraphics.fillStyle(0x3587e2, 1);
     this.newGraphics.fillRectShape(progressBarFill);
 
-    
+
     const loadingText = this.add.text(500, 340, "Loading: ", {
       fontSize: "32px",
       fill: "#FFF",
@@ -37,7 +37,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
     this.load.image('loginSignupButton', 'assets/testImage/falseLoginSignupButton.png');
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
-    this.load.image("tutorialButton", "assets/testImage/falseLoginSignupButton.png"); //tutorial button
+    this.load.image('tutorialButton', 'assets/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
     this.load.image("star", "assets/star.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
