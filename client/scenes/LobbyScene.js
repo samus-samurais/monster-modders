@@ -18,6 +18,8 @@ export default class LobbyScene extends Phaser.Scene {
 
     create(){
         const self = this;
+        this.sound.stopAll(); //stop lobby music
+        
         //Initializes player
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
         this.socket.emit('joinedRoom',{roomKey: this.roomKey});
@@ -163,7 +165,7 @@ export default class LobbyScene extends Phaser.Scene {
         })
         backButton.on("pointerup", () => {
             this.socket.removeAllListeners();
-            this.scene.stop("Sandbox");
+            this.scene.stop("LobbyScene");
             this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
             this.socket.emit('leftLobby', this.playerId);
         })
