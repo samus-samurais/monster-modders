@@ -26,6 +26,7 @@ export default class GameScene extends Phaser.Scene {
     init(data){
         this.socket = data.socket;
         this.playerId = data.socket.id;
+        this.playerInfo = data.user ? data.user : null
         this.players = data.players;
     }
 
@@ -85,7 +86,7 @@ export default class GameScene extends Phaser.Scene {
 
         //Drops off sticky platforms upon click
         this.input.on('pointerup',() => {
-          if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
+          if(this.platformBeingPlaced && this.platformBeingPlaced.sticky && this.platformTable[this.platformBeingPlaced.id]){
           this.platformBeingPlaced.place();
           }
         })
@@ -99,6 +100,7 @@ export default class GameScene extends Phaser.Scene {
           platforms: this.allPlatforms,
           fallDetector: this.fallDetector
         }
+
         let ids = Object.keys(this.players);
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
@@ -121,7 +123,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
-        this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
+        this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.loseLives, null, this);
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
@@ -246,6 +248,9 @@ export default class GameScene extends Phaser.Scene {
     removePlatform(id){
       console.log("ID to remove:",id)
       console.log("Platform table",this.platformTable);
+      if (this.platformBeingPlaced && this.platformBeingPlaced.id === id) {
+        this.platformBeingPlaced = null;
+      }
       this.platformTable[id].destroy();
       delete this.platformTable[id];
     }
@@ -263,7 +268,7 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    lostTheGame() {
+    loseLives() {
       this.deathSound = this.sound.add("deathSound");
       this.deathSound.play({volume: 0.3});
       this.lives -= 1;
@@ -274,7 +279,6 @@ export default class GameScene extends Phaser.Scene {
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
         this.player.disappear();
         this.player.setVisible(false);
-        // this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
 
@@ -294,7 +298,7 @@ export default class GameScene extends Phaser.Scene {
       this.socket.removeAllListeners();
       //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
       this.socket.emit('leftLobby', this.playerId);
-      this.scene.start("HomeScene");
+      this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     }
 
     removePlayer(id){
