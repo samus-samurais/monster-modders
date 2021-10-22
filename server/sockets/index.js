@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 const firebase = require("firebase/app");
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} = require("firebase/auth")
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged} = require("firebase/auth")
 const { doc, setDoc, getFirestore } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
@@ -21,7 +21,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getFirestore();
+const db = getFirestore(firebaseApp);
 const roomList = require("./rooms");
 
 var loggedInUserInfo = {};
@@ -157,6 +157,22 @@ module.exports = (io) => {
 
           socket.on('playerLostAllLives', (playerId) => {
             io.in(info.roomKey).emit("disappearedPlayer", playerId);
+          })
+
+          socket.on('playerWinTheGame', (playerId) => {
+            console.log('///////player win the game', playerId);
+            console.log('player win the game///////', currentRoom.players);
+            console.log('........', auth);
+              // onAuthStateChanged(user => {
+              //   console.log('OOOOOOOOOO*******', user)
+              // }
+              // auth.getUserByEmail("wangjfmh@gmail.com")
+              //   .then((userRecord) => {
+              //     console.log('...user record', userRecord.toJSON())
+              //   })
+              //   .catch((error) => {
+              //     console.log('...user record', error)
+              //   })
           })
 
           socket.on('gameOver', () => {

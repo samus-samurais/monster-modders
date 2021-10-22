@@ -21,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
         this.lives = 3;
         this.gameTimer = null;
         this.platformButtonsState = true;
+        this.winState = false;
     }
 
     init(data){
@@ -116,6 +117,11 @@ export default class GameScene extends Phaser.Scene {
         this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
         this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
+
+
+
+        this.falseWinFlag = this.physics.add.staticImage(1100, 150, 'falseRemovePlatformButton');
+        this.physics.add.collider(this.player, this.falseWinFlag, this.winTheGame, null, this);
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
@@ -218,6 +224,10 @@ export default class GameScene extends Phaser.Scene {
         this.player.body.moves = true;
       }
 
+      if (this.player && this.player.y < 200) {
+        this.winState = true;
+      }
+
     }
 
     addPlatform(platformInfo){
@@ -273,6 +283,12 @@ export default class GameScene extends Phaser.Scene {
         this.socket.emit('playerLostAllLives', this.player.scene.playerId)
       }
 
+    }
+
+    winTheGame(player) {
+      if (this.winState) {
+        this.socket.emit('playerWinTheGame', player.scene.playerId)
+      }
     }
 
     handleDisconnect(){
