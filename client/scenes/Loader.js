@@ -52,6 +52,7 @@ export default class InitialLoader extends Phaser.Scene {
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
+    this.load.audio("sandboxMusic", "assets/audio/game-music-1.wav");
 
     //html
     this.load.html('loginform', 'assets/text/loginform.html');
