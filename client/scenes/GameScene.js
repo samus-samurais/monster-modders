@@ -35,7 +35,9 @@ export default class GameScene extends Phaser.Scene {
 
         //stop waiting scene music
         this.sound.stopAll();
-        //play game music here
+        //play game music
+        this.gameMusic = this.sound.add("gameMusic");
+        this.gameMusic.play({volume: 0.2, loop: true});
 
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
@@ -262,6 +264,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     lostTheGame() {
+      this.deathSound = this.sound.add("deathSound");
+      this.deathSound.play({volume: 0.3});
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
 

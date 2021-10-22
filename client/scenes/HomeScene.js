@@ -12,6 +12,7 @@ export default class HomeScene extends Phaser.Scene {
     }
 
     create(){
+        this.sound.stopAll(); //in case of disconnect or page refresh clear any previous music from playing
         this.UI = this.add.group();
         this.add.image(640, 360, 'background');
         this.logo = this.add.image(640, 250, 'logo');
