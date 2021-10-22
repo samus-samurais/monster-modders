@@ -142,7 +142,7 @@ export default class LobbyScene extends Phaser.Scene {
         console.log('players are', players);
         //VERY IMPORTANT for functioning sockets - always call this when swapping scenes w socket.on calls
         this.socket.removeAllListeners();
-        this.scene.start('GameScene', {socket: this.socket, players});
+        this.scene.start('GameScene', {socket: this.socket, players, user: this.playerInfo});
     }
 
     goBack() {
