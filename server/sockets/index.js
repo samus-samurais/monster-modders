@@ -49,6 +49,65 @@ module.exports = (io) => {
         console.log('user',socket.id, 'connected');
         // create a new player and add it to our players object
 
+        socket.on("newUserSignup", (input) => {
+          createUserWithEmailAndPassword(auth, input.email, input.password)
+            .then(() => {
+              if (auth.currentUser) {
+                // if the new user sign up successfully, update the username as displayName
+                // use the property photoURL to store number_of_wins temporarily
+                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
+                .then(() => {
+                  // get the user info
+                  const user = auth.currentUser
+                  // when user login/singup successfully, the socket.id and the username are bound
+                  loggedInUserInfo[socket.id] = user.displayName;
+
+                  // use socket.emit to send the sign up success and the user info
+                  socket.emit("signUpSuccess", {
+                    username: user.displayName,
+                    email: user.email,
+                    number_of_wins: Number(user.photoURL)
+                  })
+                })
+              }
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/email-already-in-use
+              var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
+
+              console.log('signup error----', errorCode);
+              socket.emit("newUserInfoNotValid", errorCode.slice(5))
+            })
+
+        })
+
+
+        socket.on("userLogin", (input) => {
+          signInWithEmailAndPassword(auth, input.email, input.password)
+            .then(() => {
+              const user = auth.currentUser
+              loggedInUserInfo[socket.id] = user.displayName;
+
+              socket.emit("LoginSuccess", {
+                username: user.displayName,
+                email: user.email,
+                number_of_wins: Number(user.photoURL)
+              })
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/wrong-password
+              var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
+
+              console.log('login error----', errorCode);
+              socket.emit("userInfoNotValid", errorCode.slice(5))
+            })
+        })
+
+
+
+
+
+
         socket.on("getRoomData", () => {
           socket.emit("roomDataSent", roomList);
         })
@@ -159,22 +218,6 @@ module.exports = (io) => {
             io.in(info.roomKey).emit("disappearedPlayer", playerId);
           })
 
-          socket.on('playerWinTheGame', (playerId) => {
-            console.log('///////player win the game', playerId);
-            console.log('player win the game///////', currentRoom.players);
-            console.log('........', auth);
-              // onAuthStateChanged(user => {
-              //   console.log('OOOOOOOOOO*******', user)
-              // }
-              // auth.getUserByEmail("wangjfmh@gmail.com")
-              //   .then((userRecord) => {
-              //     console.log('...user record', userRecord.toJSON())
-              //   })
-              //   .catch((error) => {
-              //     console.log('...user record', error)
-              //   })
-          })
-
           socket.on('gameOver', () => {
             currentRoom.endGame();
             io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
@@ -209,58 +252,5 @@ module.exports = (io) => {
           delete loggedInUserInfo[socket.id];
         });
 
-        socket.on("newUserSignup", (input) => {
-          createUserWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              if (auth.currentUser) {
-                // if the new user sign up successfully, update the username as displayName
-                // use the property photoURL to store number_of_wins temporarily
-                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
-                .then(() => {
-                  // get the user info
-                  const user = auth.currentUser
-                  // when user login/singup successfully, the socket.id and the username are bound
-                  loggedInUserInfo[socket.id] = user.displayName;
-
-                  // use socket.emit to send the sign up success and the user info
-                  socket.emit("signUpSuccess", {
-                    username: user.displayName,
-                    email: user.email,
-                    number_of_wins: Number(user.photoURL)
-                  })
-                })
-              }
-            })
-            .catch((error) => {
-              var errorCode = error.code; // example: auth/email-already-in-use
-              var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
-
-              console.log('signup error----', errorCode);
-              socket.emit("newUserInfoNotValid", errorCode.slice(5))
-            })
-
-        })
-
-
-        socket.on("userLogin", (input) => {
-          signInWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              const user = auth.currentUser
-              loggedInUserInfo[socket.id] = user.displayName;
-
-              socket.emit("LoginSuccess", {
-                username: user.displayName,
-                email: user.email,
-                number_of_wins: Number(user.photoURL)
-              })
-            })
-            .catch((error) => {
-              var errorCode = error.code; // example: auth/wrong-password
-              var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
-
-              console.log('login error----', errorCode);
-              socket.emit("userInfoNotValid", errorCode.slice(5))
-            })
-        })
     });
 }

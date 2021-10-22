@@ -77,7 +77,6 @@ export default class InitialLoader extends Phaser.Scene {
 
   complete() {
     console.log("COMPLETE");
-
   }
 
   create() {

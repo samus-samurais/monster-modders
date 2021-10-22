@@ -11,7 +11,8 @@ export default class UserProfileScene extends Phaser.Scene {
   }
 
   create() {
-    this.UI = this.add.group();    
+    this.add.image(640, 360, 'background');
+    this.UI = this.add.group();
 
     // display login user's information
     this.username = this.add.text(450, 150, `Player username: ${this.playerInfo.username}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
@@ -38,5 +39,29 @@ export default class UserProfileScene extends Phaser.Scene {
     })
     this.UI.add(this.multiplayerButton);
 
+    this.goBack();
+
+  }
+
+  goBack() {
+    const backButton = this.add
+      .image(this.scale.width - 20, 20, 'backButton')
+      .setScrollFactor(0)
+      .setOrigin(1, 0)
+      .setScale(2);
+    backButton.setInteractive();
+    backButton.on("pointerdown", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerover", () => {
+      backButton.setTint(0xFF0000);
+    });
+    backButton.on("pointerout", () => {
+      backButton.clearTint();
+    })
+    backButton.on("pointerup", () => {
+      this.scene.stop("UserProfileScene");
+      this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
+    })
   }
 }
