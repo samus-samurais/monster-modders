@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-const firebase = require("firebase/app");
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged} = require("firebase/auth")
-const { doc, setDoc, getFirestore } = require("firebase/firestore");
+const { initializeApp } = require("firebase/app");
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} = require("firebase/auth")
+const { doc, setDoc, getFirestore, getDoc, collection, getDocs, updateDoc } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -19,12 +19,32 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getFirestore(firebaseApp);
+const db = getFirestore(app);
 const roomList = require("./rooms");
 
 var loggedInUserInfo = {};
+var userRankingList = [];
+
+async function updateUserInfo(uid) {
+  await updateDoc(doc(db, "users", uid), {
+    number_of_wins: 0
+  })
+}
+
+async function rankingList() {
+  // get all users info push into a array
+  // if there is  extra time, try to use query condition
+  const allUsers = await getDocs(collection(db, "users"));
+  allUsers.forEach((doc) => {
+    userRankingList.push(doc.data());
+  })
+  console.log('......all users', userRankingList)
+  return userRankingList
+}
+
+rankingList()
 
 //Defines array of all events in a room that would require listeners
 //This lets us iterate through this array to remove said listeners upon room exit
@@ -48,65 +68,6 @@ module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('user',socket.id, 'connected');
         // create a new player and add it to our players object
-
-        socket.on("newUserSignup", (input) => {
-          createUserWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              if (auth.currentUser) {
-                // if the new user sign up successfully, update the username as displayName
-                // use the property photoURL to store number_of_wins temporarily
-                updateProfile(auth.currentUser, { displayName: input.username, photoURL: 0 })
-                .then(() => {
-                  // get the user info
-                  const user = auth.currentUser
-                  // when user login/singup successfully, the socket.id and the username are bound
-                  loggedInUserInfo[socket.id] = user.displayName;
-
-                  // use socket.emit to send the sign up success and the user info
-                  socket.emit("signUpSuccess", {
-                    username: user.displayName,
-                    email: user.email,
-                    number_of_wins: Number(user.photoURL)
-                  })
-                })
-              }
-            })
-            .catch((error) => {
-              var errorCode = error.code; // example: auth/email-already-in-use
-              var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
-
-              console.log('signup error----', errorCode);
-              socket.emit("newUserInfoNotValid", errorCode.slice(5))
-            })
-
-        })
-
-
-        socket.on("userLogin", (input) => {
-          signInWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              const user = auth.currentUser
-              loggedInUserInfo[socket.id] = user.displayName;
-
-              socket.emit("LoginSuccess", {
-                username: user.displayName,
-                email: user.email,
-                number_of_wins: Number(user.photoURL)
-              })
-            })
-            .catch((error) => {
-              var errorCode = error.code; // example: auth/wrong-password
-              var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
-
-              console.log('login error----', errorCode);
-              socket.emit("userInfoNotValid", errorCode.slice(5))
-            })
-        })
-
-
-
-
-
 
         socket.on("getRoomData", () => {
           socket.emit("roomDataSent", roomList);
@@ -251,6 +212,66 @@ module.exports = (io) => {
           console.log('user',socket.id, 'disconnected');
           delete loggedInUserInfo[socket.id];
         });
+
+        socket.on("newUserSignup", (input) => {
+          createUserWithEmailAndPassword(auth, input.email, input.password)
+            .then(async () => {
+              if (auth.currentUser) {
+                // create the user in firestore by same uid;
+                await setDoc(doc(db, "users", auth.currentUser.uid), {
+                  username: input.username,
+                  number_of_wins: 0
+                })
+
+                // store the uid and username in loggedInUserInfo by socket.io
+                loggedInUserInfo[socket.id] = {
+                  uid: auth.currentUser.uid,
+                  username: input.username
+                }
+                // use socket.emit to send the sign up success and the user info
+                socket.emit("signUpSuccess", {
+                  username: input.username,
+                  email: auth.currentUser.email,
+                  number_of_wins: 0
+                })
+              }
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/email-already-in-use
+              var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
+
+              console.log('signup error----', errorCode);
+              socket.emit("newUserInfoNotValid", errorCode.slice(5))
+            })
+
+        })
+
+        socket.on("userLogin", (input) => {
+          signInWithEmailAndPassword(auth, input.email, input.password)
+            .then(async () => {
+              // get the login user info
+              const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
+              const loginUser = userSnap.data();
+
+              loggedInUserInfo[socket.id] = {
+                uid: auth.currentUser.uid,
+                username: loginUser.username
+              }
+
+              socket.emit("LoginSuccess", {
+                username: loginUser.username,
+                email: input.email,
+                number_of_wins: loginUser.number_of_wins
+              })
+            })
+            .catch((error) => {
+              var errorCode = error.code; // example: auth/wrong-password
+              var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
+
+              console.log('login error----', errorCode);
+              socket.emit("userInfoNotValid", errorCode.slice(5))
+            })
+        })
 
     });
 }

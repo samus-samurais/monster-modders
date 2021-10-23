@@ -36,15 +36,16 @@ class Room {
         return this.players[id];
     }
 
-    addPlayer(socket, displayName){
+    addPlayer(socket, loginUser){
         this.players[socket.id] = {
           playerId: socket.id,
           x: Math.floor(Math.random() * 700) + 50,
           y: Math.floor(Math.random() * 500) + 50
         };
-        if(displayName){
+        if(loginUser){
           // make suer each login user has correct username in every different scene
-          this.players[socket.id].username = displayName;
+          this.players[socket.id].username = loginUser.username;
+          this.players[socket.id].uid = loginUser.uid;
         } else {
           this.players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
         }
@@ -68,11 +69,11 @@ class Room {
             this.isOpen = true;
         }
     }
-      
+
     addPlatform(platform){
         this.platforms[platform.platformId] = platform;
     }
-      
+
     updatePlatform(platform){
         if(this.platforms[platform.platformId]){
             this.platforms[platform.platformId].x = platform.x;
