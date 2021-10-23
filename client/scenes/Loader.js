@@ -48,7 +48,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
     this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
     this.load.image("backButton", "assets/testImage/backButton.png");
-
+    this.load.image("leaveRoomButton", "assets/testImage/falseLeaveRoomButton.png");
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
