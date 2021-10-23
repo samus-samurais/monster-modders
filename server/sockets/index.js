@@ -58,8 +58,10 @@ const roomEvents = [
   'gameStart',
   'readyToBuild',
   'readyToRace',
+  'playerLostAllLives',
   'stopTimer',
   'gameOver',
+  'playerFinished',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));
@@ -136,48 +138,56 @@ module.exports = (io) => {
           })
 
           socket.on("readyToBuild", () => {
-              currentRoom.playersLoaded += 1
-              console.log("players loaded is",currentRoom.playersLoaded,"player count is",currentRoom.playerCount);
-              if(currentRoom.playersLoaded === currentRoom.playerCount){
-                io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                currentRoom.timerId = setInterval(() => {
-                  console.log("Build timer runs");
-                  if(currentRoom.platformTimer > 0) {
-                    currentRoom.runPlatformTimer();
-                    io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
-                  } else {
-                    currentRoom.playersLoaded = 0;
-                    console.log("build timer being cleared")
-                    io.in(info.roomKey).emit("buildPhaseOver");
-                    clearInterval(currentRoom.timerId);
-                  }
-                }, 1000);
-            }
-          });
-
-          socket.on("readyToRace", () => {
-            currentRoom.playersLoaded += 1
-            console.log("players loaded is",currentRoom.playersLoaded,"player count is",currentRoom.playerCount);
-            if(currentRoom.playersLoaded === currentRoom.playerCount){
-              console.log("Race starting")
-              io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+            currentRoom.playersReady += 1
+            console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            if(currentRoom.playersReady === currentRoom.playerCount){
+              io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
               currentRoom.timerId = setInterval(() => {
-                console.log("Race timer runs");
-                if(currentRoom.gameTimer > 0) {
-                  currentRoom.runGameTimer();
-                  io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
+                console.log("Build timer runs");
+                if(currentRoom.platformTimer > 0) {
+                  currentRoom.runPlatformTimer();
+                  io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                 } else {
-                  currentRoom.playersLoaded = 0;
-                  console.log("race timer being cleared")
+                  currentRoom.playersReady = 0;
+                  console.log("build timer being cleared")
+                  io.in(info.roomKey).emit("buildPhaseOver");
                   clearInterval(currentRoom.timerId);
                 }
               }, 1000);
-            }
-          });
+          }
+        });
 
-          socket.on('playerLostAllLives', (playerId) => {
-            io.in(info.roomKey).emit("disappearedPlayer", playerId);
-          })
+        socket.on("readyToRace", () => {
+          currentRoom.playersReady += 1
+          console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+          if(currentRoom.playersReady === currentRoom.playerCount){
+            console.log("Race starting")
+            io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
+            currentRoom.timerId = setInterval(() => {
+              console.log("Race timer runs");
+              if(currentRoom.gameTimer > 0) {
+                currentRoom.runGameTimer();
+                io.in(info.roomKey).emit("updateGameTimer",
+                {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+              } else {
+                currentRoom.playersReady = 0;
+                console.log("race timer being cleared")
+                clearInterval(currentRoom.timerId);
+              }
+            }, 1000);
+          }
+        });
+
+        socket.on('playerLostAllLives', (playerId) => {
+          socket.to(info.roomKey).emit("disappearedPlayer", playerId);
+        })
+
+        socket.on('playerFinished', (playerId) => {
+          if(currentRoom.playerFinished(playerId)){
+            clearInterval(currentRoom.timerId);
+            io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+          }
+        })
 
           socket.on('gameOver', () => {
             currentRoom.endGame();

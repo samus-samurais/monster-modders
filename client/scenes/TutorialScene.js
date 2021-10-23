@@ -19,7 +19,6 @@ export default class TutorialScene extends Phaser.Scene {
 
     this.tutorialHTML = this.add.dom(640, 360).createFromCache("tutorialtext");
     
-    
     this.goBack();
   }
 

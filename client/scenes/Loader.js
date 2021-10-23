@@ -39,7 +39,8 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
     this.load.image('tutorialButton', 'assets/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
-    this.load.image("star", "assets/star.png");
+    this.load.image("finishLine", "assets/finishLine.png");
+    this.load.image("startLine", "assets/startLine.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('platform', 'assets/platform/falseShortPlatform.png');
@@ -52,6 +53,10 @@ export default class InitialLoader extends Phaser.Scene {
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
+    this.load.audio("sandboxMusic", "assets/audio/game-music-1.wav");
+    this.load.audio("gameMusic", "assets/audio/game-music-2.wav");
+    this.load.audio("waitingMusic", "assets/audio/game-music-4.wav");
+    this.load.audio("deathSound", "assets/audio/death-sound.wav");
 
     //html
     this.load.html('loginform', 'assets/text/loginform.html');

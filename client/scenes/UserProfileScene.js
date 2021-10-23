@@ -21,13 +21,10 @@ export default class UserProfileScene extends Phaser.Scene {
     this.email = this.add.text(450, 250, `Player email: ${this.playerInfo.email}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
     this.UI.add(this.email);
 
-    this.numberOfWins = this.add.text(450, 350, `Player wins: ${this.playerInfo.number_of_wins}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
-    this.UI.add(this.numberOfWins);
-
     // navigate to the game different modes button
     this.sandboxButton = this.add.image(445, 540, 'sandboxButton').setInteractive();
     this.sandboxButton.on('pointerdown', () => {
-      this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo});
+      this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
       this.sandboxButton.disableInteractive();
     });
     this.UI.add(this.sandboxButton);
