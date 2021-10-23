@@ -115,7 +115,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         console.log("Oops!");
         this.setPosition(200,535);
         this.setVelocityY(0);
-        this.scene.loseLives();
+        if(this.scene.scene.key === 'GameScene'){
+            this.scene.loseLives();
+        }
     }
 
     disappear() {
