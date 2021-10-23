@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 const { initializeApp } = require("firebase/app");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} = require("firebase/auth")
-const { doc, setDoc, getFirestore, getDoc, collection, getDocs, updateDoc } = require("firebase/firestore");
+const { doc, setDoc, getFirestore, getDoc, collection, getDocs, updateDoc, query, orderBy, limit } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -34,13 +34,13 @@ async function updateUserInfo(uid) {
 }
 
 async function leaderboard() {
-  // get all users info push into a array
-  // if there is  extra time, try to use query condition
-  const allUsers = await getDocs(collection(db, "users"));
-  allUsers.forEach((doc) => {
+  // get top of 10 users info order by number of wins in desc.
+  const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+  const topTenUsersInfo = await getDocs(topTenUsers);
+  topTenUsersInfo.forEach(doc => {
     gameLeaderboard.push(doc.data());
   })
-  console.log('......all users', gameLeaderboard)
+  console.log('......all users', gameLeaderboard);
   return gameLeaderboard
 }
 
