@@ -25,26 +25,26 @@ const db = getFirestore(app);
 const roomList = require("./rooms");
 
 var loggedInUserInfo = {};
-var userRankingList = [];
+var gameLeaderboard = [];
 
 async function updateUserInfo(uid) {
   await updateDoc(doc(db, "users", uid), {
-    number_of_wins: 0
+    number_of_wins: 0 // the new number of wins
   })
 }
 
-async function rankingList() {
+async function leaderboard() {
   // get all users info push into a array
   // if there is  extra time, try to use query condition
   const allUsers = await getDocs(collection(db, "users"));
   allUsers.forEach((doc) => {
-    userRankingList.push(doc.data());
+    gameLeaderboard.push(doc.data());
   })
-  console.log('......all users', userRankingList)
-  return userRankingList
+  console.log('......all users', gameLeaderboard)
+  return gameLeaderboard
 }
 
-rankingList()
+leaderboard()
 
 //Defines array of all events in a room that would require listeners
 //This lets us iterate through this array to remove said listeners upon room exit
