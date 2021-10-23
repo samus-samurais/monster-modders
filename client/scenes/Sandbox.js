@@ -25,6 +25,10 @@ export default class Sandbox extends Phaser.Scene {
     const self = this
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
+    //play sandbox mode music
+    this.sandboxMusic = this.sound.add("sandboxMusic");
+    this.sandboxMusic.play({volume: 0.2, loop: true});
+
     //Sets world such that players can go past top and bottom of screen, but not sides
     this.physics.world.setBoundsCollision(true,true,false,false);
 
@@ -134,6 +138,7 @@ export default class Sandbox extends Phaser.Scene {
     })
     backButton.on("pointerup", () => {
       this.scene.stop("Sandbox");
+      this.sandboxMusic.stop();
       this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     })
   }
