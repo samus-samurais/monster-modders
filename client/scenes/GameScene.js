@@ -385,6 +385,8 @@ export default class GameScene extends Phaser.Scene {
           : "No points gained :(")}`
           );
       }
+      this.scene.stop("GameScene");
+      this.scene.start("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
     }
 
 

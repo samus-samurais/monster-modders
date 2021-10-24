@@ -60,7 +60,7 @@ export default class HomeScene extends Phaser.Scene {
           this.UI.add(this.playerInfoButton);
           this.playerInfoButton.on('pointerdown', () => {
             console.log("Going to user's information");
-            this.scene.start('UserProfileScene', {socket: this.socket, user: this.playerInfo});
+            this.scene.start('UserProfileScene', {socket: this.socket, user: this.playerInfo, homeSceneUI: this.UI});
           })
         }
     }

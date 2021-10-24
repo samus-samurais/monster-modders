@@ -33,18 +33,18 @@ async function updateUserInfo(uid) {
   })
 }
 
-async function leaderboard() {
-  // get top of 10 users info order by number of wins in desc.
-  const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
-  const topTenUsersInfo = await getDocs(topTenUsers);
-  topTenUsersInfo.forEach(doc => {
-    gameLeaderboard.push(doc.data());
-  })
-  console.log('......all users', gameLeaderboard);
-  return gameLeaderboard
-}
+// async function leaderboard() {
+//   // get top of 10 users info order by number of wins in desc.
+//   const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+//   const topTenUsersInfo = await getDocs(topTenUsers);
+//   topTenUsersInfo.forEach(doc => {
+//     gameLeaderboard.push(doc.data());
+//   })
+//   console.log('......all users', gameLeaderboard);
+//   return gameLeaderboard
+// }
 
-leaderboard()
+// leaderboard()
 
 //Defines array of all events in a room that would require listeners
 //This lets us iterate through this array to remove said listeners upon room exit
@@ -62,6 +62,7 @@ const roomEvents = [
   'stopTimer',
   'gameOver',
   'playerFinished',
+  'playerLeave',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));
@@ -206,6 +207,10 @@ module.exports = (io) => {
             }
           })
 
+          socket.on('playerLeave', (playerId) => {
+            socket.to(info.roomKey).emit("playerLeaveGameRoom", playerId);
+          })
+
           socket.on('disconnect', () => {
             currentRoom.removePlayer(socket.id)
             if(currentRoom.gameStarted){
@@ -216,6 +221,16 @@ module.exports = (io) => {
             }
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey});
           });
+        })
+
+        socket.on('updatePlayerNumOfWins', async (winner) => {
+          console.log('winner infor --------', winner);
+          // get top of 10 users info order by number of wins in desc.
+          const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+          const topTenUsersInfo = await getDocs(topTenUsers);
+          topTenUsersInfo.forEach(doc => {
+            gameLeaderboard.push(doc.data());
+          })
         })
 
         socket.on('disconnect', () => {

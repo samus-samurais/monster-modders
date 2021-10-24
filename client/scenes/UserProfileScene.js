@@ -11,8 +11,8 @@ export default class UserProfileScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(640, 360, 'background');
     this.UI = this.add.group();
+    // this.add.image(640, 360, 'background');
 
     // display login user's information
     this.username = this.add.text(450, 150, `Player username: ${this.playerInfo.username}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
@@ -20,6 +20,9 @@ export default class UserProfileScene extends Phaser.Scene {
 
     this.email = this.add.text(450, 250, `Player email: ${this.playerInfo.email}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
     this.UI.add(this.email);
+
+    this.numberOfWins = this.add.text(450, 350, `Player wins: ${this.playerInfo.number_of_wins}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
+    this.UI.add(this.numberOfWins);
 
     // navigate to the game different modes button
     this.sandboxButton = this.add.image(445, 540, 'sandboxButton').setInteractive();
