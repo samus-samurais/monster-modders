@@ -15,7 +15,7 @@ export default class HomeScene extends Phaser.Scene {
         this.sound.stopAll(); //in case of disconnect or page refresh clear any previous music from playing
         this.UI = this.add.group();
         this.add.image(640, 360, 'background');
-        this.logo = this.add.image(640, 250, 'logo');
+        this.logo = this.add.image(640, 300, 'logo');
         this.UI.add(this.logo);
 
         //play lobby music
@@ -46,6 +46,13 @@ export default class HomeScene extends Phaser.Scene {
           this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
         })
 
+        //make leaderboard button
+        this.leaderboardButton = this.add.image(960, 150, 'leaderboardButton').setInteractive();
+        this.UI.add(this.leaderboardButton);
+        this.leaderboardButton.on('pointerdown', () => {
+          this.scene.launch("LeaderboardScene", {socket: this.socket, homeSceneUI: this.UI, user: this.playerInfo});
+        })
+
         if (this.playerInfo === null || this.playerInfo.email === undefined) {
           // if there is no login user that create login/singup button
           this.loginSignupButton = this.add.image(960, 540, 'loginSignupButton').setInteractive();
@@ -60,7 +67,7 @@ export default class HomeScene extends Phaser.Scene {
           this.UI.add(this.playerInfoButton);
           this.playerInfoButton.on('pointerdown', () => {
             console.log("Going to user's information");
-            this.scene.start('UserProfileScene', {socket: this.socket, user: this.playerInfo, homeSceneUI: this.UI});
+            this.scene.start('UserProfileScene', {socket: this.socket, user: this.playerInfo});
           })
         }
     }

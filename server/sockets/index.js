@@ -27,25 +27,6 @@ const roomList = require("./rooms");
 var loggedInUserInfo = {};
 var gameLeaderboard = [];
 
-async function updateUserInfo(uid) {
-  await updateDoc(doc(db, "users", uid), {
-    number_of_wins: 0 // the new number of wins
-  })
-}
-
-// async function leaderboard() {
-//   // get top of 10 users info order by number of wins in desc.
-//   const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
-//   const topTenUsersInfo = await getDocs(topTenUsers);
-//   topTenUsersInfo.forEach(doc => {
-//     gameLeaderboard.push(doc.data());
-//   })
-//   console.log('......all users', gameLeaderboard);
-//   return gameLeaderboard
-// }
-
-// leaderboard()
-
 //Defines array of all events in a room that would require listeners
 //This lets us iterate through this array to remove said listeners upon room exit
 const roomEvents = [
@@ -223,20 +204,33 @@ module.exports = (io) => {
           });
         })
 
-        socket.on('updatePlayerNumOfWins', async (winner) => {
-          console.log('winner infor --------', winner);
+        socket.on('disconnect', () => {
+          console.log('user',socket.id, 'disconnected');
+          delete loggedInUserInfo[socket.id];
+        });
+
+        socket.on('leaderboard', async () => {
           // get top of 10 users info order by number of wins in desc.
           const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
           const topTenUsersInfo = await getDocs(topTenUsers);
           topTenUsersInfo.forEach(doc => {
             gameLeaderboard.push(doc.data());
           })
+          socket.emit('leaderboardInfo', gameLeaderboard);
+          gameLeaderboard = [];
         })
 
-        socket.on('disconnect', () => {
-          console.log('user',socket.id, 'disconnected');
-          delete loggedInUserInfo[socket.id];
-        });
+        socket.on('updatePlayerNumOfWins', async (winner) => {
+          console.log('winner infor --------', winner);
+          if (winner.uid) {
+            const userSnap = await getDoc(doc(db, "users", winner.uid));
+            const userNumOfWins = userSnap.data().number_of_wins + 1;
+
+            await updateDoc(doc(db, "users", winner.uid), {
+              number_of_wins: userNumOfWins
+            })
+          }
+        })
 
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)

@@ -12,7 +12,6 @@ export default class UserProfileScene extends Phaser.Scene {
 
   create() {
     this.UI = this.add.group();
-    // this.add.image(640, 360, 'background');
 
     // display login user's information
     this.username = this.add.text(450, 150, `Player username: ${this.playerInfo.username}`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
