@@ -7,7 +7,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.socket = socket;
         this.scene = scene;
         this.currentAnim = 'turn'
-        this.fallCount = 0;
         //Add player username to scene
         this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
@@ -16,10 +15,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.setCollideWorldBounds(true);
             // add some colliders function between player and platforms
             if(colliderInfo){
-            console.log("Collider info is: ",colliderInfo);
-            this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
-            this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
-            this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
+                if(colliderInfo.staticPlatforms){
+                    this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+                }
+                if(colliderInfo.platforms){
+                    this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+                }
+                if(colliderInfo.fallDetector){
+                    this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
+                }
+                if(colliderInfo.finishLine){
+                    this.scene.physics.add.overlap(this, colliderInfo.finishLine, this.finished, null, this);
+                }
             } else {
                 console.log("Undefined collider info");
             }
@@ -57,26 +64,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //Updates player movement
         let animation = 'turn';
         if (this.scene) {
+            if (cursors.left.isDown){
+                this.setVelocityX(-190);
+                this.anims.play('left', true);
+                animation = 'left';
+            } else if (cursors.right.isDown){
+                this.setVelocityX(190);
+                this.anims.play('right', true);
+                animation = 'right';
+            } else if (this.scene) {
+                this.setVelocityX(0);
+                this.anims.play('turn');
+            }
+            if (cursors.up.isDown){
+                if(this.body.touching.down){
+                    this.setVelocityY(-330);
+                }
+            }
 
-        if (cursors.left.isDown){
-            this.setVelocityX(-190);
-            this.anims.play('left', true);
-            animation = 'left';
-        } else if (cursors.right.isDown){
-            this.setVelocityX(190);
-            this.anims.play('right', true);
-            animation = 'right';
-        } else if (this.scene) {
-            this.setVelocityX(0);
-            this.anims.play('turn');
-        }
-        if (cursors.up.isDown){
-            this.setVelocityY(-330);
-        }
-
-        // make the username move to follow the player
-        this.username.setPosition(this.x,this.y-37);
-
+            // make the username move to follow the player
+            this.username.setPosition(this.x,this.y-37);
         }
         //Sends new player position to other players
         if (this.socket) {
@@ -108,13 +115,35 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         console.log("Oops!");
         this.setPosition(200,535);
         this.setVelocityY(0);
-        this.fallCount++;
-        console.log('8======fallCount', this.fallCount)
+        if(this.scene.scene.key === 'GameScene'){
+            this.scene.loseLives();
+        }
     }
 
     disappear() {
-        console.log('username disappear!')
+        this.setVisible(false);
         this.username.setVisible(false);
+    }
+
+    reappear() {
+        this.setVisible(true);
+        this.username.setVisible(true);
+    }
+
+    stop(){
+        this.setVelocityX(0);
+        this.anims.play('turn');
+        if (this.socket) {
+            this.movementState.x = this.x
+            this.movementState.y = this.y
+            this.movementState.currentAnim = 'turn';
+            this.socket.emit('updatePlayer', this.movementState);
+        }
+    }
+
+    finished(){
+        console.log("Player finished");
+        this.scene.playerReachedFinish();
     }
 
 }

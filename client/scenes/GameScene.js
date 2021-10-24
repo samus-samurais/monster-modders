@@ -2,19 +2,29 @@ import Phaser from "phaser"
 import Platform from "../sprites/Platform.js";
 import Player from "../sprites/Player.js"
 import FallDetector from "../sprites/FallDetector.js";
+import FinishLine from "../sprites/FinishLine.js";
 
 export default class GameScene extends Phaser.Scene {
     constructor(key) {
         super(key);
+        this.placementStatuses = ["did not finish...","placed 1st!","placed 2nd.", "placed 3rd.","placed 4th."];
+    }
+
+    init(data){
+        this.socket = data.socket;
+        this.playerId = data.socket.id;
+        this.playerInfo = data.user ? data.user : null
+        this.players = data.players;
+
+        //Sets all important variables to default values
         this.player = null
         this.otherPlayers = {}
-        // // make sure that lost player couldn't use platformMaker button
-        // this.allowAddPlatform = true;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
         this.platformMaker = null;
         this.platformDestroyer = null;
         this.platformBeingPlaced = null;
+        this.canControlPlayer = true;
         //For multiplayer, platforms are stored in a platform table as well as a group
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
@@ -23,15 +33,17 @@ export default class GameScene extends Phaser.Scene {
         this.platformButtonsState = true;
     }
 
-    init(data){
-        this.socket = data.socket;
-        this.playerId = data.socket.id;
-        this.players = data.players;
-    }
-
     create(){
         const self = this;
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+        //Resumes physics in case game quit while physics was paused
+        this.physics.resume();
+
+        //stop waiting scene music
+        this.sound.stopAll();
+        //play game music
+        this.gameMusic = this.sound.add("gameMusic");
+        this.gameMusic.play({volume: 0.2, loop: true});
 
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
@@ -48,6 +60,9 @@ export default class GameScene extends Phaser.Scene {
         this.staticPlatforms = this.physics.add.staticGroup();
         this.staticPlatforms.create(200, 600, 'platform');
         this.staticPlatforms.create(1000, 200, 'platform');
+
+        //adds sprite to serve as start point graphic
+        this.add.image(210,584,"startLine").setOrigin(0.5,1).setScale(0.45,0.45);
 
         this.allPlatforms = this.add.group();
 
@@ -79,20 +94,23 @@ export default class GameScene extends Phaser.Scene {
 
         //Drops off sticky platforms upon click
         this.input.on('pointerup',() => {
-          if(this.platformBeingPlaced && this.platformBeingPlaced.sticky){
+          if(this.platformBeingPlaced && this.platformBeingPlaced.sticky && this.platformTable[this.platformBeingPlaced.id]){
           this.platformBeingPlaced.place();
           }
         })
 
         //Generates "Fall Detector" sprite to signal when player has fallen off lower end of the map
         this.fallDetector = new FallDetector(this,this.socket);
+        this.finishLine = new FinishLine(this,this.socket);
 
         //Creates players, passes in world objects for collider initializations in player constructor
         this.colliderInfo = {
           staticPlatforms: this.staticPlatforms,
           platforms: this.allPlatforms,
-          fallDetector: this.fallDetector
+          fallDetector: this.fallDetector,
+          finishLine: this.finishLine
         }
+
         let ids = Object.keys(this.players);
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
@@ -115,7 +133,6 @@ export default class GameScene extends Phaser.Scene {
 
         this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
-        this.physics.add.overlap(this.player, this.colliderInfo.fallDetector, this.lostTheGame, null, this);
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
@@ -132,12 +149,24 @@ export default class GameScene extends Phaser.Scene {
             scene.startGameTimer();
         })
 
-        this.socket.on("updateGameTimer", (time) => {
+        this.socket.on("updateGameTimer", (gameInfo) => {
           console.log("Game timer updated");
-          this.gameTimer.setText(`${time}`);
-          if(time === 0) {
+          this.gameTimer.setText(`${gameInfo.time}`);
+          if(gameInfo.time === 0) {
             this.timesUp();
+            this.roundOver(gameInfo);
           }
+        })
+
+        this.socket.on("roundOver", (roundInfo, scene = self) => {
+          this.gameTimer.destroy();
+          this.physics.pause();
+          const { width, height } = scene.scale;
+          scene.text = scene.add
+            .text(width * 0.5, height * 0.5, "Round Over!", { fontSize: 50 })
+            .setOrigin(0.5);
+          scene.destroyText(scene.text);
+          scene.roundOver(roundInfo);
         })
 
         //Adds new platform when other player creates
@@ -183,13 +212,13 @@ export default class GameScene extends Phaser.Scene {
           }
         })
 
-        console.log("This loads");
+        this.hideAllPlayers();
         this.socket.emit("readyToBuild");
 
     }
 
     update () {
-      if(this.player){
+      if(this.player && this.canControlPlayer){
         this.player.update(this.cursors);
       }
 
@@ -220,6 +249,20 @@ export default class GameScene extends Phaser.Scene {
 
     }
 
+    hideAllPlayers(){
+      this.player.disappear();
+      for (const key of Object.keys(this.otherPlayers)) {
+        this.otherPlayers[key].disappear();
+      }
+    }
+
+    showAllPlayers(){
+      this.player.reappear();
+      for (const key of Object.keys(this.otherPlayers)) {
+        this.otherPlayers[key].reappear();
+      }
+    }
+
     addPlatform(platformInfo){
           //Generates new platform, sets it to platform being placed by opponent
           const userPlatform = new Platform(this, platformInfo.x, platformInfo.y, platformInfo.spriteKey, this.socket, platformInfo.platformId);
@@ -240,6 +283,9 @@ export default class GameScene extends Phaser.Scene {
     removePlatform(id){
       console.log("ID to remove:",id)
       console.log("Platform table",this.platformTable);
+      if (this.platformBeingPlaced && this.platformBeingPlaced.id === id) {
+        this.platformBeingPlaced = null;
+      }
       this.platformTable[id].destroy();
       delete this.platformTable[id];
     }
@@ -257,7 +303,9 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    lostTheGame() {
+    loseLives() {
+      this.deathSound = this.sound.add("deathSound");
+      this.deathSound.play({volume: 0.3});
       this.lives -= 1;
       this.livesText.setText(`You have ${this.lives} lives`)
 
@@ -266,13 +314,19 @@ export default class GameScene extends Phaser.Scene {
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
         this.player.disappear();
         this.player.setVisible(false);
-        // this.allowAddPlatform = false;
         this.addButtonToggle = false;
         this.removeButtonToggle = false;
 
         this.socket.emit('playerLostAllLives', this.player.scene.playerId)
       }
 
+    }
+
+    playerReachedFinish(){
+      this.finishLine.body.enable = false;
+      this.canControlPlayer = false;
+      this.player.stop();
+      this.socket.emit("playerFinished", this.playerId);
     }
 
     handleDisconnect(){
@@ -283,10 +337,12 @@ export default class GameScene extends Phaser.Scene {
 
     closeGame(){
       console.log("Game is over");
+      //Sets platform buttons back to visible for next game
+      this.platformButtonsState = true;
+      //After closing listeners, sends a "leftLobby" signal to socket index so that player's socket listeners are closed on both ends.
       this.socket.removeAllListeners();
-      //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
       this.socket.emit('leftLobby', this.playerId);
-      this.scene.start("HomeScene");
+      this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     }
 
     removePlayer(id){
@@ -296,6 +352,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     startGameTimer() {
+      this.showAllPlayers();
+      this.canControlPlayer = true;
       this.platformButtonsState = false;
       this.platformTimer.destroy();
       const { width, height } = this.scale
@@ -315,6 +373,18 @@ export default class GameScene extends Phaser.Scene {
       this.text = this.add
         .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
         .setOrigin(0.5);
+      this.destroyText(this.text);
+    }
+
+    roundOver(roundData){
+      for (const key of Object.keys(roundData.playerInfo)){
+        console.log(
+          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
+          ${(roundData.playerInfo[key].placedThisRound > 0 ? 
+            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points` 
+          : "No points gained :(")}`
+          );
+      }
     }
 
 

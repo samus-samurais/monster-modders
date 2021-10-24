@@ -18,9 +18,18 @@ export default class LobbyScene extends Phaser.Scene {
 
     create(){
         const self = this;
-        //Initializes player
+        this.sound.stopAll(); //stop lobby music
+
+        //Creates background
         this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
-        this.socket.emit('joinedRoom',{roomKey: this.roomKey});
+
+        //Creates ground for lobby
+        this.staticPlatforms = this.physics.add.staticGroup();
+        this.staticPlatforms.create(640, 700, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
+
+        //play lobbyScene (waitingScene) music
+        this.waitingMusic = this.sound.add("waitingMusic");
+        this.waitingMusic.play({volume: 0.2, loop: true});
 
         //Initializes start button
         this.startButton = this.add.image(100,50,'multiplayerButton').setScale(0.5);
@@ -62,12 +71,6 @@ export default class LobbyScene extends Phaser.Scene {
             scene.startGame(players)
         });
 
-        //this.player = new Player(100,450,'dude',this.socket);
-        //Makes player bound to world
-        //this.player = this.physics.add.sprite(100, 450, 'dude');
-        //this.player.setCollideWorldBounds(true);
-
-
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
             up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -77,6 +80,9 @@ export default class LobbyScene extends Phaser.Scene {
         });
 
         this.goBack();
+
+        //With every basic feature initalized, scene sends for room information
+        this.socket.emit('joinedRoom',{roomKey: this.roomKey});
     }
 
     update() {
@@ -93,9 +99,9 @@ export default class LobbyScene extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
                 if (this.playerInfo && this.playerInfo.email) {
-                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo.username);
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo.username, {staticPlatforms: this.staticPlatforms});
                 } else {
-                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username)
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username, {staticPlatforms: this.staticPlatforms});
                 }
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
@@ -142,7 +148,7 @@ export default class LobbyScene extends Phaser.Scene {
         console.log('players are', players);
         //VERY IMPORTANT for functioning sockets - always call this when swapping scenes w socket.on calls
         this.socket.removeAllListeners();
-        this.scene.start('GameScene', {socket: this.socket, players});
+        this.scene.start('GameScene', {socket: this.socket, players, user: this.playerInfo});
     }
 
     goBack() {
@@ -163,7 +169,8 @@ export default class LobbyScene extends Phaser.Scene {
         })
         backButton.on("pointerup", () => {
             this.socket.removeAllListeners();
-            this.scene.stop("Sandbox");
+            this.scene.stop("LobbyScene");
+            this.waitingMusic.stop();
             this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
             this.socket.emit('leftLobby', this.playerId);
         })

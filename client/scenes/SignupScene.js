@@ -48,23 +48,26 @@ export default class SignupScene extends Phaser.Scene {
 
   goBack() {
     const backButton = this.add
-      .image(this.scale.width - 20, 20, 'backButton')
+      .image(this.scale.width - 20, 20, "backButton")
       .setScrollFactor(0)
       .setOrigin(1, 0)
       .setScale(2);
     backButton.setInteractive();
     backButton.on("pointerdown", () => {
-      backButton.setTint(0xFF0000);
+      backButton.setTint(0xff0000);
     });
     backButton.on("pointerover", () => {
-      backButton.setTint(0xFF0000);
+      backButton.setTint(0xff0000);
     });
     backButton.on("pointerout", () => {
       backButton.clearTint();
-    })
+    });
     backButton.on("pointerup", () => {
-      this.scene.stop("Sandbox");
-      this.scene.start("HomeScene");
-    })
+      this.homeSceneUI.children.iterate((child) => {
+        child.setInteractive();
+        child.visible = true;
+      });
+      this.scene.stop("SignupScene");
+    });
   }
 }
