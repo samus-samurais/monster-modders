@@ -15,6 +15,7 @@ export default class PointsScene extends Phaser.Scene {
     this.winnerStatus = false;
     this.winnerId = null;
     this.playerOrdered = null;
+    this.leaderboardInfo = null;
   }
 
   init(data) {
@@ -23,7 +24,6 @@ export default class PointsScene extends Phaser.Scene {
     this.playerInfo = data.user ? data.user : null;
     this.players = data.players;
     this.pointsInfo = data.pointsInfo;
-    console.log("here is the pointsScene's players----", this.players);
     console.log("here is the points info...........", this.pointsInfo);
     console.log('..........keys', Object.keys(this.pointsInfo.playerInfo))
   }
@@ -92,6 +92,11 @@ export default class PointsScene extends Phaser.Scene {
       scene.playerLeave(playerId);
     })
 
+    this.socket.on('leaderboardInfo', (leaderboardArr) => {
+      this.leaderboardInfo = leaderboardArr;
+      this.leaderboard();
+    })
+
     // this.socket.on("updatePlatformTimer", (time) => {
     //   console.log("Platform timer updated");
     //   this.pointsTimer.setText(`Time to show players points: ${time}`);
@@ -124,6 +129,22 @@ export default class PointsScene extends Phaser.Scene {
     if (this.player) {
       this.player.moves = false;
       this.player.body.allowGravity = false;
+    }
+  }
+
+  leaderboard() {
+    if (this.leaderboardInfo && this.winnerStatus) {
+      this.rectangleBackground = this.add.rectangle(200, 360, 380, 680, 0x009AA8);
+      this.usersUsername = this.add.text(100, 50, `Player Username`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
+      this.usersWins = this.add.text(200, 50, `Player Wins`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
+      // display top 10 users' information
+      for (let i=0; i < this.leaderboardInfo.length; i++) {
+        if (i <= 2) {
+          this.add.image(110, i * 60 + 135, `top${i + 1}`)
+        }
+        this.add.text(140, i * 60 + 110, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
+        this.add.text(240, i * 60 + 110, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
+      }
     }
   }
 

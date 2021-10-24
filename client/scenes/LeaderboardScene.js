@@ -36,7 +36,8 @@ export default class LeaderboardScene extends Phaser.Scene {
       console.log('frond end leaderboard Arr is ======', this.leaderboardInfo);
     })
 
-    this.usersUsername = this.add.text(400, 50, `Player Username`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});    this.usersWins = this.add.text(700, 50, `Player Wins`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
+    this.usersUsername = this.add.text(400, 50, `Player Username`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
+    this.usersWins = this.add.text(700, 50, `Player Wins`, { color: 'white', fontFamily: 'Arial', fontSize: '32px '});
     this.goBack();
   }
 
