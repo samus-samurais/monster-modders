@@ -15,6 +15,7 @@ export default class PointsScene extends Phaser.Scene {
     this.winnerId = null;
     this.playerOrdered = null;
     this.leaderboardInfo = null;
+    this.pointsTimer = null;
   }
 
   init(data) {
@@ -24,20 +25,25 @@ export default class PointsScene extends Phaser.Scene {
     this.players = data.players;
     this.pointsInfo = data.pointsInfo;
     console.log("here is the points info...........", this.pointsInfo);
+    console.log("here is the players keys...........", Object.keys(this.players));
   }
 
   create() {
     const self = this;
     this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
 
-    this.add.text(550, 45, `Need ${this.pointsInfo.pointsToWin} Points To Win`, { color: 'white', fontFamily: 'Arial', fontSize: '30px '});
+    this.add.text(550, 45, `To Win:     ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: 'Arial', fontSize: '30px '});
 
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
         this.winnerStatus = true;
+        this.socket.emit('leaderboard');
         this.orderPlayers();
         return;
+      }
+      if (j === ids.length - 1 && !this.winnerStatus) {
+        this.socket.emit("displayPoints");
       }
     }
 
@@ -49,12 +55,12 @@ export default class PointsScene extends Phaser.Scene {
             this.player = new Player(this, 600, yPosition * 144 + 144, 'dude', 'PC', this.socket, this.players[ids[i]].username)
 
             // if there is a winner player, then show the leaveRoomButton
-            if (!this.winnerStatus) {
+            if (this.winnerStatus) {
               this.leaveRoomButton = this.add.image(980, yPosition * 144 + 144, 'leaveRoomButton').setInteractive();
               this.leaveRoomButton.on('pointerdown', () => {
-                this.socket.emit('playerLeave', this.playerId)
+                this.socket.emit('playerLeave', this.playerId);
                 this.scene.stop("PointsScene");
-                this.scene.start("HomeScene", { socket: this.socket, user: this.playerInfo })
+                this.scene.launch("HomeScene", { socket: this.socket, user: this.playerInfo })
               });
             }
 
@@ -62,9 +68,8 @@ export default class PointsScene extends Phaser.Scene {
             this.otherPlayerPointsText[ids[i]] = this.add.text(700, yPosition * 144 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
             this.otherPlayers[ids[i]] = new Player(this, 600, yPosition * 144 + 144, 'dude','NPC', null, this.players[ids[i]].username);
-            // this.otherPlayers[ids[i]].moves = false;
 
-            if (!this.winnerStatus) {
+            if (this.winnerStatus) {
               this.otherLeaveRoomButtons[ids[i]] = this.add.image(980, yPosition * 144 + 144, 'leaveRoomButton')
             }
 
@@ -72,20 +77,10 @@ export default class PointsScene extends Phaser.Scene {
     }
 
     // if there is no winner player info, we create a timer to count 5 seconds to show the points scene.
-    // const {width} = this.scale;
-    // //Platform timer text initially rendered as "Players loading" until all players are ready
-    // this.pointsTimer = this.add.text(width * 0.5, 20, "Players' points loading...", {fontSize: 30}).setOrigin(0.5);
-
-
-    //Removes player if other player click their button
-    // this.socket.on('playerLeave', function (id, scene = self) {
-    //   scene.playerLeave(id)
-    // });
-
+    //points timer text initially rendered as "Players loading" until all players are ready
+    this.pointsTimer = this.add.text(150, 300, "points loading...", {fontSize: 30});
 
     //Socket stuff is below
-
-    this.socket.emit('leaderboard');
 
     this.socket.on('leaderboardInfo', (leaderboardArr) => {
       this.leaderboardInfo = leaderboardArr;
@@ -96,37 +91,26 @@ export default class PointsScene extends Phaser.Scene {
       scene.playerLeave(playerId);
     })
 
-    // this.socket.on("updatePlatformTimer", (time) => {
-    //   console.log("Platform timer updated");
-    //   this.pointsTimer.setText(`Time to show players points: ${time}`);
-    // })
+    this.socket.on("updatePointsTimer", (time) => {
+      console.log("points timer updated-----");
+      this.pointsTimer.setText(`${time}`);
+      if(time === 0) {
+        this.timesUp();
+      }
+    })
 
-    // this.socket.on("buildPhaseOver", (scene = self) => {
-    //     scene.startGameTimer();
-    // })
+    this.socket.on('finishedGame', function(info, scene = self){
+      if(info.cause === "disconnect"){
+        scene.handleDisconnect();
+      }
+      scene.closeGame();
+    })
 
-    // this.socket.on("updateGameTimer", (time) => {
-    //   console.log("Game timer updated");
-    //   this.gameTimer.setText(`${time}`);
-    //   if(time === 0) {
-    //     this.timesUp();
-    //   }
-    // })
-
-    // this.socket.on('finishedGame', function(info, scene = self){
-    //   if(info.cause === "disconnect"){
-    //     scene.handleDisconnect();
-    //   }
-    //   scene.closeGame();
-    // })
-
-    // console.log("This loads");
-    // this.socket.emit("readyToBuild");
   }
 
   update () {
     if (this.player) {
-      this.player.moves = false;
+      this.player.body.moves = false;
       this.player.body.allowGravity = false;
     }
   }
@@ -177,10 +161,23 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   playerLeave(id){
-    console.log("other player leaves with id:",id)
-    this.otherLeaveRoomButtons[id].setTint(0xff0000);
-    this.otherPlayers[id].delete();
-    delete this.otherPlayers[id];
+    if (this.playerId === id) {
+      this.player = null;
+      this.scene.launch("HomeScene", { socket: this.socket, user: this.playerInfo })
+      if (Object.keys(this.otherPlayers).length === 0) {
+        this.socket.emit('gameOver');
+      }
+    }
+    if (this.otherPlayers[id]) {
+      console.log("other player leaves with button id:----",this.otherLeaveRoomButtons)
+      this.otherLeaveRoomButtons[id].setTint(0xff0000);
+      this.otherPlayers[id].delete();
+      delete this.otherPlayers[id];
+      if (Object.keys(this.otherPlayers).length === 0 && !this.player) {
+        this.socket.emit('gameOver');
+      }
+    }
+
   }
 
   handleDisconnect(){
@@ -194,36 +191,17 @@ export default class PointsScene extends Phaser.Scene {
     this.socket.removeAllListeners();
     //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
     this.socket.emit('leftLobby', this.playerId);
-    this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
-  }
-
-  startGameTimer() {
-    this.platformButtonsState = false;
-    this.platformTimer.destroy();
-    const { width, height } = this.scale
-    this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
-    this.socket.emit("readyToRace");
-    this.text = this.add
-      .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
-      .setOrigin(0.5);
-
-    this.destroyText(this.text);
+    // this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
   }
 
   timesUp() {
-    this.gameTimer.destroy();
-    this.physics.pause(); //don't let players move if time runs out
+    this.pointsTimer.destroy();
     const { width, height } = this.scale;
     this.text = this.add
-      .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
+      .text(width * 0.5, height * 0.5, "Go!", { fontSize: 50 })
       .setOrigin(0.5);
-  }
-
-
-  destroyText(timerText) {
-    setTimeout(function() {
-      timerText.destroy();
-    }, 2000)
+    this.scene.stop("PointsScene");
+    this.scene.start("GameScene", {socket: this.socket, user: this.playerInfo, players: this.players});
   }
 
 }

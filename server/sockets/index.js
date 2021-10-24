@@ -136,40 +136,61 @@ module.exports = (io) => {
                   clearInterval(currentRoom.timerId);
                 }
               }, 1000);
-          }
-        });
+            }
+          });
 
-        socket.on("readyToRace", () => {
-          currentRoom.playersReady += 1
-          console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
-          if(currentRoom.playersReady === currentRoom.playerCount){
-            console.log("Race starting")
-            io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
-            currentRoom.timerId = setInterval(() => {
-              console.log("Race timer runs");
-              if(currentRoom.gameTimer > 0) {
-                currentRoom.runGameTimer();
-                io.in(info.roomKey).emit("updateGameTimer",
-                {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
-              } else {
-                currentRoom.playersReady = 0;
-                console.log("race timer being cleared")
-                clearInterval(currentRoom.timerId);
-              }
-            }, 1000);
-          }
-        });
+          socket.on("readyToRace", () => {
+            currentRoom.playersReady += 1
+            console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            if(currentRoom.playersReady === currentRoom.playerCount){
+              console.log("Race starting")
+              currentRoom.playersReady = 0;
+              io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
+              currentRoom.timerId = setInterval(() => {
+                console.log("Race timer runs");
+                if(currentRoom.gameTimer > 0) {
+                  currentRoom.runGameTimer();
+                  io.in(info.roomKey).emit("updateGameTimer",
+                  {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+                } else {
+                  currentRoom.playersReady = 0;
+                  console.log("race timer being cleared")
+                  clearInterval(currentRoom.timerId);
+                }
+              }, 1000);
+            }
+          });
 
-        socket.on('playerLostAllLives', (playerId) => {
-          socket.to(info.roomKey).emit("disappearedPlayer", playerId);
-        })
+          socket.on("displayPoints", () => {
+            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            currentRoom.playersReady += 1
+            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            if(currentRoom.playersReady === currentRoom.playerCount){
+              io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
+              currentRoom.timerId = setInterval(() => {
+                console.log("Points timer runs");
+                if(currentRoom.pointsTimer > 0) {
+                  currentRoom.runPointsTimer();
+                  io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
+                } else {
+                  currentRoom.playersReady = 0;
+                  console.log("points timer being cleared")
+                  clearInterval(currentRoom.timerId);
+                }
+              }, 1000);
+            }
+          });
 
-        socket.on('playerFinished', (playerId) => {
-          if(currentRoom.playerFinished(playerId)){
-            clearInterval(currentRoom.timerId);
-            io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
-          }
-        })
+          socket.on('playerLostAllLives', (playerId) => {
+            socket.to(info.roomKey).emit("disappearedPlayer", playerId);
+          })
+
+          socket.on('playerFinished', (playerId) => {
+            if(currentRoom.playerFinished(playerId)){
+              clearInterval(currentRoom.timerId);
+              io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+            }
+          })
 
           socket.on('gameOver', () => {
             currentRoom.endGame();
@@ -189,7 +210,7 @@ module.exports = (io) => {
           })
 
           socket.on('playerLeave', (playerId) => {
-            socket.to(info.roomKey).emit("playerLeaveGameRoom", playerId);
+            io.in(info.roomKey).emit("playerLeaveGameRoom", playerId);
           })
 
           socket.on('disconnect', () => {
@@ -216,6 +237,7 @@ module.exports = (io) => {
           topTenUsersInfo.forEach(doc => {
             gameLeaderboard.push(doc.data());
           })
+          console.log('......gameLeaderboard', gameLeaderboard);
           socket.emit('leaderboardInfo', gameLeaderboard);
           gameLeaderboard = [];
         })

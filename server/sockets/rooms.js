@@ -8,6 +8,7 @@ class Room {
       //Timers set to be one second above their actual values to account for updateTimer initializations
       this.gameTimer = 16;
       this.platformTimer = 11;
+      this.pointsTimer = 6;
       this.playersReady = 0;
       this.timerId = null;
       this.pointsToWin = 0;
@@ -23,6 +24,12 @@ class Room {
     runPlatformTimer() {
         if(this.platformTimer > 0) {
             this.platformTimer -= 1;
+        }
+    }
+
+    runPointsTimer() {
+        if(this.pointsTimer > 0) {
+            this.pointsTimer -= 1;
         }
     }
 
@@ -127,7 +134,6 @@ class Room {
         this.isOpen = true
         this.gameStarted = false;
     }
-    
 
 }
 

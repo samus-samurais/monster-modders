@@ -150,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
         })
 
         this.socket.on("updateGameTimer", (gameInfo) => {
-          console.log("Game timer updated");
+          console.log("Game timer updated", gameInfo.time);
           this.gameTimer.setText(`${gameInfo.time}`);
           if(gameInfo.time === 0) {
             this.timesUp();
@@ -385,10 +385,8 @@ export default class GameScene extends Phaser.Scene {
           : "No points gained :(")}`
           );
       }
-      this.scene.stop("GameScene");
-      this.scene.start("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
+      this.scene.launch("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
     }
-
 
     destroyText(timerText) {
       setTimeout(function() {

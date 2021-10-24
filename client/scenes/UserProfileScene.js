@@ -8,9 +8,15 @@ export default class UserProfileScene extends Phaser.Scene {
   init(data) {
     this.socket = data.socket;
     this.playerInfo = data.user;
+    this.homeSceneUI = data.homeSceneUI;
   }
 
   create() {
+    //Disables the Home Scene UI
+    this.homeSceneUI.children.iterate((child) => {
+      child.disableInteractive();
+      child.visible = false;
+    });
     this.UI = this.add.group();
 
     // display login user's information
@@ -59,8 +65,11 @@ export default class UserProfileScene extends Phaser.Scene {
       backButton.clearTint();
     })
     backButton.on("pointerup", () => {
+      this.homeSceneUI.children.iterate((child) => {
+        child.setInteractive();
+        child.visible = true;
+      });
       this.scene.stop("UserProfileScene");
-      this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
     })
   }
 }

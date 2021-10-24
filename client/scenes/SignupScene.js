@@ -26,7 +26,7 @@ export default class SignupScene extends Phaser.Scene {
           email,
           password
         })
-      } 
+      }
     })
 
     this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: 'Arial', fontSize: '32px '})
@@ -38,7 +38,8 @@ export default class SignupScene extends Phaser.Scene {
       this.scene.stop("SignupScene");
       this.scene.launch("UserProfileScene", {
         socket: this.socket,
-        user: user
+        user: user,
+        homeSceneUI: this.homeSceneUI
       })
       this.scene.stop("SignupScene");
     })
