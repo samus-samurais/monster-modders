@@ -16,7 +16,7 @@ export default class PointsScene extends Phaser.Scene {
     this.playerOrdered = null;
     this.leaderboardInfo = null;
     this.pointsTimer = null;
-    this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver"];
+    this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver", "leaderboardReadyForDisplay"];
     this.canControlPlayer = false;
 
   }
@@ -33,17 +33,16 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   create() {
-    const self = this;
     this.recDisplayBackground = this.add.rectangle(640, 360, 380, 680, 0x009AA8);
     this.add.text(550, 45, `To Win:     ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: 'Arial', fontSize: '30px '});
-
+    let winner = null;
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
         console.log("Somebody won with",this.pointsInfo.playerInfo[ids[j]].points,"points, points to win is",this.pointsInfo.pointsToWin);
         this.winnerStatus = true;
-        // get the leaderboard info
-        this.socket.emit('displayLeaderboardWithWinner');
+        this.winnerId = ids[j];
+        winner = this.pointsInfo.playerInfo[ids[j]]
         break;
       }
     }
@@ -68,8 +67,6 @@ export default class PointsScene extends Phaser.Scene {
 
     //Socket stuff is below
 
-    this.socket.emit("displayPoints");
-
     this.socket.on('roomLeaderboardInfo', (leaderboardArr) => {
       this.leaderboardInfo = leaderboardArr;
       this.orderPlayers();
@@ -84,12 +81,21 @@ export default class PointsScene extends Phaser.Scene {
       this.timesUp();
     })
 
-    this.socket.on('finishedGame', function(info, scene = self){
+    this.socket.on("leaderboardReadyForDisplay", () => {
+      this.socket.emit('displayLeaderboardWithWinner');
+    })
+
+    this.socket.on('finishedGame', (info) => {
       if(info.cause === "disconnect"){
         scene.handleDisconnect();
       }
       scene.closeGame();
     })
+
+    this.socket.emit("displayPoints");
+    if(this.winnerId === this.playerId){
+      this.socket.emit('updatePlayerNumOfWins', winner);
+    }
 
   }
 
@@ -117,9 +123,6 @@ export default class PointsScene extends Phaser.Scene {
 
         })
       console.log('....this.playerOrdered....', this.playerOrdered)
-
-      this.winnerId = this.playerOrdered[0].playerId
-      this.socket.emit('updatePlayerNumOfWins', this.playerOrdered[0]);
       if (this.winnerId === this.playerId ) {
         this.add.text(550, 600, `Congratulation, WINNER!`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'})
       } else {
