@@ -7,6 +7,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.socket = socket;
         this.scene = scene;
         this.currentAnim = 'turn'
+        this.hasDoubleJumped = false;
         //Add player username to scene
         this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
@@ -16,10 +17,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             // add some colliders function between player and platforms
             if(colliderInfo){
                 if(colliderInfo.staticPlatforms){
-                    this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, null, null, this);
+                    this.scene.physics.add.collider(this, colliderInfo.staticPlatforms, this.restoreJumps, null, this);
                 }
                 if(colliderInfo.platforms){
-                    this.scene.physics.add.collider(this, colliderInfo.platforms, null, null, this);
+                    this.scene.physics.add.collider(this, colliderInfo.platforms, this.restoreJumps, null, this);
                 }
                 if(colliderInfo.fallDetector){
                     this.scene.physics.add.overlap(this, colliderInfo.fallDetector, this.outOfBounds, null, this);
@@ -60,6 +61,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
+    restoreJumps(){
+        if(this.body.touching.down){
+            this.hasDoubleJumped = false;
+        }
+    }
+
     update(cursors){
         //Updates player movement
         let animation = 'turn';
@@ -76,8 +83,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(0);
                 this.anims.play('turn');
             }
-            if (cursors.up.isDown){
+
+            if(Phaser.Input.Keyboard.JustDown(cursors.up)){
                 if(this.body.touching.down){
+                    this.setVelocityY(-330);
+                } else if(!this.hasDoubleJumped){
+                    this.hasDoubleJumped = true;
                     this.setVelocityY(-330);
                 }
             }

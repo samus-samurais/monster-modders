@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-const firebase = require("firebase/app");
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} = require("firebase/auth")
-const { doc, setDoc, getFirestore } = require("firebase/firestore");
+const { initializeApp } = require("firebase/app");
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} = require("firebase/auth")
+const { doc, setDoc, getFirestore, getDoc, collection, getDocs, updateDoc, query, orderBy, limit } = require("firebase/firestore");
 // require('firebase/auth')
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -19,12 +19,13 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getFirestore();
+const db = getFirestore(app);
 const roomList = require("./rooms");
 
 var loggedInUserInfo = {};
+var gameLeaderboard = [];
 
 //Defines array of all events in a room that would require listeners
 //This lets us iterate through this array to remove said listeners upon room exit
@@ -42,6 +43,9 @@ const roomEvents = [
   'stopTimer',
   'gameOver',
   'playerFinished',
+  'playerLeave',
+  'displayPoints',
+  'leaderboard',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));
@@ -134,40 +138,61 @@ module.exports = (io) => {
                   clearInterval(currentRoom.timerId);
                 }
               }, 1000);
-          }
-        });
+            }
+          });
 
-        socket.on("readyToRace", () => {
-          currentRoom.playersReady += 1
-          console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
-          if(currentRoom.playersReady === currentRoom.playerCount){
-            console.log("Race starting")
-            io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
-            currentRoom.timerId = setInterval(() => {
-              console.log("Race timer runs");
-              if(currentRoom.gameTimer > 0) {
-                currentRoom.runGameTimer();
-                io.in(info.roomKey).emit("updateGameTimer", 
-                {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
-              } else {
-                currentRoom.playersReady = 0;
-                console.log("race timer being cleared")
-                clearInterval(currentRoom.timerId);
-              }
-            }, 1000);
-          }
-        });
+          socket.on("readyToRace", () => {
+            currentRoom.playersReady += 1
+            console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            if(currentRoom.playersReady === currentRoom.playerCount){
+              console.log("Race starting")
+              currentRoom.playersReady = 0;
+              io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
+              currentRoom.timerId = setInterval(() => {
+                console.log("Race timer runs");
+                if(currentRoom.gameTimer > 0) {
+                  currentRoom.runGameTimer();
+                  io.in(info.roomKey).emit("updateGameTimer",
+                  {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+                } else {
+                  currentRoom.playersReady = 0;
+                  console.log("race timer being cleared")
+                  clearInterval(currentRoom.timerId);
+                }
+              }, 1000);
+            }
+          });
 
-        socket.on('playerLostAllLives', (playerId) => {
-          socket.to(info.roomKey).emit("disappearedPlayer", playerId);
-        })
+          socket.on("displayPoints", () => {
+            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            currentRoom.playersReady += 1
+            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
+            if(currentRoom.playersReady === currentRoom.playerCount){
+              io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
+              currentRoom.timerId = setInterval(() => {
+                console.log("Points timer runs");
+                if(currentRoom.pointsTimer > 0) {
+                  currentRoom.runPointsTimer();
+                  io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
+                } else {
+                  currentRoom.playersReady = 0;
+                  console.log("points timer being cleared")
+                  clearInterval(currentRoom.timerId);
+                }
+              }, 1000);
+            }
+          });
 
-        socket.on('playerFinished', (playerId) => {
-          if(currentRoom.playerFinished(playerId)){
-            clearInterval(currentRoom.timerId);
-            io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
-          }
-        })
+          socket.on('playerLostAllLives', (playerId) => {
+            socket.to(info.roomKey).emit("disappearedPlayer", playerId);
+          })
+
+          socket.on('playerFinished', (playerId) => {
+            if(currentRoom.playerFinished(playerId)){
+              clearInterval(currentRoom.timerId);
+              io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+            }
+          })
 
           socket.on('gameOver', () => {
             currentRoom.endGame();
@@ -184,6 +209,10 @@ module.exports = (io) => {
               clearInterval(currentRoom.timerId);
               currentRoom.timerId = null;
             }
+          })
+
+          socket.on('playerLeave', (playerId) => {
+            io.in(info.roomKey).emit("playerLeaveGameRoom", playerId);
           })
 
           socket.on('disconnect', () => {
@@ -203,23 +232,50 @@ module.exports = (io) => {
           delete loggedInUserInfo[socket.id];
         });
 
+        socket.on('leaderboard', async () => {
+          // get top of 10 users info order by number of wins in desc.
+          const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+          const topTenUsersInfo = await getDocs(topTenUsers);
+          topTenUsersInfo.forEach(doc => {
+            gameLeaderboard.push(doc.data());
+          })
+          console.log('......gameLeaderboard', gameLeaderboard);
+          socket.emit('leaderboardInfo', gameLeaderboard);
+          gameLeaderboard = [];
+        })
+
+        socket.on('updatePlayerNumOfWins', async (winner) => {
+          console.log('winner infor --------', winner);
+          if (winner.uid) {
+            const userSnap = await getDoc(doc(db, "users", winner.uid));
+            const userNumOfWins = userSnap.data().number_of_wins + 1;
+
+            await updateDoc(doc(db, "users", winner.uid), {
+              number_of_wins: userNumOfWins
+            })
+          }
+        })
+
         socket.on("newUserSignup", (input) => {
           createUserWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
+            .then(async () => {
               if (auth.currentUser) {
-                // if the new user sign up successfully, update the username as displayName
-                updateProfile(auth.currentUser, { displayName: input.username})
-                .then(() => {
-                  // get the user info
-                  const user = auth.currentUser
-                  // when user login/singup successfully, the socket.id and the username are bound
-                  loggedInUserInfo[socket.id] = user.displayName;
+                // create the user in firestore by same uid;
+                await setDoc(doc(db, "users", auth.currentUser.uid), {
+                  username: input.username,
+                  number_of_wins: 0
+                })
 
-                  // use socket.emit to send the sign up success and the user info
-                  socket.emit("signUpSuccess", {
-                    username: user.displayName,
-                    email: user.email
-                  })
+                // store the uid and username in loggedInUserInfo by socket.io
+                loggedInUserInfo[socket.id] = {
+                  uid: auth.currentUser.uid,
+                  username: input.username
+                }
+                // use socket.emit to send the sign up success and the user info
+                socket.emit("signUpSuccess", {
+                  username: input.username,
+                  email: auth.currentUser.email,
+                  number_of_wins: 0
                 })
               }
             })
@@ -233,16 +289,22 @@ module.exports = (io) => {
 
         })
 
-
         socket.on("userLogin", (input) => {
           signInWithEmailAndPassword(auth, input.email, input.password)
-            .then(() => {
-              const user = auth.currentUser
-              loggedInUserInfo[socket.id] = user.displayName;
+            .then(async () => {
+              // get the login user info
+              const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
+              const loginUser = userSnap.data();
+
+              loggedInUserInfo[socket.id] = {
+                uid: auth.currentUser.uid,
+                username: loginUser.username
+              }
 
               socket.emit("LoginSuccess", {
-                username: user.displayName,
-                email: user.email
+                username: loginUser.username,
+                email: input.email,
+                number_of_wins: loginUser.number_of_wins
               })
             })
             .catch((error) => {
@@ -253,5 +315,6 @@ module.exports = (io) => {
               socket.emit("userInfoNotValid", errorCode.slice(5))
             })
         })
+
     });
 }

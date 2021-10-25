@@ -8,6 +8,7 @@ class Room {
       //Timers set to be one second above their actual values to account for updateTimer initializations
       this.gameTimer = 16;
       this.platformTimer = 11;
+      this.pointsTimer = 6;
       this.playersReady = 0;
       this.timerId = null;
       this.pointsToWin = 0;
@@ -26,6 +27,12 @@ class Room {
         }
     }
 
+    runPointsTimer() {
+        if(this.pointsTimer > 0) {
+            this.pointsTimer -= 1;
+        }
+    }
+
     resetPlatformTimer() {
         this.platformTimer = 10;
     }
@@ -38,7 +45,7 @@ class Room {
         return this.players[id];
     }
 
-    addPlayer(socket, displayName){
+    addPlayer(socket, loginUser){
         this.players[socket.id] = {
           playerId: socket.id,
           x: Math.floor(Math.random() * 700) + 50,
@@ -46,9 +53,10 @@ class Room {
           points: 0,
           placedThisRound: 0
         };
-        if(displayName){
+        if(loginUser){
           // make suer each login user has correct username in every different scene
-          this.players[socket.id].username = displayName;
+          this.players[socket.id].username = loginUser.username;
+          this.players[socket.id].uid = loginUser.uid;
         } else {
           this.players[socket.id].username =  "Guest" + Math.floor(Math.random() *  9999)
         }
@@ -72,11 +80,11 @@ class Room {
             this.isOpen = true;
         }
     }
-      
+
     addPlatform(platform){
         this.platforms[platform.platformId] = platform;
     }
-      
+
     updatePlatform(platform){
         if(this.platforms[platform.platformId]){
             this.platforms[platform.platformId].x = platform.x;
@@ -126,7 +134,6 @@ class Room {
         this.isOpen = true
         this.gameStarted = false;
     }
-    
 
 }
 

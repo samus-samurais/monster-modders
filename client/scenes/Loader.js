@@ -51,13 +51,18 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("backButton", "assets/testImage/backButton.png");
     this.load.image("GamemapScreenshot", "assets/backgrounds/GamemapScreenshot.png")
     this.load.image("LobbymapScreenshot", "assets/backgrounds/LobbymapScreenshot.png")
+    this.load.image("leaveRoomButton", "assets/testImage/falseLeaveRoomButton.png");
+    this.load.image("leaderboardButton", "assets/testImage/falseLeaderboardButton.png");
+    this.load.image("top1", "assets/testImage/falseTop1.png");
+    this.load.image("top2", "assets/testImage/falseTop2.png");
+    this.load.image("top3", "assets/testImage/falseTop3.png");
 
 
     //audio
     this.load.audio("lobbyMusic", "assets/audio/lobby-music.mp3");
     this.load.audio("sandboxMusic", "assets/audio/game-music-1.wav");
-    this.load.audio("gameMusic", "assets/audio/game-music-2.wav");
-    this.load.audio("waitingMusic", "assets/audio/game-music-4.wav");
+    this.load.audio("gameMusic", "assets/audio/game-music-6.wav");
+    this.load.audio("waitingMusic", "assets/audio/game-music-5.wav");
     this.load.audio("deathSound", "assets/audio/death-sound.wav");
 
     //html
