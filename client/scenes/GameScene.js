@@ -43,7 +43,7 @@ export default class GameScene extends Phaser.Scene {
         this.sound.stopAll();
         //play game music
         this.gameMusic = this.sound.add("gameMusic");
-        this.gameMusic.play({volume: 0.2, loop: true});
+        this.gameMusic.play({volume: 0.4, loop: true});
 
         //Sets up controls
         this.cursors = this.input.keyboard.addKeys({
