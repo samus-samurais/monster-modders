@@ -315,7 +315,7 @@ export default class GameScene extends Phaser.Scene {
 
     //Handles platform deletion
     onClicked(pointer, objectClicked) {
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && this.phase === 'build'){
         if (this.platformBeingPlaced && objectClicked.id === this.platformBeingPlaced.id) {
           this.platformBeingPlaced = null;
         }
@@ -387,8 +387,13 @@ export default class GameScene extends Phaser.Scene {
       this.showAllPlayers();
       this.canControlPlayer = true;
       this.hidePlatformButtons();
+
+      //Clears action counter + platform timer, resets remove platform button if it was in mid use during time out
+      this.removeButtonToggle = false;
+      this.platformDestroyer.clearTint();
       this.actionsDisplay.setText("");
       this.platformTimer.destroy();
+
       const { width, height } = this.scale
       this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
       this.socket.emit("readyToRace");
