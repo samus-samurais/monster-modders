@@ -44,6 +44,8 @@ const roomEvents = [
   'gameOver',
   'playerFinished',
   'playerLeave',
+  'displayPoints',
+  'leaderboard',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));

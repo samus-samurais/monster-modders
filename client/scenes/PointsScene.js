@@ -30,8 +30,6 @@ export default class PointsScene extends Phaser.Scene {
 
   create() {
     const self = this;
-    this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
-
     this.add.text(550, 45, `To Win:     ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: 'Arial', fontSize: '30px '});
 
     let ids = Object.keys(this.players)
@@ -39,7 +37,6 @@ export default class PointsScene extends Phaser.Scene {
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
         this.winnerStatus = true;
         this.socket.emit('leaderboard');
-        this.orderPlayers();
         return;
       }
       if (j === ids.length - 1 && !this.winnerStatus) {
@@ -84,6 +81,7 @@ export default class PointsScene extends Phaser.Scene {
 
     this.socket.on('leaderboardInfo', (leaderboardArr) => {
       this.leaderboardInfo = leaderboardArr;
+      this.orderPlayers();
       this.leaderboard();
     })
 
@@ -190,8 +188,7 @@ export default class PointsScene extends Phaser.Scene {
     console.log("Game is over");
     this.socket.removeAllListeners();
     //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
-    this.socket.emit('leftLobby', this.playerId);
-    // this.scene.start("HomeScene", {socket: this.socket, user: this.playerInfo});
+    this.scene.stop("PointsScene");
   }
 
   timesUp() {
@@ -201,7 +198,6 @@ export default class PointsScene extends Phaser.Scene {
       .text(width * 0.5, height * 0.5, "Go!", { fontSize: 50 })
       .setOrigin(0.5);
     this.scene.stop("PointsScene");
-    this.scene.start("GameScene", {socket: this.socket, user: this.playerInfo, players: this.players});
   }
 
 }
