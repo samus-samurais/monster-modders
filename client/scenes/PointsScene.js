@@ -198,6 +198,7 @@ export default class PointsScene extends Phaser.Scene {
       .text(width * 0.5, height * 0.5, "Go!", { fontSize: 50 })
       .setOrigin(0.5);
     this.scene.stop("PointsScene");
+    this.scene.start("GameScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: this.pointsInfo })
   }
 
 }
