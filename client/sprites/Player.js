@@ -67,10 +67,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update(cursors){
+    update(cursors,isControllable = true){
         //Updates player movement
         let animation = 'turn';
-        if (this.scene) {
+        if (this.scene && isControllable) {
             if (cursors.left.isDown){
                 this.setVelocityX(-190);
                 this.anims.play('left', true);

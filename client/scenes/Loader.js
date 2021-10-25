@@ -40,6 +40,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('tutorialButton', 'assets/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
     this.load.image("finishLine", "assets/finishLine.png");
+    this.load.image("cursor", "assets/cursor.png");
     this.load.image("startLine", "assets/startLine.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
