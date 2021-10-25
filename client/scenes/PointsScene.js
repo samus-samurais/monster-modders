@@ -164,9 +164,8 @@ export default class PointsScene extends Phaser.Scene {
       this.scene.stop("PointsScene");
     } else {
       console.log("there is a winner.........");
-      this.socket.emit('gameOver');
-      this.scene.stop("PointsScene");
-      this.scene.start("HomeScene", { socket: this.socket, user: this.playerInfo })
+      this.socket.emit("gameOver");
+      this.gameScene.closeGame();
     }
   }
 

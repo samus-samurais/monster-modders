@@ -210,11 +210,8 @@ module.exports = (io) => {
 
           socket.on('gameOver', () => {
             currentRoom.endGame();
-            io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
-            roomEvents.forEach((evt) => socket.removeAllListeners(evt));
             timer = null;
-            socket.leave(info.roomKey);
           })
 
           socket.on('stopTimer', () => {
