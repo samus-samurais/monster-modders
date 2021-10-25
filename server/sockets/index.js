@@ -45,7 +45,7 @@ const roomEvents = [
   'playerFinished',
   'playerLeave',
   'displayPoints',
-  'leaderboard',
+  'displayLeaderboardWithWinner',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));
@@ -125,6 +125,7 @@ module.exports = (io) => {
             currentRoom.playersReady += 1
             console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             if(currentRoom.playersReady === currentRoom.playerCount){
+              currentRoom.playersReady = 0;
               io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
               currentRoom.timerId = setInterval(() => {
                 console.log("Build timer runs");
@@ -132,7 +133,6 @@ module.exports = (io) => {
                   currentRoom.runPlatformTimer();
                   io.in(info.roomKey).emit("updatePlatformTimer", currentRoom.platformTimer);
                 } else {
-                  currentRoom.playersReady = 0;
                   console.log("build timer being cleared")
                   io.in(info.roomKey).emit("buildPhaseOver");
                   clearInterval(currentRoom.timerId);
@@ -145,29 +145,30 @@ module.exports = (io) => {
             currentRoom.playersReady += 1
             console.log("players loaded is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             if(currentRoom.playersReady === currentRoom.playerCount){
-              console.log("Race starting")
               currentRoom.playersReady = 0;
-              io.in(info.roomKey).emit("updateGameTimer", {time: currentRoom.gameTimer});
+              console.log("Race starting")
+              io.in(info.roomKey).emit("startRace");
+              io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
               currentRoom.timerId = setInterval(() => {
                 console.log("Race timer runs");
                 if(currentRoom.gameTimer > 0) {
                   currentRoom.runGameTimer();
-                  io.in(info.roomKey).emit("updateGameTimer",
-                  {time: currentRoom.gameTimer, playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
+                  io.in(info.roomKey).emit("updateGameTimer", currentRoom.gameTimer);
                 } else {
-                  currentRoom.playersReady = 0;
                   console.log("race timer being cleared")
                   clearInterval(currentRoom.timerId);
+                  io.in(info.roomKey).emit("raceTimeOver", {playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
                 }
               }, 1000);
             }
           });
 
           socket.on("displayPoints", () => {
-            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             currentRoom.playersReady += 1
             console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             if(currentRoom.playersReady === currentRoom.playerCount){
+              console.log("Points timer starting")
+              currentRoom.playersReady = 0;
               io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
               currentRoom.timerId = setInterval(() => {
                 console.log("Points timer runs");
@@ -175,9 +176,10 @@ module.exports = (io) => {
                   currentRoom.runPointsTimer();
                   io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
                 } else {
-                  currentRoom.playersReady = 0;
-                  console.log("points timer being cleared")
+                  console.log("points timer being cleared");
+                  currentRoom.newRound();
                   clearInterval(currentRoom.timerId);
+                  io.in(info.roomKey).emit("pointsSceneOver");
                 }
               }, 1000);
             }
@@ -194,13 +196,22 @@ module.exports = (io) => {
             }
           })
 
+          socket.on('displayLeaderboardWithWinner', async () => {
+            // get top of 10 users info order by number of wins in desc in room.
+            const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+            const topTenUsersInfo = await getDocs(topTenUsers);
+            topTenUsersInfo.forEach(doc => {
+              gameLeaderboard.push(doc.data());
+            })
+            console.log('gameLeaderboard......', gameLeaderboard);
+            io.in(info.roomKey).emit('roomLeaderboardInfo', gameLeaderboard);
+            gameLeaderboard = [];
+          })
+
           socket.on('gameOver', () => {
             currentRoom.endGame();
-            io.in(info.roomKey).emit('finishedGame', {cause: "gameOver"});
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
-            roomEvents.forEach((evt) => socket.removeAllListeners(evt));
             timer = null;
-            socket.leave(info.roomKey);
           })
 
           socket.on('stopTimer', () => {
@@ -209,10 +220,6 @@ module.exports = (io) => {
               clearInterval(currentRoom.timerId);
               currentRoom.timerId = null;
             }
-          })
-
-          socket.on('playerLeave', (playerId) => {
-            io.in(info.roomKey).emit("playerLeaveGameRoom", playerId);
           })
 
           socket.on('disconnect', () => {

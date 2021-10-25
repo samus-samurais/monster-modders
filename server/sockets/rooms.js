@@ -122,7 +122,7 @@ class Room {
             this.players[key].y = 535
           }
         this.playersReady = 0
-        this.pointsToWin = this.playerCount * 4;
+        this.pointsToWin = this.playerCount * 2;
         this.pointsForFinishing = this.playerCount;
         this.isOpen = false;
         this.gameStarted = true;
@@ -133,6 +133,17 @@ class Room {
         this.playersReady = 0;
         this.isOpen = true
         this.gameStarted = false;
+    }
+
+    newRound(){
+        for (const key of Object.keys(this.players)) {
+            this.players[key].x = 200,
+            this.players[key].y = 535
+        }
+        this.gameTimer = 16;
+        this.platformTimer = 11;
+        this.pointsTimer = 6;
+        this.pointsForFinishing = this.playerCount;
     }
 
 }
