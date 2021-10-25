@@ -9,8 +9,10 @@ import Sandbox from './scenes/Sandbox'
 import UserProfileScene from './scenes/UserProfileScene'
 import GameScene from './scenes/GameScene'
 import RoomSelector from './scenes/RoomSelector'
-import { io } from 'socket.io-client';
 import TutorialScene from './scenes/TutorialScene'
+import PointsScene from './scenes/PointsScene'
+import LeaderboardScene from './scenes/LeaderboardScene'
+import { io } from 'socket.io-client';
 
 // eslint-disable-next-line no-undef
 class Game extends Phaser.Game {
@@ -33,6 +35,9 @@ class Game extends Phaser.Game {
     this.scene.add('GameScene', GameScene)
     this.scene.add('RoomSelector', RoomSelector)
     this.scene.add("TutorialScene", TutorialScene)
+    this.scene.add('PointsScene', PointsScene)
+    this.scene.add('LeaderboardScene', LeaderboardScene)
+
 
     //Starts the loader
     this.scene.start('InitialLoader',{socket: this.socket})
