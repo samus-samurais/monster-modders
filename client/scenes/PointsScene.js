@@ -47,7 +47,7 @@ export default class PointsScene extends Phaser.Scene {
     }
 
     for(let i = 0; i < ids.length; i++){
-        let yPosition = this.winnerStatus ? this.playerOrdered.indexOf(this.pointsInfo.playerInfo[ids[i]]) : (this.pointsInfo.playerInfo[ids[i]].placedThisRound ? this.pointsInfo.playerInfo[ids[i]].placedThisRound - 1 : this.pointsInfo.playerCount - 1)
+        let yPosition = this.winnerStatus ? this.playerOrdered.indexOf(this.pointsInfo.playerInfo[ids[i]]) : i;
         if(ids[i] === this.playerId){
             this.playerPointsText = this.add.text(700, yPosition * 144 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
