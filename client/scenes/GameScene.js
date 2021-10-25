@@ -15,9 +15,7 @@ export default class GameScene extends Phaser.Scene {
         this.playerId = data.socket.id;
         this.playerInfo = data.user ? data.user : null
         this.players = data.players;
-        this.pointsInfo = data.pointsInfo ? data.pointsInfo : null;
 
-        console.log('.....back to GameScene again', this.pointsInfo);
         //Sets all important variables to default values
         this.player = null
         this.otherPlayers = {}
@@ -26,7 +24,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformMaker = null;
         this.platformDestroyer = null;
         this.platformBeingPlaced = null;
-        this.canControlPlayer = true;
+        this.canControlPlayer = false;
         //For multiplayer, platforms are stored in a platform table as well as a group
         //This lets us access and manipulate specific platforms via sockets more easily!
         this.platformTable = {};
@@ -135,7 +133,6 @@ export default class GameScene extends Phaser.Scene {
 
         this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
-
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
         this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 30}).setOrigin(0.5);
@@ -147,17 +144,21 @@ export default class GameScene extends Phaser.Scene {
           this.platformTimer.setText(`Time to Place Platforms: ${time}`);
         })
 
-        this.socket.on("buildPhaseOver", (scene = self) => {
-            scene.startGameTimer();
+        this.socket.on("buildPhaseOver", () => {
+            this.startGameTimer();
         })
 
-        this.socket.on("updateGameTimer", (gameInfo) => {
-          console.log("Game timer updated", gameInfo.time);
-          this.gameTimer.setText(`${gameInfo.time}`);
-          if(gameInfo.time === 0) {
-            this.timesUp();
-            this.roundOver(gameInfo);
-          }
+        this.socket.on("startRace", () => {
+          this.canControlPlayer = true;
+        })
+
+        this.socket.on("updateGameTimer", (time) => {
+          console.log("Game timer updated", time);
+          this.gameTimer.setText(`${time}`);
+        })
+
+        this.socket.on("raceTimeOver", (gameInfo) => {
+          this.timesUp(gameInfo);
         })
 
         this.socket.on("roundOver", (roundInfo, scene = self) => {
@@ -364,11 +365,10 @@ export default class GameScene extends Phaser.Scene {
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
         .setOrigin(0.5);
-
       this.destroyText(this.text);
     }
 
-    timesUp() {
+    timesUp(gameInfo) {
       this.gameTimer.destroy();
       this.physics.pause(); //don't let players move if time runs out
       const { width, height } = this.scale;
@@ -376,6 +376,7 @@ export default class GameScene extends Phaser.Scene {
         .text(width * 0.5, height * 0.5, "Time's Up!", { fontSize: 50 })
         .setOrigin(0.5);
       this.destroyText(this.text);
+      this.roundOver(gameInfo);
     }
 
     roundOver(roundData){
@@ -388,8 +389,23 @@ export default class GameScene extends Phaser.Scene {
           : "No points gained :(")}`
           );
       }
-      this.scene.stop("GameScene");
-      this.scene.start("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
+      this.scene.launch("PointsScene", { gameScene: this, socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
+    }
+
+    newRound(){
+      this.hideAllPlayers();
+      console.log("New round starting!");
+      for (const key of Object.keys(this.otherPlayers)) {
+        this.otherPlayers[key].setPosition(200,535);
+      }
+      this.player.setPosition(200,535);
+      this.physics.resume();
+      this.canControlPlayer = false;
+      this.platformButtonsState = true;
+      this.finishLine.body.enable = true;
+      this.platformTimer = this.add.text(this.scale.width * 0.5, 20, "Waiting for players...", {fontSize: 30}).setOrigin(0.5);
+      this.socket.emit("readyToBuild");
+
     }
 
     destroyText(timerText) {

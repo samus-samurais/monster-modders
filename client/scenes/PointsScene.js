@@ -19,6 +19,7 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   init(data) {
+    this.gameScene = data.gameScene;
     this.socket = data.socket;
     this.playerId = data.socket.id;
     this.playerInfo = data.user ? data.user : null;
@@ -35,6 +36,7 @@ export default class PointsScene extends Phaser.Scene {
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
+        console.log("Somebody won with",this.pointsInfo.playerInfo[ids[j]].points,"points, points to win is",this.pointsInfo.pointsToWin);
         this.winnerStatus = true;
         this.socket.emit('leaderboard');
         return;
@@ -90,11 +92,11 @@ export default class PointsScene extends Phaser.Scene {
     })
 
     this.socket.on("updatePointsTimer", (time) => {
-      console.log("points timer updated-----");
       this.pointsTimer.setText(`${time}`);
-      if(time === 0) {
-        this.timesUp();
-      }
+    })
+
+    this.socket.on("pointsSceneOver", () => {
+      this.timesUp();
     })
 
     this.socket.on('finishedGame', function(info, scene = self){
@@ -169,10 +171,10 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   timesUp() {
+    console.log("Stopping points scene");
     this.pointsTimer.destroy();
-    const { width, height } = this.scale;
+    this.gameScene.newRound();
     this.scene.stop("PointsScene");
-    this.scene.start("GameScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: this.pointsInfo })
   }
 
 }
