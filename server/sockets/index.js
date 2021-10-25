@@ -45,7 +45,7 @@ const roomEvents = [
   'playerFinished',
   'playerLeave',
   'displayPoints',
-  'leaderboard',
+  'displayLeaderboardWithWinner',
   'disconnect'
 ];
 //roomEvents.forEach((evt) => socket.removeAllListeners(evt));
@@ -194,6 +194,18 @@ module.exports = (io) => {
               clearInterval(currentRoom.timerId);
               io.in(info.roomKey).emit('roundOver',{playerInfo: currentRoom.players, playerCount: currentRoom.playerCount, pointsToWin: currentRoom.pointsToWin});
             }
+          })
+
+          socket.on('displayLeaderboardWithWinner', async () => {
+            // get top of 10 users info order by number of wins in desc in room.
+            const topTenUsers = query(collection(db, "users"), orderBy("number_of_wins", "desc"), limit(10));
+            const topTenUsersInfo = await getDocs(topTenUsers);
+            topTenUsersInfo.forEach(doc => {
+              gameLeaderboard.push(doc.data());
+            })
+            console.log('gameLeaderboard......', gameLeaderboard);
+            io.in(info.roomKey).emit('roomLeaderboardInfo', gameLeaderboard);
+            gameLeaderboard = [];
           })
 
           socket.on('gameOver', () => {

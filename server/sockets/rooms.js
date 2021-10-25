@@ -122,7 +122,7 @@ class Room {
             this.players[key].y = 535
           }
         this.playersReady = 0
-        this.pointsToWin = this.playerCount * 3;
+        this.pointsToWin = this.playerCount * 2;
         this.pointsForFinishing = this.playerCount;
         this.isOpen = false;
         this.gameStarted = true;
