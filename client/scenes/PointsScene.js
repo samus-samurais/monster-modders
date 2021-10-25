@@ -16,6 +16,7 @@ export default class PointsScene extends Phaser.Scene {
     this.playerOrdered = null;
     this.leaderboardInfo = null;
     this.pointsTimer = null;
+    this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver"]
   }
 
   init(data) {
@@ -85,10 +86,6 @@ export default class PointsScene extends Phaser.Scene {
       this.leaderboardInfo = leaderboardArr;
       this.orderPlayers();
       this.leaderboard();
-    })
-
-    this.socket.on('playerLeaveGameRoom', (playerId, scene = self) => {
-      scene.playerLeave(playerId);
     })
 
     this.socket.on("updatePointsTimer", (time) => {
@@ -166,7 +163,7 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   closeGame(){
-    this.socket.removeAllListeners();
+    this.pointsEvents.forEach((evt) => this.socket.removeAllListeners(evt));
     this.scene.stop("PointsScene");
   }
 
@@ -174,6 +171,7 @@ export default class PointsScene extends Phaser.Scene {
     console.log("Stopping points scene");
     this.pointsTimer.destroy();
     this.gameScene.newRound();
+    this.pointsEvents.forEach((evt) => this.socket.removeAllListeners(evt));
     this.scene.stop("PointsScene");
   }
 

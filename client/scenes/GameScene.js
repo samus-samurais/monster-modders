@@ -30,7 +30,7 @@ export default class GameScene extends Phaser.Scene {
         this.platformTable = {};
         this.lives = 3;
         this.gameTimer = null;
-        this.platformButtonsState = true;
+        this.pointsSceneRunning = false;
     }
 
     create(){
@@ -234,22 +234,6 @@ export default class GameScene extends Phaser.Scene {
       } else {
         this.addButtonToggle = false;
       }
-
-      if (!this.platformButtonsState) {
-        // when gameTimer begin to work, platformButtons should be disappeared.
-        this.platformMaker.setVisible(false);
-        this.platformDestroyer.setVisible(false);
-        if (this.platformBeingPlaced) {
-          this.input.setDraggable(this.platformBeingPlaced,false);
-        }
-      }
-
-      if (this.platformButtonsState && this.player || this.lives <= 0) {
-        this.player.body.moves = false;
-      } else if (this.player) {
-        this.player.body.moves = true;
-      }
-
     }
 
     hideAllPlayers(){
@@ -264,6 +248,25 @@ export default class GameScene extends Phaser.Scene {
       for (const key of Object.keys(this.otherPlayers)) {
         this.otherPlayers[key].reappear();
       }
+    }
+
+    hidePlatformButtons(){
+      this.platformMaker.setVisible(false);
+      this.platformDestroyer.setVisible(false);
+      this.platformMaker.disableInteractive()
+      this.platformDestroyer.disableInteractive();
+      if (this.platformBeingPlaced) {
+          this.input.setDraggable(this.platformBeingPlaced,false);
+          this.platformBeingPlaced.place();
+          this.platformBeingPlaced = null;
+      }
+    }
+
+    showPlatformButtons(){
+      this.platformMaker.setVisible(true);
+      this.platformDestroyer.setVisible(true);
+      this.platformMaker.setInteractive()
+      this.platformDestroyer.setInteractive();
     }
 
     addPlatform(platformInfo){
@@ -294,7 +297,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onClicked(pointer, objectClicked) {
-      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle && this.platformButtonsState){
+      if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
         if (this.platformBeingPlaced && objectClicked.id === this.platformBeingPlaced.id) {
           this.platformBeingPlaced = null;
         }
@@ -313,6 +316,7 @@ export default class GameScene extends Phaser.Scene {
       this.livesText.setText(`You have ${this.lives} lives`)
 
       if (this.lives <= 0) {
+        this.canControlPlayer = false;
         this.livesText.destroy();
         this.add.text(400, 570, `Sorry, you have lost all lives o(╥﹏╥)o`, { color: 'purple', fontFamily: 'Arial', fontSize: '36px ', align: 'center'});
         this.player.disappear();
@@ -339,9 +343,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     closeGame(){
+      if(this.pointsSceneRunning){
+        this.scene.stop("PointsScene");
+      }
       console.log("Game is over");
       //Sets platform buttons back to visible for next game
-      this.platformButtonsState = true;
       //After closing listeners, sends a "leftLobby" signal to socket index so that player's socket listeners are closed on both ends.
       this.socket.removeAllListeners();
       this.socket.emit('leftLobby', this.playerId);
@@ -357,7 +363,7 @@ export default class GameScene extends Phaser.Scene {
     startGameTimer() {
       this.showAllPlayers();
       this.canControlPlayer = true;
-      this.platformButtonsState = false;
+      this.hidePlatformButtons();
       this.platformTimer.destroy();
       const { width, height } = this.scale
       this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
@@ -380,7 +386,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     roundOver(roundData){
-      
       for (const key of Object.keys(roundData.playerInfo)){
         console.log(
           `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
@@ -390,6 +395,7 @@ export default class GameScene extends Phaser.Scene {
           );
       }
       this.scene.launch("PointsScene", { gameScene: this, socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
+      this.pointsSceneRunning = true;
     }
 
     newRound(){
@@ -401,11 +407,11 @@ export default class GameScene extends Phaser.Scene {
       this.player.setPosition(200,535);
       this.physics.resume();
       this.canControlPlayer = false;
-      this.platformButtonsState = true;
+      this.showPlatformButtons();
       this.finishLine.body.enable = true;
       this.platformTimer = this.add.text(this.scale.width * 0.5, 20, "Waiting for players...", {fontSize: 30}).setOrigin(0.5);
       this.socket.emit("readyToBuild");
-
+      this.pointsSceneRunning = false;
     }
 
     destroyText(timerText) {
