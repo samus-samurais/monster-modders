@@ -70,6 +70,7 @@ export default class UserProfileScene extends Phaser.Scene {
         child.visible = true;
       });
       this.scene.stop("UserProfileScene");
+      this.scene.launch("HomeScene", {socket: this.socket, user: this.playerInfo})
     })
   }
 }
