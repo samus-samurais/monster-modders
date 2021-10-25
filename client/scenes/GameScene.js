@@ -377,6 +377,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     roundOver(roundData){
+      
       for (const key of Object.keys(roundData.playerInfo)){
         console.log(
           `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}

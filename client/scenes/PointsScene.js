@@ -158,45 +158,19 @@ export default class PointsScene extends Phaser.Scene {
     }
   }
 
-  playerLeave(id){
-    if (this.playerId === id) {
-      this.player = null;
-      this.scene.launch("HomeScene", { socket: this.socket, user: this.playerInfo })
-      if (Object.keys(this.otherPlayers).length === 0) {
-        this.socket.emit('gameOver');
-      }
-    }
-    if (this.otherPlayers[id]) {
-      console.log("other player leaves with button id:----",this.otherLeaveRoomButtons)
-      this.otherLeaveRoomButtons[id].setTint(0xff0000);
-      this.otherPlayers[id].delete();
-      delete this.otherPlayers[id];
-      if (Object.keys(this.otherPlayers).length === 0 && !this.player) {
-        this.socket.emit('gameOver');
-      }
-    }
-
-  }
-
   handleDisconnect(){
-    //TODO: Send a message informing the player that the game has quit due to disconnect
     console.log("Stopping timer");
     this.socket.emit("stopTimer");
   }
 
   closeGame(){
-    console.log("Game is over");
     this.socket.removeAllListeners();
-    //Sends a "leftLobby" signal to socket index to make sure player's socket listeners are closed on both ends.
     this.scene.stop("PointsScene");
   }
 
   timesUp() {
     this.pointsTimer.destroy();
     const { width, height } = this.scale;
-    this.text = this.add
-      .text(width * 0.5, height * 0.5, "Go!", { fontSize: 50 })
-      .setOrigin(0.5);
     this.scene.stop("PointsScene");
   }
 
