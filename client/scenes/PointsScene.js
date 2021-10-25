@@ -172,6 +172,7 @@ export default class PointsScene extends Phaser.Scene {
     this.pointsTimer.destroy();
     const { width, height } = this.scale;
     this.scene.stop("PointsScene");
+    this.scene.start("GameScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: this.pointsInfo })
   }
 
 }

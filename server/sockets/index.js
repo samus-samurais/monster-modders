@@ -164,10 +164,11 @@ module.exports = (io) => {
           });
 
           socket.on("displayPoints", () => {
-            console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             currentRoom.playersReady += 1
             console.log("players loaded in pointsScene is",currentRoom.playersReady,"player count is",currentRoom.playerCount);
             if(currentRoom.playersReady === currentRoom.playerCount){
+              console.log("Points timer starting")
+              currentRoom.playersReady = 0;
               io.in(info.roomKey).emit("updatePointsTimer", currentRoom.pointsTimer);
               currentRoom.timerId = setInterval(() => {
                 console.log("Points timer runs");

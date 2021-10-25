@@ -15,7 +15,9 @@ export default class GameScene extends Phaser.Scene {
         this.playerId = data.socket.id;
         this.playerInfo = data.user ? data.user : null
         this.players = data.players;
+        this.pointsInfo = data.pointsInfo ? data.pointsInfo : null;
 
+        console.log('.....back to GameScene again', this.pointsInfo);
         //Sets all important variables to default values
         this.player = null
         this.otherPlayers = {}
@@ -386,7 +388,8 @@ export default class GameScene extends Phaser.Scene {
           : "No points gained :(")}`
           );
       }
-      this.scene.launch("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
+      this.scene.stop("GameScene");
+      this.scene.start("PointsScene", { socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
     }
 
     destroyText(timerText) {
