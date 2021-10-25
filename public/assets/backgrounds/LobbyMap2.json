@@ -95,31 +95,31 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"bg.tsx"
+         "source":"bg.png"
         }, 
         {
          "firstgid":41,
-         "source":"tileset.tsx"
+         "source":"tileset111.json"
         }, 
         {
          "firstgid":122,
-         "source":"background_6.tsx"
+         "source":"background_6.png"
         }, 
         {
          "firstgid":126,
-         "source":"B1011-2.tsx"
+         "source":"B1011-2.png"
         }, 
         {
          "firstgid":254,
-         "source":"zz.tsx"
+         "source":"zz111.json"
         }, 
         {
          "firstgid":304,
-         "source":"Mv_flamethrower 3.tsx"
+         "source":"Mv_flamethrower 3.png"
         }, 
         {
          "firstgid":1667,
-         "source":"ghost-Sheet.tsx"
+         "source":"ghost-Sheet111.png"
         }],
  "tilewidth":32,
  "type":"map",

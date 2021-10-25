@@ -83,39 +83,39 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"bricks.brown_.tsx"
+         "source":"bricks.brown_.png"
         }, 
         {
          "firstgid":26,
-         "source":"oppcastle-mod-tiles.tsx"
+         "source":"oppcastle-mod-tiles111.json"
         }, 
         {
          "firstgid":191,
-         "source":"sheet.tsx"
+         "source":"sheet.png"
         }, 
         {
          "firstgid":223,
-         "source":"oppcastle-tiles.tsx"
+         "source":"oppcastle-tiles111.json"
         }, 
         {
          "firstgid":366,
-         "source":"bg.tsx"
+         "source":"bg.png"
         }, 
         {
          "firstgid":406,
-         "source":"ghost-Sheet.tsx"
+         "source":"ghost-Sheet111.json"
         }, 
         {
          "firstgid":410,
-         "source":"env_objects.tsx"
+         "source":"env_objects.png"
         }, 
         {
          "firstgid":666,
-         "source":"zz.tsx"
+         "source":"zz111.json"
         }, 
         {
          "firstgid":716,
-         "source":"IdleLoop-Sheet.tsx"
+         "source":"IdleLoop-Sheet111.json"
         }],
  "tilewidth":32,
  "type":"map",

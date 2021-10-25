@@ -23,7 +23,7 @@ export default class Sandbox extends Phaser.Scene {
 
   create() {
     const self = this
-    this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+    this.add.image(640, 368, 'GamemapScreenshot')
 
     //play sandbox mode music
     this.sandboxMusic = this.sound.add("sandboxMusic");
@@ -68,7 +68,7 @@ export default class Sandbox extends Phaser.Scene {
       platforms: this.allPlatforms,
       fallDetector: this.fallDetector
     }
-    this.player = new Player(this, 200, 535, 'dude', 'PC', null, this.playerInfo.username, colliderInfo)
+    this.player = new Player(this, 200, 535, 'zombiesprite', 'PC', null, this.playerInfo.username, colliderInfo)
 
     // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {

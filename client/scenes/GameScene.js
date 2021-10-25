@@ -35,7 +35,7 @@ export default class GameScene extends Phaser.Scene {
 
     create(){
         const self = this;
-        this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+        this.add.image(640, 368, 'GamemapScreenshot')
         //Resumes physics in case game quit while physics was paused
         this.physics.resume();
 
@@ -115,12 +115,12 @@ export default class GameScene extends Phaser.Scene {
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
                 console.log("Player built in multiplayer file!"); //PC == Playable Character!
-                this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'dude', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
+                this.player = new Player(this, this.players[ids[i]].x,this.players[ids[i]].y, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username, this.colliderInfo)
 
                 console.log('here is the PC player-----', this.player);
             } else {
                 console.log("NPC built in multiplayer file"); //NPC = Non-playable Character
-                this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'dude','NPC', null, this.players[ids[i]].username)
+                this.otherPlayers[ids[i]] = new Player(this, this.players[ids[i]].x, this.players[ids[i]].y, 'zombiesprite','NPC', null, this.players[ids[i]].username)
             }
         }
 

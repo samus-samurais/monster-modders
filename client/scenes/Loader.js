@@ -25,7 +25,7 @@ export default class InitialLoader extends Phaser.Scene {
     });
 
     //Loads basic sets
-    this.load.spritesheet("dude", "assets/dude.png", {
+    this.load.spritesheet("zombiesprite", "assets/playerSprites/zombiesprite.png", {
       frameWidth: 32,
       frameHeight: 48,
     });
@@ -49,6 +49,8 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('falseRemovePlatformChangeButton', 'assets/testImage/falseRemovePlatformChangeButton.png');
     this.load.image('falseRemovePlatformButton', 'assets/testImage/falseRemovePlatformButton.png');
     this.load.image("backButton", "assets/testImage/backButton.png");
+    this.load.image("GamemapScreenshot", "assets/backgrounds/GamemapScreenshot.png")
+    this.load.image("LobbymapScreenshot", "assets/backgrounds/LobbymapScreenshot.png")
 
 
     //audio

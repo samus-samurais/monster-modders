@@ -21,7 +21,7 @@ export default class LobbyScene extends Phaser.Scene {
         this.sound.stopAll(); //stop lobby music
 
         //Creates background
-        this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+        this.add.image(640, 368, 'LobbymapScreenshot');
 
         //Creates ground for lobby
         this.staticPlatforms = this.physics.add.staticGroup();
@@ -99,13 +99,13 @@ export default class LobbyScene extends Phaser.Scene {
             if(ids[i] === this.playerId){
                 console.log("Match found!"); //PC == Playable Character!
                 if (this.playerInfo && this.playerInfo.email) {
-                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, this.playerInfo.username, {staticPlatforms: this.staticPlatforms});
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'zombiesprite', 'PC',this.socket, this.playerInfo.username, {staticPlatforms: this.staticPlatforms});
                 } else {
-                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'dude', 'PC',this.socket, players[ids[i]].username, {staticPlatforms: this.staticPlatforms});
+                    this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'zombiesprite', 'PC',this.socket, players[ids[i]].username, {staticPlatforms: this.staticPlatforms});
                 }
             } else {
                 console.log("Different player"); //NPC = Non-playable Character
-                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'dude','NPC', null, players[ids[i]].username)
+                this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'zombiesprite','NPC', null, players[ids[i]].username)
             }
         }
         //Set up player counter, show button if enough players to start game
@@ -118,7 +118,7 @@ export default class LobbyScene extends Phaser.Scene {
 
     addNewPlayer(player){
         console.log("Updating scene with new player:",player);
-        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'dude','NPC', null, player.username)
+        this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'zombiesprite','NPC', null, player.username)
         console.log("other players are",this.otherPlayers);
         let ids = Object.keys(this.otherPlayers);
         //Update player counter, show button if enough players to start game
