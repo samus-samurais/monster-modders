@@ -56,6 +56,7 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("top1", "assets/testImage/falseTop1.png");
     this.load.image("top2", "assets/testImage/falseTop2.png");
     this.load.image("top3", "assets/testImage/falseTop3.png");
+    this.load.image("broomplatform", "assets/platform/broomplatform.png");
 
 
     //audio

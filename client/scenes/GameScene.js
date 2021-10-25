@@ -73,7 +73,7 @@ export default class GameScene extends Phaser.Scene {
             this.input.setDraggable(this.platformBeingPlaced,false);
           }
           //Generates new platform, sets it to platform being placed
-          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", this.socket);
+          const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", this.socket);
           //Adds platform to both group and table
           this.allPlatforms.add(userPlatform);
           this.platformTable[userPlatform.id] = userPlatform

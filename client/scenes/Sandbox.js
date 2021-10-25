@@ -42,7 +42,7 @@ export default class Sandbox extends Phaser.Scene {
     this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
       //In sandbox mode, platforms are given no socket and a generic ID to ensure they are always 'sticky' and emit nothing
-      const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", null, "single player");
+      const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", null, "single player");
       this.allPlatforms.add(userPlatform);
       this.input.setDraggable(userPlatform);
       this.platformBeingPlaced = userPlatform
