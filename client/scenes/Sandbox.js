@@ -23,7 +23,7 @@ export default class Sandbox extends Phaser.Scene {
 
   create() {
     const self = this
-    this.add.image(640, 360, 'sky').setDisplaySize(1280,720).setOrigin(0.5,0.5);
+    this.add.image(640, 368, 'GamemapScreenshot')
 
     //play sandbox mode music
     this.sandboxMusic = this.sound.add("sandboxMusic");
@@ -42,7 +42,7 @@ export default class Sandbox extends Phaser.Scene {
     this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
     this.platformMaker.on('pointerdown', () => {
       //In sandbox mode, platforms are given no socket and a generic ID to ensure they are always 'sticky' and emit nothing
-      const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "platform", null, "single player");
+      const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", null, "single player");
       this.allPlatforms.add(userPlatform);
       this.input.setDraggable(userPlatform);
       this.platformBeingPlaced = userPlatform
@@ -68,7 +68,7 @@ export default class Sandbox extends Phaser.Scene {
       platforms: this.allPlatforms,
       fallDetector: this.fallDetector
     }
-    this.player = new Player(this, 200, 535, 'dude', 'PC', null, this.playerInfo.username, colliderInfo)
+    this.player = new Player(this, 200, 535, 'zombiesprite', 'PC', null, this.playerInfo.username, colliderInfo)
 
     // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {

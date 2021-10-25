@@ -52,12 +52,12 @@ export default class PointsScene extends Phaser.Scene {
         if(ids[i] === this.playerId){
             this.playerPointsText = this.add.text(700, i * 130 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
-            this.player = new Player(this, 600, i * 130 + 144, 'dude', 'PC', this.socket, this.players[ids[i]].username)
+            this.player = new Player(this, 600, i * 130 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
 
         } else {
             this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 130 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
 
-            this.otherPlayers[ids[i]] = new Player(this, 600, i * 130 + 144, 'dude','NPC', null, this.players[ids[i]].username);
+            this.otherPlayers[ids[i]] = new Player(this, 600, i * 130 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
 
         }
     }

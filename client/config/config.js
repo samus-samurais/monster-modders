@@ -5,7 +5,7 @@ export default {
     scale: {
         mode: Phaser.Scale.FIT,
         width: 1280,
-        height: 720,
+        height: 736,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         max: {
             width: 1920,
