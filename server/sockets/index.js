@@ -46,9 +46,9 @@ const roomEvents = [
   'playerLeave',
   'displayPoints',
   'displayLeaderboardWithWinner',
+  'updatePlayerNumOfWins',
   'disconnect'
 ];
-//roomEvents.forEach((evt) => socket.removeAllListeners(evt));
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -208,6 +208,20 @@ module.exports = (io) => {
             gameLeaderboard = [];
           })
 
+
+          socket.on('updatePlayerNumOfWins', async (winner) => {
+            console.log('winner infor --------', winner);
+            if (winner.uid) {
+              const userSnap = await getDoc(doc(db, "users", winner.uid));
+              const userNumOfWins = userSnap.data().number_of_wins + 1;
+
+              await updateDoc(doc(db, "users", winner.uid), {
+                number_of_wins: userNumOfWins
+              })
+            }
+            io.in(info.roomKey).emit("leaderboardReadyForDisplay");
+          })
+
           socket.on('gameOver', () => {
             currentRoom.endGame();
             socket.broadcast.emit("openRoom",{roomKey: info.roomKey})
@@ -249,18 +263,6 @@ module.exports = (io) => {
           console.log('......gameLeaderboard', gameLeaderboard);
           socket.emit('leaderboardInfo', gameLeaderboard);
           gameLeaderboard = [];
-        })
-
-        socket.on('updatePlayerNumOfWins', async (winner) => {
-          console.log('winner infor --------', winner);
-          if (winner.uid) {
-            const userSnap = await getDoc(doc(db, "users", winner.uid));
-            const userNumOfWins = userSnap.data().number_of_wins + 1;
-
-            await updateDoc(doc(db, "users", winner.uid), {
-              number_of_wins: userNumOfWins
-            })
-          }
         })
 
         socket.on("newUserSignup", (input) => {

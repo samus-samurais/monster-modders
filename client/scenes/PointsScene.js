@@ -16,7 +16,7 @@ export default class PointsScene extends Phaser.Scene {
     this.playerOrdered = null;
     this.leaderboardInfo = null;
     this.pointsTimer = null;
-    this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver"];
+    this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver", "leaderboardReadyForDisplay"];
     this.canControlPlayer = false;
 
   }
@@ -34,41 +34,39 @@ export default class PointsScene extends Phaser.Scene {
 
   create() {
     const self = this;
-    this.recDisplayBackground = this.add.rectangle(640, 360, 380, 680, 0x009AA8);
-    this.add.text(550, 45, `To Win:     ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: 'Arial', fontSize: '30px '});
-
+    this.recDisplayBackground = this.add.rectangle(680, 360, 480, 680, 0x009AA8);
+    this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontSize: '30px '});
+    let winner = null;
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
         console.log("Somebody won with",this.pointsInfo.playerInfo[ids[j]].points,"points, points to win is",this.pointsInfo.pointsToWin);
         this.winnerStatus = true;
-        // get the leaderboard info
-        this.socket.emit('displayLeaderboardWithWinner');
+        this.winnerId = ids[j];
+        winner = this.pointsInfo.playerInfo[ids[j]]
         break;
       }
     }
 
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
-            this.playerPointsText = this.add.text(700, i * 130 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
+            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});
 
-            this.player = new Player(this, 600, i * 130 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
+            this.player = new Player(this, 610, i * 100 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
 
         } else {
-            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 130 + 130, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
+            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontSize: '26px ', align: 'center'});
 
-            this.otherPlayers[ids[i]] = new Player(this, 600, i * 130 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
+            this.otherPlayers[ids[i]] = new Player(this, 610, i * 100 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
 
         }
     }
 
     // if there is no winner player info, we create a timer to count 5 seconds to show the points scene.
     //points timer text initially rendered as "Players loading" until all players are ready
-    this.pointsTimer = this.add.text(550, 500, "points loading...", {fontSize: 30});
+    this.pointsTimer = this.add.text(680, 510, "", { color: '#ffc93c', fontSize: 40 });
 
     //Socket stuff is below
-
-    this.socket.emit("displayPoints");
 
     this.socket.on('roomLeaderboardInfo', (leaderboardArr) => {
       this.leaderboardInfo = leaderboardArr;
@@ -84,12 +82,21 @@ export default class PointsScene extends Phaser.Scene {
       this.timesUp();
     })
 
-    this.socket.on('finishedGame', function(info, scene = self){
+    this.socket.on("leaderboardReadyForDisplay", () => {
+      this.socket.emit('displayLeaderboardWithWinner');
+    })
+
+    this.socket.on('finishedGame', (info, scene = self) => {
       if(info.cause === "disconnect"){
         scene.handleDisconnect();
       }
       scene.closeGame();
     })
+
+    this.socket.emit("displayPoints");
+    if(this.winnerId === this.playerId){
+      this.socket.emit('updatePlayerNumOfWins', winner);
+    }
 
   }
 
@@ -117,13 +124,11 @@ export default class PointsScene extends Phaser.Scene {
 
         })
       console.log('....this.playerOrdered....', this.playerOrdered)
-
-      this.winnerId = this.playerOrdered[0].playerId
-      this.socket.emit('updatePlayerNumOfWins', this.playerOrdered[0]);
       if (this.winnerId === this.playerId ) {
-        this.add.text(550, 600, `Congratulation, WINNER!`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'})
+        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontSize: '26px'})
+        this.add.text(500, 600, `Congratulation, you WIN!`, { color: '#ffc93c', fontSize: '26px'})
       } else {
-        this.add.text(550, 600, `Sorry, you lose the game...`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px ', align: 'center'})
+        this.add.text(480, 600, `Sorry, you lose the game...`, { color: '#ffc93c', fontSize: '26px'})
       }
     }
   }
@@ -131,16 +136,16 @@ export default class PointsScene extends Phaser.Scene {
   leaderboard() {
     if (this.leaderboardInfo && this.winnerStatus) {
       this.rectangleBackground = this.add.rectangle(215, 360, 380, 680, 0x009AA8);
-      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontFamily: 'Arial', fontSize: '26px '});
-      this.add.text(140, 90, `Player Username`, { color: 'purple', fontFamily: 'Arial', fontSize: '18px '});
-      this.add.text(310, 90, `Wins`, { color: 'purple', fontFamily: 'Arial', fontSize: '18px '});
+      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontSize: '26px '});
+      this.add.text(110, 90, `Player Username`, { color: 'purple', fontSize: '18px '});
+      this.add.text(310, 90, `Wins`, { color: 'purple', fontSize: '18px '});
       // display top 10 users' information
       for (let i=0; i < this.leaderboardInfo.length; i++) {
         if (i <= 2) {
           this.add.image(90, i * 55 + 155, `top${i + 1}`)
         }
-        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
-        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontFamily: 'Arial', fontSize: '26px '});
+        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontSize: '26px'});
+        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontSize: '26px'});
       }
     }
   }

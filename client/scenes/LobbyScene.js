@@ -40,7 +40,7 @@ export default class LobbyScene extends Phaser.Scene {
           })
 
         //Initializes player counter
-        this.playerCounter = this.add.text(900,10,"Players in lobby: ");
+        this.playerCounter = this.add.text(900, 10, "Players in lobby: ", {fontSize: '16px'});
 
         //Gets info from server to load self and existing players
         this.socket.on('sentPlayerInfo', function (players, scene = self) {

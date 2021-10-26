@@ -9,7 +9,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.currentAnim = 'turn'
         this.hasDoubleJumped = false;
         //Add player username to scene
-        this.username = this.scene.add.text(x, y - 37, `${username}`, { color: 'purple', fontFamily: 'Arial', fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
+        this.username = this.scene.add.text(x, y - 37, `${username}`, { color: '#ffc93c',fontSize: '16px ', align: 'center'}).setOrigin(0.5,0.5);
 
         if(status === 'PC'){
             this.scene.physics.world.enable(this);
@@ -124,7 +124,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     outOfBounds(){
         console.log("Oops!");
-        this.setPosition(200,535);
+        this.setPosition(96, 535);
         this.setVelocityY(0);
         if(this.scene.scene.key === 'GameScene'){
             this.scene.loseLives();

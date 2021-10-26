@@ -34,12 +34,12 @@ export default class Sandbox extends Phaser.Scene {
 
     // create static platforms as begining and goal place.
     this.staticPlatforms = this.physics.add.staticGroup();
-    this.staticPlatforms.create(200, 600, 'platform');
-    this.staticPlatforms.create(1000, 200, 'platform');
+    this.staticPlatforms.create(64, 642, 'platform');
+    this.staticPlatforms.create(1248, 386, 'platform');
 
     this.allPlatforms = this.add.group();
 
-    this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
+    this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
     this.platformMaker.on('pointerdown', () => {
       //In sandbox mode, platforms are given no socket and a generic ID to ensure they are always 'sticky' and emit nothing
       const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", null, "single player");
@@ -48,7 +48,7 @@ export default class Sandbox extends Phaser.Scene {
       this.platformBeingPlaced = userPlatform
     });
 
-    this.platformDestroyer = this.add.image(600, 100, "falseRemovePlatformButton").setInteractive();
+    this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
     this.platformDestroyer.on('pointerdown', () => {
       // remove button don't work until user creates at least one platform
       if (this.addButtonToggle) {
@@ -68,7 +68,7 @@ export default class Sandbox extends Phaser.Scene {
       platforms: this.allPlatforms,
       fallDetector: this.fallDetector
     }
-    this.player = new Player(this, 200, 535, 'zombiesprite', 'PC', null, this.playerInfo.username, colliderInfo)
+    this.player = new Player(this, 96, 535, 'zombiesprite', 'PC', null, this.playerInfo.username, colliderInfo)
 
     // create drag action
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
