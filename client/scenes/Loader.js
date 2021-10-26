@@ -36,7 +36,7 @@ export default class InitialLoader extends Phaser.Scene {
     });
 
     //images
-    this.load.image('background', 'assets/testImage/falseBackground.png');
+    this.load.image('background', 'assets/testImage/falseBackgroundRightSize.png');
     this.load.image('logo', 'assets/testImage/falseLogo.png');
     this.load.image('sandboxButton', 'assets/testImage/falseSandboxButton.png');
     this.load.image('multiplayerButton', 'assets/testImage/falseMultiplayerButton.png');
@@ -44,9 +44,9 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image('playerInfoButton', 'assets/testImage/falsePlayerInfoButton.png');
     this.load.image('tutorialButton', 'assets/testImage/falseTutorialButton.png');
     this.load.image("sky", "assets/sky.png");
-    this.load.image("finishLine", "assets/finishLine.png");
+    this.load.image("finishLine", "assets/platform/staticPlatformFinishLine.png");
     this.load.image("cursor", "assets/cursor.png");
-    this.load.image("startLine", "assets/startLine.png");
+    this.load.image("startLine", "assets/platform/staticPlatformStartLine.png");
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('background', 'assets/testImage/falseBackground.png');
     this.load.image('platform', 'assets/platform/falseShortPlatform.png');
@@ -63,6 +63,10 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("top2", "assets/testImage/falseTop2.png");
     this.load.image("top3", "assets/testImage/falseTop3.png");
     this.load.image("broomplatform", "assets/platform/broomplatform.png");
+    this.load.image("door", "assets/platform/door.png");
+    this.load.image("lobbyStaticPlatform1", "assets/platform/lobbyStaticPlatform1.png");
+    this.load.image("lobbyStaticPlatform2", "assets/platform/lobbyStaticPlatform2.png");
+    this.load.image("lobbyStaticPlatform3", "assets/platform/lobbyStaticPlatform3.png");
 
 
     //audio
