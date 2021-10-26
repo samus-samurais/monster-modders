@@ -60,15 +60,15 @@ export default class GameScene extends Phaser.Scene {
 
         // create static platforms as begining and goal place.
         this.staticPlatforms = this.physics.add.staticGroup();
-        this.staticPlatforms.create(200, 600, 'platform');
-        this.staticPlatforms.create(1000, 200, 'platform');
+        this.staticPlatforms.create(64, 642, 'platform');
+        this.staticPlatforms.create(1248, 224, 'platform');
 
         //adds sprite to serve as start point graphic
-        this.add.image(210,584,"startLine").setOrigin(0.5,1).setScale(0.45,0.45);
+        this.add.image(74, 626, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
 
         this.allPlatforms = this.add.group();
 
-        this.platformMaker = this.add.image(120, 60, 'addPlatformButton').setScale(0.9,0.9).setInteractive();
+        this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setScale(0.9,0.9).setInteractive();
         this.platformMaker.on('pointerdown', () => {
 
           if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
@@ -83,7 +83,7 @@ export default class GameScene extends Phaser.Scene {
           this.platformBeingPlaced = userPlatform
         });
 
-        this.platformDestroyer = this.add.image(120, 170, "falseRemovePlatformButton").setScale(0.9,0.9).setInteractive();
+        this.platformDestroyer = this.add.image(330, 100, "falseRemovePlatformButton").setScale(0.9,0.9).setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
@@ -142,7 +142,7 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
-        this.livesText = this.add.text(100, 620, `You have ${this.lives} lives`, { color: 'white', fontFamily: 'Arial', fontSize: '26px ', align: 'center'});
+        this.livesText = this.add.text(32, 662, `You have ${this.lives} lives`, { color: 'white',fontSize: '20px'});
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
@@ -436,7 +436,7 @@ export default class GameScene extends Phaser.Scene {
       for (const key of Object.keys(this.otherPlayers)) {
         this.otherPlayers[key].setPosition(200,535);
       }
-      this.player.setPosition(200,535);
+      this.player.setPosition(96,535);
       this.lives = 3;
       this.livesText.setText(`You have ${this.lives} lives`);
       this.physics.resume();
