@@ -58,6 +58,19 @@ export default class LoginScene extends Phaser.Scene {
       this.scene.stop("LoginScene");
     })
 
+    //Lets us type with WASD keys, which are usually captured for player movement
+    this.input.keyboard.on('keydown', function (event) {
+      if(event.key == 'a'){
+          this.element.getChildByName('nameField').value+=event.key;
+        }else if(event.key == 's'){
+          this.element.getChildByName('nameField').value+=event.key;
+        }else if(event.key == 'd'){
+          this.element.getChildByName('nameField').value+=event.key;
+        }else if(event.key == 'w'){
+          this.element.getChildByName('nameField').value+=event.key;
+        }
+    }.bind(this));
+
     this.goBack();
   }
 
