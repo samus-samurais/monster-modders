@@ -21,11 +21,22 @@ export default class LobbyScene extends Phaser.Scene {
         this.sound.stopAll(); //stop lobby music
 
         //Creates background
-        this.add.image(640, 368, 'LobbymapScreenshot');
+        this.add.image(640, 368, 'LobbymapFinal');
 
         //Creates ground for lobby
         this.staticPlatforms = this.physics.add.staticGroup();
-        this.staticPlatforms.create(640, 720, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
+        this.staticPlatforms.create(800, 416, 'lobbyStaticPlatform1');
+        this.staticPlatforms.create(48, 320, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(48, 640, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(368, 384, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(560, 544, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(800, 288, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(1024, 128, 'lobbyStaticPlatform2');
+        this.staticPlatforms.create(256, 544, 'lobbyStaticPlatform3');
+        this.staticPlatforms.create(1232, 320, 'lobbyStaticPlatform3');
+        this.staticPlatforms.create(1152, 512, 'lobbyStaticPlatform3');
+        this.staticPlatforms.create(992, 640, 'lobbyStaticPlatform3');
+        this.staticPlatforms.create(640, 690, 'lobbyStaticPlatformDown');
 
         //play lobbyScene (waitingScene) music
         this.waitingMusic = this.sound.add("waitingMusic");
