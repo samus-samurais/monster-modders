@@ -19,6 +19,7 @@ export default class PointsScene extends Phaser.Scene {
     this.player = null
     this.otherPlayers = {}
     this.otherPlayerPointsText = {}
+    this.otherPlayerPointsGained = {}
     this.otherLeaveRoomButtons = {}
     this.gameTimer = null;
     this.pointsTimer = null;
@@ -50,20 +51,27 @@ export default class PointsScene extends Phaser.Scene {
     
     /*
         console.log(
-          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
-          ${(roundData.playerInfo[key].placedThisRound > 0 ?
-            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points`
+          `${pointsInfo.playerInfo[key].username} ${this.placementStatuses[pointsInfo.playerInfo[key].placedThisRound]}
+          ${(pointsInfo.playerInfo[key].placedThisRound > 0 ?
+            `+${pointsInfo.playerCount+1-pointsInfo.playerInfo[key].placedThisRound} points`
           : "No points gained :(")}`
           );
     */
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
-            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});
+            this.playerPointsGained = this.add.text(700, i * 100 + 100, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
+              `+${this.pointsInfo.playerCount+1-this.pointsInfo.playerInfo[ids[i]].placedThisRound} points`
+            : "+0 points :(")}`, { color: 'white', fontSize: '24px ', align: 'center'});
+
+            this.playerPointsText = this.add.text(700, i * 100 + 140, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});
 
             this.player = new Player(this, 610, i * 100 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
 
         } else {
-            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontSize: '26px ', align: 'center'});
+            this.otherPlayerPointsGained[ids[i]] = this.add.text(700, i * 100 + 100, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
+              `+${this.pointsInfo.playerCount+1-this.pointsInfo.playerInfo[ids[i]].placedThisRound} points`
+            : "+0 points :(")}`, { color: 'white', fontSize: '24px ', align: 'center'});
+            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 140, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontSize: '26px ', align: 'center'});
 
             this.otherPlayers[ids[i]] = new Player(this, 610, i * 100 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
 
