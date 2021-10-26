@@ -68,7 +68,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.allPlatforms = this.add.group();
 
-        this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
+        this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.6).setInteractive();
         this.platformMaker.on('pointerdown', () => {
 
           if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
@@ -83,7 +83,7 @@ export default class GameScene extends Phaser.Scene {
           this.platformBeingPlaced = userPlatform
         });
 
-        this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
+        this.platformDestroyer = this.add.image(270, 50, "falseRemovePlatformButton").setScale(0.6).setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
@@ -417,12 +417,6 @@ export default class GameScene extends Phaser.Scene {
     roundOver(roundData){
       this.phase = "points";
       for (const key of Object.keys(roundData.playerInfo)){
-        console.log(
-          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
-          ${(roundData.playerInfo[key].placedThisRound > 0 ?
-            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points`
-          : "No points gained :(")}`
-          );
       }
       this.scene.launch("PointsScene", { gameScene: this, socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
       this.pointsSceneRunning = true;
@@ -434,7 +428,7 @@ export default class GameScene extends Phaser.Scene {
 
       //Reset game state for new round
       for (const key of Object.keys(this.otherPlayers)) {
-        this.otherPlayers[key].setPosition(200,535);
+        this.otherPlayers[key].setPosition(96,535);
       }
       this.player.setPosition(96,535);
       this.lives = 3;

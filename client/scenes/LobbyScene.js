@@ -25,7 +25,7 @@ export default class LobbyScene extends Phaser.Scene {
 
         //Creates ground for lobby
         this.staticPlatforms = this.physics.add.staticGroup();
-        this.staticPlatforms.create(640, 700, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
+        this.staticPlatforms.create(640, 720, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
 
         //play lobbyScene (waitingScene) music
         this.waitingMusic = this.sound.add("waitingMusic");

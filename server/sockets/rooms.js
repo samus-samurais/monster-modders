@@ -118,11 +118,11 @@ class Room {
 
     startGame(){
         for (const key of Object.keys(this.players)) {
-            this.players[key].x = 200,
+            this.players[key].x = 96,
             this.players[key].y = 535
           }
         this.playersReady = 0
-        this.pointsToWin = this.playerCount * 2;
+        this.pointsToWin = this.playerCount * 1;
         this.pointsForFinishing = this.playerCount;
         this.isOpen = false;
         this.gameStarted = true;
@@ -137,7 +137,7 @@ class Room {
 
     newRound(){
         for (const key of Object.keys(this.players)) {
-            this.players[key].x = 200,
+            this.players[key].x = 96,
             this.players[key].y = 535
         }
         this.gameTimer = 16;
