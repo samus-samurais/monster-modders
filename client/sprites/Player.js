@@ -134,11 +134,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     disappear() {
         this.setVisible(false);
         this.username.setVisible(false);
+        if(this.body){this.body.moves = false;}
     }
 
     reappear() {
         this.setVisible(true);
         this.username.setVisible(true);
+        if(this.body){this.body.moves = true;}
     }
 
     stop(){

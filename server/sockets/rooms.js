@@ -135,7 +135,8 @@ class Room {
     newRound(){
         for (const key of Object.keys(this.players)) {
             this.players[key].x = 96,
-            this.players[key].y = 535
+            this.players[key].y = 535,
+            this.players[key].placedThisRound = 0
         }
         this.resetGameTimers();
         this.pointsTimer = 6;

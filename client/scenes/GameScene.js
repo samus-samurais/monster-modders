@@ -7,7 +7,6 @@ import FinishLine from "../sprites/FinishLine.js";
 export default class GameScene extends Phaser.Scene {
     constructor(key) {
         super(key);
-        this.placementStatuses = ["did not finish...","placed 1st!","placed 2nd.", "placed 3rd.","placed 4th."];
     }
 
     init(data){
@@ -365,6 +364,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     playerReachedFinish(){
+      let finishText = this.add
+      .text(this.finishLine.x+20, this.finishLine.y - 80, "Finished :D!", { fontSize: 14 })
+      .setOrigin(0.5);
+      this.destroyText(finishText);
       this.finishLine.body.enable = false;
       this.canControlPlayer = false;
       this.player.stop();
@@ -437,7 +440,6 @@ export default class GameScene extends Phaser.Scene {
     newRound(){
       this.hideAllPlayers();
       console.log("New round starting!");
-
       //Reset game state for new round
       for (const key of Object.keys(this.otherPlayers)) {
         this.otherPlayers[key].setPosition(96,535);
@@ -449,7 +451,6 @@ export default class GameScene extends Phaser.Scene {
       this.actionsRemaining = 7 - Object.keys(this.players).length;
 
       this.canControlPlayer = false;
-      this.showPlatformButtons();
       this.finishLine.body.enable = true;
       this.platformTimer = this.add.text(this.scale.width * 0.5, 20, "Waiting for players...", {fontSize: 26}).setOrigin(0.5);
       this.socket.emit("readyToBuild");
@@ -459,7 +460,7 @@ export default class GameScene extends Phaser.Scene {
     destroyText(timerText) {
       setTimeout(function() {
         timerText.destroy();
-      }, 2000)
+      }, 1200)
     }
 
 }
