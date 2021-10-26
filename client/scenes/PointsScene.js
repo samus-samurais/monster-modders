@@ -47,7 +47,15 @@ export default class PointsScene extends Phaser.Scene {
         this.winners.push(this.pointsInfo.playerInfo[ids[j]]);
       }
     }
-
+    
+    /*
+        console.log(
+          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
+          ${(roundData.playerInfo[key].placedThisRound > 0 ?
+            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points`
+          : "No points gained :(")}`
+          );
+    */
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
             this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});

@@ -6,8 +6,8 @@ class Room {
       this.isOpen = true;
       this.gameStarted = false;
       //Timers set to be one second above their actual values to account for updateTimer initializations
-      this.gameTimer = 16;
-      this.platformTimer = 11;
+      this.gameTimer = 20;
+      this.platformTimer = 10;
       this.pointsTimer = 6;
       this.playersReady = 0;
       this.timerId = null;
@@ -33,12 +33,9 @@ class Room {
         }
     }
 
-    resetPlatformTimer() {
+    resetGameTimers() {
+        this.gameTimer = 20;
         this.platformTimer = 10;
-    }
-
-    resetGameTimer() {
-        this.gameTimer = 15;
     }
 
     getPlayer(id){
@@ -122,7 +119,7 @@ class Room {
             this.players[key].y = 535
           }
         this.playersReady = 0
-        this.pointsToWin = this.playerCount * 1;
+        this.pointsToWin = this.playerCount * 4;
         this.pointsForFinishing = this.playerCount;
         this.isOpen = false;
         this.gameStarted = true;
@@ -140,8 +137,7 @@ class Room {
             this.players[key].x = 96,
             this.players[key].y = 535
         }
-        this.gameTimer = 16;
-        this.platformTimer = 11;
+        this.resetGameTimers();
         this.pointsTimer = 6;
         this.pointsForFinishing = this.playerCount;
     }
