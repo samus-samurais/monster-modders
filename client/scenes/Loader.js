@@ -58,6 +58,16 @@ export default class InitialLoader extends Phaser.Scene {
     this.load.image("top2", "assets/testImage/falseTop2.png");
     this.load.image("top3", "assets/testImage/falseTop3.png");
     this.load.image("broomplatform", "assets/platform/broomplatform.png");
+    this.load.image("Room1Button", "assets/buttons/Room1Button.png");
+    this.load.image("room2Button", "assets/buttons/room2Button.png");
+    this.load.image("room3Button", "assets/buttons/room3Button.png");
+    this.load.image("room4Button", "assets/buttons/room4Button.png");
+    this.load.image("room5Button", "assets/buttons/room5Button.png");
+    this.load.image("room6Button", "assets/buttons/room6Button.png");
+    this.load.image("room7Button", "assets/buttons/room7Button.png");
+    this.load.image("room8Button", "assets/buttons/room8Button.png");
+    this.load.image("room9Button", "assets/buttons/room9Button.png");
+    this.load.image("startButton", "assets/buttons/Start.png");
 
 
     //audio

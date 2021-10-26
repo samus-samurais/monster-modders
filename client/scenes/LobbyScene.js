@@ -32,7 +32,7 @@ export default class LobbyScene extends Phaser.Scene {
         this.waitingMusic.play({volume: 0.4, loop: true});
 
         //Initializes start button
-        this.startButton = this.add.image(100,50,'multiplayerButton').setScale(0.5);
+        this.startButton = this.add.image(100,50,'startButton').setScale(0.3);
         this.startButton.visible = false;
         this.startButton.disableInteractive();
         this.startButton.on('pointerdown', () => {

@@ -21,55 +21,55 @@ export default class RoomSelector extends Phaser.Scene {
           })
 
         const roomButtons = {}
-        roomButtons['room1'] = this.add.image(320, 540, 'multiplayerButton')
+        roomButtons['room1'] = this.add.image(320, 540, 'room7Button')
         roomButtons['room1'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room1"});
         });
 
-        roomButtons['room2'] = this.add.image(640, 540, 'multiplayerButton')
+        roomButtons['room2'] = this.add.image(640, 540, 'room8Button')
         roomButtons['room2'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room2"});
         })
 
-        roomButtons['room3'] = this.add.image(960, 540, 'multiplayerButton')
+        roomButtons['room3'] = this.add.image(960, 540, 'room9Button')
         roomButtons['room3'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room3"});
         });
 
-        roomButtons['room4'] = this.add.image(320, 340, 'multiplayerButton')
+        roomButtons['room4'] = this.add.image(320, 340, 'room4Button')
         roomButtons['room4'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room4"});
         });
 
-        roomButtons['room5'] = this.add.image(640, 340, 'multiplayerButton')
+        roomButtons['room5'] = this.add.image(640, 340, 'room5Button')
         roomButtons['room5'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room5"});
         })
 
-        roomButtons['room6'] = this.add.image(960, 340, 'multiplayerButton')
+        roomButtons['room6'] = this.add.image(960, 340, 'room6Button')
         roomButtons['room6'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room6"});
         });
 
-        roomButtons['room7'] = this.add.image(320, 140, 'multiplayerButton')
+        roomButtons['room7'] = this.add.image(320, 140, 'Room1Button')
         roomButtons['room7'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room7"});
         });
 
-        roomButtons['room8'] = this.add.image(640, 140, 'multiplayerButton')
+        roomButtons['room8'] = this.add.image(640, 140, 'room2Button')
         roomButtons['room8'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room8"});
         })
 
-        roomButtons['room9'] = this.add.image(960, 140, 'multiplayerButton')
+        roomButtons['room9'] = this.add.image(960, 140, 'room3Button')
         roomButtons['room9'].on('pointerdown', () => {
             this.socket.removeAllListeners();
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room9"});
