@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+//Users can create accounts here!
+
 export default class SignupScene extends Phaser.Scene {
   constructor() {
     super('SignupScene')
@@ -11,7 +13,6 @@ export default class SignupScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(640, 360, 'background');
     this.inputElementSignup = this.add.dom(640, 360).createFromCache("signupform");
     this.inputElementSignup.addListener('click');
     this.inputElementSignup.on('click', (event) => {
@@ -29,11 +30,13 @@ export default class SignupScene extends Phaser.Scene {
       }
     })
 
+    //Sends an error if the user inputs bad account info
     this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px' })
     this.socket.on("newUserInfoNotValid", (error) => {
       this.errorMessage.setText(`${error}`)
     })
 
+    //Creates a new account and redirects to UserProfileScene with newly made account :D
     this.socket.on("signUpSuccess", (user) => {
       this.scene.stop("SignupScene");
       this.scene.launch("UserProfileScene", {
@@ -57,10 +60,11 @@ export default class SignupScene extends Phaser.Scene {
         }
     }.bind(this));
 
-
+    //Oh hey I wonder what this does
     this.goBack();
   }
 
+  //No truly this is a mystery that cannot be solved by any other files
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, "backButton")

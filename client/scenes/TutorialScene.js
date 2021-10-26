@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 
+//Displays a text file that explains how to play the game!
+
 export default class TutorialScene extends Phaser.Scene {
   constructor() {
     super("TutorialScene");
@@ -17,11 +19,14 @@ export default class TutorialScene extends Phaser.Scene {
       child.visible = false;
     });
 
+    //Creates our HTML tutorial file and displays it!
     this.tutorialHTML = this.add.dom(640, 360).createFromCache("tutorialtext");
     
+    //Makes a back button
     this.goBack();
   }
 
+  //Initializes back button
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, "backButton")

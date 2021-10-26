@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+//User can log in or sign up here!
+
 export default class LoginScene extends Phaser.Scene {
   constructor() {
     super('LoginScene')
@@ -31,6 +33,7 @@ export default class LoginScene extends Phaser.Scene {
           password
         })
       } else if (event.target.name === 'createAccountButton') {
+        //Redirects user to signup page if they want to create an account
         this.scene.stop("LoginScene");
         this.scene.launch("SignupScene", {socket: this.socket, homeSceneUI: this.homeSceneUI})
       } else if (event.target.name === 'cancel') {
@@ -43,11 +46,13 @@ export default class LoginScene extends Phaser.Scene {
       }
     })
 
+    //Shows error if login info is faulty
     this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px' })
     this.socket.on("userInfoNotValid", (error) => {
       this.errorMessage.setText(`${error}`)
     })
 
+    //Launches user profile scene if login info is valid!
     this.socket.on("LoginSuccess", (user) => {
       this.scene.stop("LoginScene");
       this.scene.launch("UserProfileScene", {
@@ -71,9 +76,11 @@ export default class LoginScene extends Phaser.Scene {
         }
     }.bind(this));
 
+    //BACK BUTTON SORCERY
     this.goBack();
   }
 
+  //Makes a back button lol
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, 'backButton')

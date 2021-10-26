@@ -1,5 +1,7 @@
 import 'phaser'
 
+//Basic settings config for our project!
+
 export default {
     type: Phaser.AUTO,
     scale: {

@@ -14,6 +14,9 @@ import PointsScene from './scenes/PointsScene'
 import LeaderboardScene from './scenes/LeaderboardScene'
 import { io } from 'socket.io-client';
 
+//The first thing that runs when our game is started
+//It adds all our Scenes to our game, connects to the socket, then immediately runs the Loader
+
 // eslint-disable-next-line no-undef
 class Game extends Phaser.Game {
   constructor() {
@@ -44,6 +47,8 @@ class Game extends Phaser.Game {
   }
 }
 
+
+//Starts game
 window.onload = function () {
   window.game = new Game();
 };
