@@ -29,7 +29,7 @@ export default class SignupScene extends Phaser.Scene {
       }
     })
 
-    this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: 'Arial', fontSize: '32px '})
+    this.errorMessage = this.add.text(450, 600, "", { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px' })
     this.socket.on("newUserInfoNotValid", (error) => {
       this.errorMessage.setText(`${error}`)
     })

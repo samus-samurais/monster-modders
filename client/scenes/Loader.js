@@ -1,3 +1,5 @@
+import WebFontFile from '../../public/webfont';
+
 export default class InitialLoader extends Phaser.Scene {
   constructor() {
     super("InitialLoader");
@@ -7,6 +9,8 @@ export default class InitialLoader extends Phaser.Scene {
   }
 
   preload() {
+    this.load.addFile(new WebFontFile(this.load, 'Press Start 2P'))
+
     this.graphics = this.add.graphics();
     this.newGraphics = this.add.graphics();
     var progressBar = new Phaser.Geom.Rectangle(470, 280, 400, 50);
@@ -19,8 +23,9 @@ export default class InitialLoader extends Phaser.Scene {
     this.newGraphics.fillRectShape(progressBarFill);
 
 
-    const loadingText = this.add.text(500, 340, "Loading: ", {
-      fontSize: "32px",
+    const loadingText = this.add.text(475, 340, "Loading: ", {
+      fontFamily: '"Press Start 2P"',
+      fontSize: "24px",
       fill: "#FFF",
     });
 

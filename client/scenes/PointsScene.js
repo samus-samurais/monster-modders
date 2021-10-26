@@ -35,7 +35,7 @@ export default class PointsScene extends Phaser.Scene {
   create() {
     const self = this;
     this.recDisplayBackground = this.add.rectangle(680, 360, 480, 680, 0x009AA8);
-    this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontSize: '30px '});
+    this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '18px' });
     let winner = null;
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
@@ -50,12 +50,12 @@ export default class PointsScene extends Phaser.Scene {
 
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
-            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});
+            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
 
             this.player = new Player(this, 610, i * 100 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
 
         } else {
-            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontSize: '26px ', align: 'center'});
+            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px' });
 
             this.otherPlayers[ids[i]] = new Player(this, 610, i * 100 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
 
@@ -64,7 +64,7 @@ export default class PointsScene extends Phaser.Scene {
 
     // if there is no winner player info, we create a timer to count 5 seconds to show the points scene.
     //points timer text initially rendered as "Players loading" until all players are ready
-    this.pointsTimer = this.add.text(680, 510, "", { color: '#ffc93c', fontSize: 40 });
+    this.pointsTimer = this.add.text(680, 510, "", { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '24px' });
 
     //Socket stuff is below
 
@@ -125,10 +125,10 @@ export default class PointsScene extends Phaser.Scene {
         })
       console.log('....this.playerOrdered....', this.playerOrdered)
       if (this.winnerId === this.playerId ) {
-        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontSize: '26px'})
-        this.add.text(500, 600, `Congratulation, you WIN!`, { color: '#ffc93c', fontSize: '26px'})
+        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
+        this.add.text(500, 600, `Congratulation, you WIN!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
       } else {
-        this.add.text(480, 600, `Sorry, you lose the game...`, { color: '#ffc93c', fontSize: '26px'})
+        this.add.text(480, 600, `Sorry, you lose the game...`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
       }
     }
   }
@@ -136,16 +136,16 @@ export default class PointsScene extends Phaser.Scene {
   leaderboard() {
     if (this.leaderboardInfo && this.winnerStatus) {
       this.rectangleBackground = this.add.rectangle(215, 360, 380, 680, 0x009AA8);
-      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontSize: '26px '});
-      this.add.text(110, 90, `Player Username`, { color: 'purple', fontSize: '18px '});
-      this.add.text(310, 90, `Wins`, { color: 'purple', fontSize: '18px '});
+      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+      this.add.text(110, 90, `Player Username`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '12px' });
+      this.add.text(310, 90, `Wins`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '12px'});
       // display top 10 users' information
       for (let i=0; i < this.leaderboardInfo.length; i++) {
         if (i <= 2) {
           this.add.image(90, i * 55 + 155, `top${i + 1}`)
         }
-        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontSize: '26px'});
-        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontSize: '26px'});
+        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '16px'});
       }
     }
   }

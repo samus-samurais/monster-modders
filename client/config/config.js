@@ -20,6 +20,7 @@ export default {
         }
     },
     parent: "monster-modders",
+    pixelArt: true,
     dom: {
         createContainer: true
     }
