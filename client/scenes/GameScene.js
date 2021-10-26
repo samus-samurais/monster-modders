@@ -108,7 +108,7 @@ export default class GameScene extends Phaser.Scene {
         })
 
         //Defines the number of actions a player can take based off of players in lobby
-        this.actionsRemaining = 7 - Object.keys(this.players).length;
+        this.actionsRemaining = 8 - Object.keys(this.players).length;
 
         //Drops off 'sticky' platforms upon pointer up - platforms are defined as sticky when they are initially being placed
         this.input.on('pointerup',() => {
@@ -476,7 +476,7 @@ export default class GameScene extends Phaser.Scene {
       this.lives = 3;
       this.livesText.setText(`You have ${this.lives} lives`);
       this.physics.resume();
-      this.actionsRemaining = 7 - Object.keys(this.players).length;
+      this.actionsRemaining = 8 - Object.keys(this.players).length;
       this.canControlPlayer = false;
       this.pointsSceneRunning = false;
       //Turns finish line's physics body back on (see playerFinished)

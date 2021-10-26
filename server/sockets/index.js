@@ -57,11 +57,6 @@ const roomEvents = [
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
-        //Sends room data to players in RoomSelector scene
-        socket.on("getRoomData", () => {
-          socket.emit("roomDataSent", roomList);
-        })
-
         //Triggers when a room is joined, handles everything to do with gameplay inside it
         socket.on('joinedRoom', (info) => {
           const currentRoom = roomList[info.roomKey];
@@ -274,9 +269,21 @@ module.exports = (io) => {
         })
 
         socket.on('disconnect', () => {
-          console.log('user',socket.id, 'disconnected');
           delete loggedInUserInfo[socket.id];
         });
+
+        //Sends room data to players in RoomSelector scene
+        socket.on("getRoomData", () => {
+          const toSend = {}
+          for(let i = 1; i <= 9; i++){
+            const gameRoom = roomList[`room${i}`];
+            toSend[`room${i}`] = {}
+            toSend[`room${i}`].isOpen = roomList[`room${i}`].isOpen;
+            toSend[`room${i}`].gameStarted = roomList[`room${i}`].gameStarted;
+        }
+          console.log("sending room data",toSend);
+          socket.emit("roomDataSent", toSend);
+        })
 
         socket.on('leaderboard', async () => {
           // get top of 10 users info order by number of wins in desc.
@@ -285,7 +292,6 @@ module.exports = (io) => {
           topTenUsersInfo.forEach(doc => {
             gameLeaderboard.push(doc.data());
           })
-          console.log('......gameLeaderboard', gameLeaderboard);
           socket.emit('leaderboardInfo', gameLeaderboard);
           gameLeaderboard = [];
         })
@@ -317,8 +323,6 @@ module.exports = (io) => {
             .catch((error) => {
               var errorCode = error.code; // example: auth/email-already-in-use
               var errorMessage = error.message // example: Firebase: Error (auth/email-already-in-use)
-
-              console.log('signup error----', errorCode);
               socket.emit("newUserInfoNotValid", errorCode.slice(5))
             })
 
@@ -346,8 +350,6 @@ module.exports = (io) => {
             .catch((error) => {
               var errorCode = error.code; // example: auth/wrong-password
               var errorMessage = error.message // example: FirebaseError: Firebase: Error (auth/wrong-password)
-
-              console.log('login error----', errorCode);
               socket.emit("userInfoNotValid", errorCode.slice(5))
             })
         })

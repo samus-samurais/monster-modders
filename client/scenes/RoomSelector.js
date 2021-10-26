@@ -88,12 +88,12 @@ export default class RoomSelector extends Phaser.Scene {
         this.goBack();
 
         //Upon recieving room data, enables buttons of rooms that can be entered, else darkens button and displays why room cannot be entered
-        this.socket.on("roomDataSent", (roomList) => {
-            for (const key of Object.keys(roomList)) {
-              if(roomList[key].gameStarted){
+        this.socket.on("roomDataSent", (roomInfo) => {
+            for (const key of Object.keys(roomInfo)) {
+              if(roomInfo[key].gameStarted){
                 roomButtons[key].setTint(0x343b36);
                 roomButtons[key].status.text = "Game in progress"
-              } else if(!roomList[key].isOpen){
+              } else if(!roomInfo[key].isOpen){
                 roomButtons[key].setTint(0x343b36);
                 roomButtons[key].status.text = "Room is full"
               } else {
