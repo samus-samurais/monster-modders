@@ -68,7 +68,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.allPlatforms = this.add.group();
 
-        this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setScale(0.9,0.9).setInteractive();
+        this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
         this.platformMaker.on('pointerdown', () => {
 
           if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
@@ -83,7 +83,7 @@ export default class GameScene extends Phaser.Scene {
           this.platformBeingPlaced = userPlatform
         });
 
-        this.platformDestroyer = this.add.image(330, 100, "falseRemovePlatformButton").setScale(0.9,0.9).setInteractive();
+        this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
@@ -142,12 +142,12 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
-        this.livesText = this.add.text(32, 662, `You have ${this.lives} lives`, { color: 'white',fontSize: '20px'});
+        this.livesText = this.add.text(5, 662, `You have ${this.lives} lives`, { color: 'white',fontSize: '16px'});
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
-        this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 30}).setOrigin(0.5);
-        this.actionsDisplay = this.add.text(width * 0.5, 55, "", {fontSize: 30}).setOrigin(0.5);
+        this.platformTimer = this.add.text(width * 0.5, 20, "Players loading...", {fontSize: 26}).setOrigin(0.5);
+        this.actionsDisplay = this.add.text(width * 0.5, 55, "", {fontSize: 26}).setOrigin(0.5);
 
         //Socket stuff is below
 
@@ -395,7 +395,7 @@ export default class GameScene extends Phaser.Scene {
       this.platformTimer.destroy();
 
       const { width, height } = this.scale
-      this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 30}).setOrigin(0.5);
+      this.gameTimer = this.add.text(width * 0.5, 20, "", {fontSize: 26}).setOrigin(0.5);
       this.socket.emit("readyToRace");
       this.text = this.add
         .text(width * 0.5, height * 0.5, "GO!", { fontSize: 50 })
@@ -445,7 +445,7 @@ export default class GameScene extends Phaser.Scene {
       this.canControlPlayer = false;
       this.showPlatformButtons();
       this.finishLine.body.enable = true;
-      this.platformTimer = this.add.text(this.scale.width * 0.5, 20, "Waiting for players...", {fontSize: 30}).setOrigin(0.5);
+      this.platformTimer = this.add.text(this.scale.width * 0.5, 20, "Waiting for players...", {fontSize: 26}).setOrigin(0.5);
       this.socket.emit("readyToBuild");
       this.pointsSceneRunning = false;
     }

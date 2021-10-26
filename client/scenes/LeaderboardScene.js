@@ -28,7 +28,7 @@ export default class LeaderboardScene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
 
-    this.loadingText = this.add.text(530, 300, 'info is loading...', { color: '#ffc93c', fontFamily: 'Arial', fontSize: '32px '})
+    this.loadingText = this.add.text(480, 300, 'info is loading...', { color: '#ffc93c', fontSize: '32px '})
 
     this.socket.emit('leaderboard');
 
@@ -42,15 +42,15 @@ export default class LeaderboardScene extends Phaser.Scene {
 
   leaderboard(leaderboardArr) {
     this.loadingText.destroy();
-    this.usersUsername = this.add.text(400, 50, `Player Username`, { color: '#ffc93c', fontFamily: 'Arial', fontSize: '32px '});
-    this.usersWins = this.add.text(700, 50, `Player Wins`, { color: '#ffc93c', fontFamily: 'Arial', fontSize: '32px '});
+    this.usersUsername = this.add.text(420, 50, `Player Username`, { color: '#ffc93c', fontSize: '32px '});
+    this.usersWins = this.add.text(750, 50, `Wins`, { color: '#ffc93c', fontSize: '32px '});
     // display top 10 users' information
     for (let i=0; i < leaderboardArr.length; i++) {
       if (i <= 2) {
-        this.add.image(430, i * 60 + 135, `top${i + 1}`)
+        this.add.image(470, i * 60 + 135, `top${i + 1}`)
       }
-      this.add.text(480, i * 60 + 110, `${leaderboardArr[i].username}`, { color: 'white', fontFamily: 'Arial', fontSize: '26px '});
-      this.add.text(780, i * 60 + 110, `${leaderboardArr[i].number_of_wins}`, { color: 'white', fontFamily: 'Arial', fontSize: '26px '});
+      this.add.text(520, i * 60 + 110, `${leaderboardArr[i].username}`, { color: 'white', fontSize: '26px '});
+      this.add.text(780, i * 60 + 110, `${leaderboardArr[i].number_of_wins}`, { color: 'white', fontSize: '26px '});
     }
   }
 

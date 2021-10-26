@@ -39,7 +39,7 @@ export default class Sandbox extends Phaser.Scene {
 
     this.allPlatforms = this.add.group();
 
-    this.platformMaker = this.add.image(100, 100, 'addPlatformButton').setInteractive();
+    this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
     this.platformMaker.on('pointerdown', () => {
       //In sandbox mode, platforms are given no socket and a generic ID to ensure they are always 'sticky' and emit nothing
       const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", null, "single player");
@@ -48,7 +48,7 @@ export default class Sandbox extends Phaser.Scene {
       this.platformBeingPlaced = userPlatform
     });
 
-    this.platformDestroyer = this.add.image(330, 100, "falseRemovePlatformButton").setInteractive();
+    this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
     this.platformDestroyer.on('pointerdown', () => {
       // remove button don't work until user creates at least one platform
       if (this.addButtonToggle) {

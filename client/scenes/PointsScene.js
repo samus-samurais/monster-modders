@@ -121,7 +121,7 @@ export default class PointsScene extends Phaser.Scene {
       this.winnerId = this.playerOrdered[0].playerId
       this.socket.emit('updatePlayerNumOfWins', this.playerOrdered[0]);
       if (this.winnerId === this.playerId ) {
-        this.add.text(this.player.x - 150, this.player.y - 24, `WIN`, { color: '#ffc93c', fontSize: '26px'})
+        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontSize: '26px'})
         this.add.text(500, 600, `Congratulation, you WIN!`, { color: '#ffc93c', fontSize: '26px'})
       } else {
         this.add.text(480, 600, `Sorry, you lose the game...`, { color: '#ffc93c', fontSize: '26px'})
