@@ -23,7 +23,9 @@ export default class Sandbox extends Phaser.Scene {
 
   create() {
     const self = this
-    this.add.image(640, 368, 'GamemapScreenshot')
+    this.add.image(640, 368, 'GameMapFinal')
+    this.add.image(40, 608, 'door')
+    this.add.image(1252, 354, 'door')
 
     //play sandbox mode music
     this.sandboxMusic = this.sound.add("sandboxMusic");
@@ -34,8 +36,9 @@ export default class Sandbox extends Phaser.Scene {
 
     // create static platforms as begining and goal place.
     this.staticPlatforms = this.physics.add.staticGroup();
-    this.staticPlatforms.create(64, 642, 'platform');
-    this.staticPlatforms.create(1248, 386, 'platform');
+    this.staticPlatforms.create(64, 642, 'staticPlatformStartLine');
+    this.staticPlatforms.create(1230, 386, 'staticPlatformFinishLineRightSize');
+    this.staticPlatforms.create(1200, 386, 'staticPlatformFinishLineRightSize');
 
     this.allPlatforms = this.add.group();
 

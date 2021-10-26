@@ -36,7 +36,7 @@ export default class PointsScene extends Phaser.Scene {
     this.scene.sendToBack("PointsScene");
     const self = this;
     this.recDisplayBackground = this.add.rectangle(680, 360, 480, 680, 0x009AA8);
-    this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontSize: '30px '});
+    this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '18px' });
     let winner = null;
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
@@ -48,7 +48,7 @@ export default class PointsScene extends Phaser.Scene {
         this.winners.push(this.pointsInfo.playerInfo[ids[j]]);
       }
     }
-    
+
     /*
         console.log(
           `${pointsInfo.playerInfo[key].username} ${this.placementStatuses[pointsInfo.playerInfo[key].placedThisRound]}
@@ -59,6 +59,7 @@ export default class PointsScene extends Phaser.Scene {
     */
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
+            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
             this.playerPointsGained = this.add.text(700, i * 100 + 100, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
               `+${this.pointsInfo.playerCount+1-this.pointsInfo.playerInfo[ids[i]].placedThisRound} points`
             : "+0 points :(")}`, { color: 'white', fontSize: '24px ', align: 'center'});
@@ -70,8 +71,8 @@ export default class PointsScene extends Phaser.Scene {
         } else {
             this.otherPlayerPointsGained[ids[i]] = this.add.text(700, i * 100 + 100, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
               `+${this.pointsInfo.playerCount+1-this.pointsInfo.playerInfo[ids[i]].placedThisRound} points`
-            : "+0 points :(")}`, { color: 'white', fontSize: '24px ', align: 'center'});
-            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 140, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontSize: '26px ', align: 'center'});
+            : "+0 points :(")}`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+            this.otherPlayerPointsText[ids[i]] = this.add.text(700, i * 100 + 140, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px' });
 
             this.otherPlayers[ids[i]] = new Player(this, 610, i * 100 + 144, 'zombiesprite','NPC', null, this.players[ids[i]].username);
 
@@ -79,7 +80,7 @@ export default class PointsScene extends Phaser.Scene {
     }
 
     //Timer created to show amount of remaining time points scene is displayed
-    this.pointsTimer = this.add.text(675, 670, this.timerText, { color: '#ffc93c', fontSize: 30, align: 'center' }).setOrigin(0.5);
+    this.pointsTimer = this.add.text(675, 670, this.timerText, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '24px' }).setOrigin(0.5);
 
     //Socket stuff is below
 
@@ -174,14 +175,15 @@ export default class PointsScene extends Phaser.Scene {
           }
 
         })
+
       if(this.winners.length > 1){
-        this.add.text(675, 630, `It's a tie!`, { color: '#ffc93c', fontSize: '26px'}).setOrigin(0.5)
+        this.add.text(675, 630, `It's a tie!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
       }
       else if (this.winnerId === this.playerId ) {
-        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontSize: '26px', align: 'center'})
-        this.add.text(675, 630, `Congratulations, you WIN!`, { color: '#ffc93c', fontSize: '26px', align: 'center'}).setOrigin(0.5)
+        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' })
+        this.add.text(675, 630, `Congratulations, you WIN!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
       } else {
-        this.add.text(675, 630, `Sorry, you lose...`, { color: '#ffc93c', fontSize: '26px', align: 'center'}).setOrigin(0.5)
+        this.add.text(675, 630, `Sorry, you lose...`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
       }
     }
   }
@@ -189,16 +191,16 @@ export default class PointsScene extends Phaser.Scene {
   leaderboard() {
     if (this.leaderboardInfo && this.winnerStatus) {
       this.rectangleBackground = this.add.rectangle(215, 360, 380, 680, 0x009AA8);
-      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontSize: '26px '});
-      this.add.text(110, 90, `Player Username`, { color: 'purple', fontSize: '18px '});
-      this.add.text(310, 90, `Wins`, { color: 'purple', fontSize: '18px '});
+      this.add.text(80, 50, `PLAYER LEADERBOARD`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+      this.add.text(110, 90, `Player Username`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '12px' });
+      this.add.text(310, 90, `Wins`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '12px'});
       // display top 10 users' information
       for (let i=0; i < this.leaderboardInfo.length; i++) {
         if (i <= 2) {
           this.add.image(90, i * 55 + 155, `top${i + 1}`)
         }
-        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontSize: '26px'});
-        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontSize: '26px'});
+        this.add.text(140, i * 55 + 130, `${this.leaderboardInfo[i].username}`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+        this.add.text(320, i * 55 + 130, `${this.leaderboardInfo[i].number_of_wins}`, { color: 'purple', fontFamily: '"Press Start 2P"', fontSize: '16px'});
       }
     }
   }

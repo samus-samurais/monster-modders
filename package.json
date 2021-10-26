@@ -38,7 +38,8 @@
     "phaser3-rex-plugins": "^1.1.61",
     "sequelize": "^6.6.5",
     "socket.io": "^4.2.0",
-    "socket.io-client": "^4.2.0"
+    "socket.io-client": "^4.2.0",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "nodemon": "^2.0.13",

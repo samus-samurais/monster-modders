@@ -77,7 +77,7 @@ export default class RoomSelector extends Phaser.Scene {
 
         //Sets up "status" text for each button denoting the reason for any room being closed
         for (const key of Object.keys(roomButtons)) {
-          roomButtons[key].status = this.add.text(roomButtons[key].x, roomButtons[key].y+75, "", { color: 'white', fontFamily: 'Arial', fontSize: '24px', align: "center"}).setOrigin(0.5,0.5);
+          roomButtons[key].status = this.add.text(roomButtons[key].x, roomButtons[key].y+75, "", { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '14px' }).setOrigin(0.5,0.5);
         }
 
         this.goBack();

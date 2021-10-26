@@ -36,7 +36,14 @@ export default class GameScene extends Phaser.Scene {
 
     create(){
         const self = this;
-        this.add.image(640, 368, 'GamemapScreenshot')
+        this.add.image(640, 368, 'GameMapFinal')
+        this.add.image(1252, 218, 'door')
+
+
+        //adds sprite to serve as start point graphic
+        // this.add.image(104, 642, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
+        this.add.image(84, 638, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
+
         //Resumes physics in case game quit while physics was paused
         this.physics.resume();
 
@@ -59,15 +66,12 @@ export default class GameScene extends Phaser.Scene {
 
         // create static platforms as begining and goal place.
         this.staticPlatforms = this.physics.add.staticGroup();
-        //this.staticPlatforms.create(64, 642, 'platform');
-        //this.staticPlatforms.create(1248, 224, 'platform');
+        this.staticPlatforms.create(64, 642, 'staticPlatformStartLine');
+        this.staticPlatforms.create(1230, 250, 'staticPlatformFinishLineRightSize');
+        this.staticPlatforms.create(1200, 250, 'staticPlatformFinishLineRightSize');
 
-        this.staticPlatforms.create(84, 658, 'platform');
-        this.staticPlatforms.create(1228, 394, 'platform');
-    
-
-        //adds sprite to serve as start point graphic
-        this.add.image(104, 642, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
+        // this.staticPlatforms.create(84, 658, 'staticPlatformStartLine');
+        // this.staticPlatforms.create(1228, 394, 'staticPlatformFinishLineRightSize');
 
         this.allPlatforms = this.add.group();
 
@@ -145,7 +149,7 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
-        this.livesText = this.add.text(5, 690, `You have ${this.lives} lives`, { color: 'white',fontSize: '16px'});
+        this.livesText = this.add.text(5, 660, `You have ${this.lives} lives`, { color: 'white',fontSize: '16px'});
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
