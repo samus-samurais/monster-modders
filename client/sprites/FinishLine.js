@@ -1,3 +1,6 @@
+//Creates a finishLine sprite that signals that a player has finished when reached!
+//The above functionality is handled in the Player class
+
 export default class FinishLine extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, socket) {
         super(scene, 1190, 245, "finishLine");

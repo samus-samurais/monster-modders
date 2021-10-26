@@ -1,5 +1,9 @@
 import WebFontFile from '../../public/webfont';
 
+//Loads ALL THE THINGS
+//This preloads all necessary assets beforehand to keep our game running smoothly
+//Also comes with loading bar! :D
+
 export default class InitialLoader extends Phaser.Scene {
   constructor() {
     super("InitialLoader");
@@ -24,7 +28,6 @@ export default class InitialLoader extends Phaser.Scene {
 
 
     const loadingText = this.add.text(475, 340, "Loading: ", {
-      fontFamily: '"Press Start 2P"',
       fontSize: "24px",
       fill: "#FFF",
     });
@@ -95,9 +98,9 @@ export default class InitialLoader extends Phaser.Scene {
       newGraphics: this.newGraphics,
       loadingText: loadingText,
     });
-    this.load.on("complete", this.complete, {scene: this.scene});
   }
 
+  //Fills up bar as things load
   updateBar(percentage) {
     this.newGraphics.clear();
     this.newGraphics.fillStyle(0x3587e2, 1);
@@ -105,11 +108,6 @@ export default class InitialLoader extends Phaser.Scene {
 
     percentage = percentage * 100;
     this.loadingText.setText("Loading: " + percentage.toFixed(2) + "%");
-    console.log("%: " + percentage);
-  }
-
-  complete() {
-    console.log("COMPLETE");
   }
 
   create() {

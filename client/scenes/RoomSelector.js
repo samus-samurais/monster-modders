@@ -1,5 +1,9 @@
 import Phaser from "phaser";
 
+//UI that displays upon user starting multiplayer mode
+//Lets users select from 1 of 9 different rooms!
+//Occupied or elsewise full rooms are disabled with a message explaining as such
+
 export default class RoomSelector extends Phaser.Scene {
     constructor() {
         super('RoomSelector');
@@ -13,13 +17,13 @@ export default class RoomSelector extends Phaser.Scene {
 
     create(){
 
-        this.socket.emit("getRoomData");
-
+      //Disables Home Scene UI
         this.prevSceneUI.children.iterate((child) => {
             child.disableInteractive()
             child.visible = false;
           })
-
+      
+        //Initializes room buttons, stores them in here!
         const roomButtons = {}
         roomButtons['room1'] = this.add.image(320, 540, 'room7Button')
         roomButtons['room1'].on('pointerdown', () => {
@@ -75,28 +79,30 @@ export default class RoomSelector extends Phaser.Scene {
             this.scene.start('LobbyScene', {socket: this.socket, user: this.playerInfo, roomKey: "room9"});
         });
 
-        //Sets up "status" text for each button denoting the reason for any room being closed
+        //Sets up "status" text for each button - used to denote the reason for any room being closed
         for (const key of Object.keys(roomButtons)) {
           roomButtons[key].status = this.add.text(roomButtons[key].x, roomButtons[key].y+75, "", { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '14px' }).setOrigin(0.5,0.5);
         }
 
+        //More back button stuff
         this.goBack();
 
+        //Upon recieving room data, enables buttons of rooms that can be entered, else darkens button and displays why room cannot be entered
         this.socket.on("roomDataSent", (roomList) => {
             for (const key of Object.keys(roomList)) {
-                if(roomList[key].isOpen){
-                    roomButtons[key].setInteractive();
-                } else {
-                    if(roomList[key].gameStarted){
-                      roomButtons[key].status.text = "Game in progress"
-                    } else {
-                      roomButtons[key].status.text = "Room is full"
-                    }
-                    roomButtons[key].setTint(0x343b36);
-                }
+              if(roomList[key].gameStarted){
+                roomButtons[key].setTint(0x343b36);
+                roomButtons[key].status.text = "Game in progress"
+              } else if(!roomList[key].isOpen){
+                roomButtons[key].setTint(0x343b36);
+                roomButtons[key].status.text = "Room is full"
+              } else {
+                roomButtons[key].setInteractive();
               }
+            }
         })
 
+        //Enables and disables room buttons if rooms open/close when player is on this scene
         this.socket.on("openRoom", (roomInfo) => {
             roomButtons[roomInfo.roomKey].setInteractive();
             roomButtons[roomInfo.roomKey].clearTint();
@@ -104,13 +110,18 @@ export default class RoomSelector extends Phaser.Scene {
         })
 
         this.socket.on("closeRoom", (roomInfo) => {
+          console.log("Room being closed");
             roomButtons[roomInfo.roomKey].disableInteractive();
             roomButtons[roomInfo.roomKey].setTint(0x343b36);
             roomButtons[roomInfo.roomKey].status.text = roomInfo.cause;
         })
 
+        //With everything set up, sends for room data
+        this.socket.emit("getRoomData");
+
     }
 
+    //Builds (b)a back button beneath!
     goBack() {
         const backButton = this.add
           .image(this.scale.width - 20, 20, 'backButton')

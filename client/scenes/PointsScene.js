@@ -1,9 +1,14 @@
 import Phaser from "phaser"
 import Player from "../sprites/Player";
 
+//This scene displays in between rounds, and is used to show the players the scores!
+//Or, if somebody has won, it displays the winner and the gmae leaderboard, updated in case a user manages to reach it with their win!
+
 export default class PointsScene extends Phaser.Scene {
   constructor() {
     super('PointsScene');
+    //Stores the names of all socket events used by the points scene
+    //This lets us turn them off when we're done with them to prevent duplicating them through repeated pointsScene starting
     this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver", "leaderboardReadyForDisplay"];
   }
 
@@ -32,31 +37,23 @@ export default class PointsScene extends Phaser.Scene {
   }
 
   create() {
-    //Initially hides scene, displaying round over text while scene loads
+    //Initially hides scene, displaying round over text in game scene while this scene loads
     this.scene.sendToBack("PointsScene");
     const self = this;
     this.recDisplayBackground = this.add.rectangle(680, 360, 480, 680, 0x009AA8);
     this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '18px' });
     let winner = null;
+    //Pushes all players that have passed the points required to win into winners array
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
         this.winnerStatus = true;
-        //this.winnerId = ids[j];
-        //winner = this.pointsInfo.playerInfo[ids[j]]
         this.pointsInfo.playerInfo[ids[j]].id = ids[j];
         this.winners.push(this.pointsInfo.playerInfo[ids[j]]);
       }
     }
 
-    /*
-        console.log(
-          `${pointsInfo.playerInfo[key].username} ${this.placementStatuses[pointsInfo.playerInfo[key].placedThisRound]}
-          ${(pointsInfo.playerInfo[key].placedThisRound > 0 ?
-            `+${pointsInfo.playerCount+1-pointsInfo.playerInfo[key].placedThisRound} points`
-          : "No points gained :(")}`
-          );
-    */
+    //Sets up point scene display, showing how everybody scored this round, and everybody's total scores
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
             this.playerPointsText = this.add.text(700, i * 100 + 100, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
@@ -77,38 +74,45 @@ export default class PointsScene extends Phaser.Scene {
         }
     }
 
-    //Timer created to show amount of remaining time points scene is displayed
+    //Timer created to show amount of remaining time points scene is displayed for
     this.pointsTimer = this.add.text(675, 670, this.timerText, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '24px' }).setOrigin(0.5);
+
+    //With everything for the points scene set up, sends signal to start points scene timer
+    this.socket.emit("displayPoints");
 
     //Socket stuff is below
 
+    //Sets up leaderboard with info recieved
     this.socket.on('roomLeaderboardInfo', (leaderboardArr) => {
       this.leaderboardInfo = leaderboardArr;
       this.orderPlayers();
       this.leaderboard();
     })
 
+    //Ticks down aforementioned points timer
     this.socket.on("updatePointsTimer", (time) => {
       this.timerText = (this.winnerStatus ? `Ending game in ${time}`: `Next round in ${time}` )
       this.pointsTimer.setText(this.timerText);
     })
 
+    //Triggers when pointsTimer elapses, triggers function that closes points scene
     this.socket.on("pointsSceneOver", () => {
       this.timesUp();
     })
 
+    //Triggers when the leaderboard has been updated with a user's new win, and is ready for display
     this.socket.on("leaderboardReadyForDisplay", () => {
       this.socket.emit('displayLeaderboardWithWinner');
     })
 
+    //Closes game upon disconnect
+    //This might be superfluous, but I don't have the time to find out right now :T
     this.socket.on('finishedGame', (info, scene = self) => {
       if(info.cause === "disconnect"){
         scene.handleDisconnect();
       }
       scene.closeGame();
     })
-
-    this.socket.emit("displayPoints");
 
     //Handles winner(s)
     if(this.winners.length > 0){
@@ -118,7 +122,6 @@ export default class PointsScene extends Phaser.Scene {
         this.winnerId = winner.id;
       } else {
         //If multiple winners, first check to see who has the most points
-        console.log("Multiple winners");
         let maxPoints = 0;
         for(const potentialWinner of this.winners){
           if(potentialWinner.points>maxPoints){
@@ -126,19 +129,17 @@ export default class PointsScene extends Phaser.Scene {
           }
         }
         this.winners = this.winners.filter((winner) => winner.points === maxPoints)
-        console.log("After filter, winners is",this.winners);
         if(this.winners.length === 1){
           winner = this.winners[0]
           this.winnerId = winner.id;
-          console.log("Winner Info: ",winner);
         } else {
-          console.log("It's a tie!");
-          //If there are still multiple winners, it's a tie.
+          //If there are multiple people with the same point values, it's a tie.
           //Skip updating the leaderboard (sorry, but you need to WIN to win) and immediately display
           this.socket.emit("displayLeaderboardWithWinner");
         }
       }
     }
+    //If there is a winner, start the update->display leaderboard sequence
     if(this.winnerId === this.playerId){
       this.socket.emit('updatePlayerNumOfWins', winner);
     }
@@ -150,6 +151,8 @@ export default class PointsScene extends Phaser.Scene {
 
   }
 
+  //Makes sure player doesn't move EVER
+  //(If I come back to this: We could probably handle this better lol)
   update () {
     if (this.player) {
       this.player.body.moves = false;
@@ -157,6 +160,8 @@ export default class PointsScene extends Phaser.Scene {
     }
   }
 
+  //Orders players based on ranking
+  //(If I come back to this: Honestly I'm pretty sure this doesn't even work half the time, might wanna look into that)
   orderPlayers() {
     if (this.winnerStatus && !this.playerOrdered) {
       this.playerOrdered = Object
@@ -186,6 +191,7 @@ export default class PointsScene extends Phaser.Scene {
     }
   }
 
+  //Sets up leaderboard display
   leaderboard() {
     if (this.leaderboardInfo && this.winnerStatus) {
       this.rectangleBackground = this.add.rectangle(215, 360, 380, 680, 0x009AA8);
@@ -203,8 +209,9 @@ export default class PointsScene extends Phaser.Scene {
     }
   }
 
+  //Handles disconnect and game closing
+  //(If I come back to this: I'm pretty sure we don't even need these?)
   handleDisconnect(){
-    console.log("Stopping timer");
     this.socket.emit("stopTimer");
   }
 
@@ -213,15 +220,14 @@ export default class PointsScene extends Phaser.Scene {
     this.scene.stop("PointsScene");
   }
 
+  //Ends the points scene when time elapses
   timesUp() {
-    console.log("Stopping points scene");
     this.pointsTimer.destroy();
     if (!this.winnerStatus) {
       this.gameScene.newRound();
       this.pointsEvents.forEach((evt) => this.socket.removeAllListeners(evt));
       this.scene.stop("PointsScene");
     } else {
-      console.log("there is a winner.........");
       this.socket.emit("gameOver");
       this.gameScene.closeGame();
     }
