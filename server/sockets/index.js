@@ -114,8 +114,7 @@ module.exports = (io) => {
 
           socket.on('gameStart', () => {
             currentRoom.startGame();
-            currentRoom.resetGameTimer(); //make sure timers are reset in each room
-            currentRoom.resetPlatformTimer();
+            currentRoom.resetGameTimers(); //make sure timers are reset in each room
             const playerInfo = currentRoom.players;
             io.in(info.roomKey).emit('startedGame', playerInfo);
             socket.broadcast.emit("closeRoom",{roomKey: info.roomKey, cause: "Game in progress"})

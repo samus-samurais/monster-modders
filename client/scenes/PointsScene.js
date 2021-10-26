@@ -4,21 +4,7 @@ import Player from "../sprites/Player";
 export default class PointsScene extends Phaser.Scene {
   constructor() {
     super('PointsScene');
-    this.player = null
-    this.otherPlayers = {}
-    this.otherPlayerPointsText = {}
-    this.otherLeaveRoomButtons = {}
-    this.gameTimer = null;
-    this.pointsTimer = null;
-    this.leaveRoomButton = null;
-    this.winnerStatus = false;
-    this.winnerId = null;
-    this.playerOrdered = null;
-    this.leaderboardInfo = null;
-    this.pointsTimer = null;
     this.pointsEvents = ['leaderboardInfo',"updatePointsTimer","pointsSceneOver", "leaderboardReadyForDisplay"];
-    this.canControlPlayer = false;
-
   }
 
   init(data) {
@@ -28,11 +14,25 @@ export default class PointsScene extends Phaser.Scene {
     this.playerInfo = data.user ? data.user : null;
     this.players = data.players;
     this.pointsInfo = data.pointsInfo;
-    console.log("here is the points info...........", this.pointsInfo);
-    console.log("here is the players keys...........", Object.keys(this.players));
+
+    //Resets all important data
+    this.player = null
+    this.otherPlayers = {}
+    this.otherPlayerPointsText = {}
+    this.otherLeaveRoomButtons = {}
+    this.gameTimer = null;
+    this.pointsTimer = null;
+    this.timerText = "";
+    this.playerOrdered = null;
+    this.leaderboardInfo = null;
+    this.winners = []
+    this.winnerStatus = false;
+    this.winnerId = null;
   }
 
   create() {
+    //Initially hides scene, displaying round over text while scene loads
+    this.scene.sendToBack("PointsScene");
     const self = this;
     this.recDisplayBackground = this.add.rectangle(680, 360, 480, 680, 0x009AA8);
     this.add.text(550, 45, `To Win: ${this.pointsInfo.pointsToWin} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '18px' });
@@ -40,14 +40,22 @@ export default class PointsScene extends Phaser.Scene {
     let ids = Object.keys(this.players)
     for(let j = 0; j < ids.length; j++){
       if (this.pointsInfo.playerInfo[ids[j]].points >= this.pointsInfo.pointsToWin) {
-        console.log("Somebody won with",this.pointsInfo.playerInfo[ids[j]].points,"points, points to win is",this.pointsInfo.pointsToWin);
         this.winnerStatus = true;
-        this.winnerId = ids[j];
-        winner = this.pointsInfo.playerInfo[ids[j]]
-        break;
+        //this.winnerId = ids[j];
+        //winner = this.pointsInfo.playerInfo[ids[j]]
+        this.pointsInfo.playerInfo[ids[j]].id = ids[j];
+        this.winners.push(this.pointsInfo.playerInfo[ids[j]]);
       }
     }
 
+    /*
+        console.log(
+          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
+          ${(roundData.playerInfo[key].placedThisRound > 0 ?
+            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points`
+          : "No points gained :(")}`
+          );
+    */
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
             this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
@@ -62,9 +70,8 @@ export default class PointsScene extends Phaser.Scene {
         }
     }
 
-    // if there is no winner player info, we create a timer to count 5 seconds to show the points scene.
-    //points timer text initially rendered as "Players loading" until all players are ready
-    this.pointsTimer = this.add.text(680, 510, "", { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '24px' });
+    //Timer created to show amount of remaining time points scene is displayed
+    this.pointsTimer = this.add.text(675, 670, this.timerText, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '24px' }).setOrigin(0.5);
 
     //Socket stuff is below
 
@@ -75,7 +82,8 @@ export default class PointsScene extends Phaser.Scene {
     })
 
     this.socket.on("updatePointsTimer", (time) => {
-      this.pointsTimer.setText(`${time}`);
+      this.timerText = (this.winnerStatus ? `Ending game in ${time}`: `Next round in ${time}` )
+      this.pointsTimer.setText(this.timerText);
     })
 
     this.socket.on("pointsSceneOver", () => {
@@ -94,9 +102,44 @@ export default class PointsScene extends Phaser.Scene {
     })
 
     this.socket.emit("displayPoints");
+
+    //Handles winner(s)
+    if(this.winners.length > 0){
+      //If only one winner, set them to be winner
+      if(this.winners.length === 1){
+        winner = this.winners[0]
+        this.winnerId = winner.id;
+      } else {
+        //If multiple winners, first check to see who has the most points
+        console.log("Multiple winners");
+        let maxPoints = 0;
+        for(const potentialWinner of this.winners){
+          if(potentialWinner.points>maxPoints){
+            maxPoints = potentialWinner.points;
+          }
+        }
+        this.winners = this.winners.filter((winner) => winner.points === maxPoints)
+        console.log("After filter, winners is",this.winners);
+        if(this.winners.length === 1){
+          winner = this.winners[0]
+          this.winnerId = winner.id;
+          console.log("Winner Info: ",winner);
+        } else {
+          console.log("It's a tie!");
+          //If there are still multiple winners, it's a tie.
+          //Skip updating the leaderboard (sorry, but you need to WIN to win) and immediately display
+          this.socket.emit("displayLeaderboardWithWinner");
+        }
+      }
+    }
     if(this.winnerId === this.playerId){
       this.socket.emit('updatePlayerNumOfWins', winner);
     }
+
+    //After a delay, shows scene
+    setTimeout(() => {
+      this.scene.bringToTop("PointsScene");
+    }, 1000)
 
   }
 
@@ -123,12 +166,15 @@ export default class PointsScene extends Phaser.Scene {
           }
 
         })
-      console.log('....this.playerOrdered....', this.playerOrdered)
-      if (this.winnerId === this.playerId ) {
-        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
-        this.add.text(500, 600, `Congratulation, you WIN!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
+
+      if(this.winners.length > 1){
+        this.add.text(675, 630, `It's a tie!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
+      }
+      else if (this.winnerId === this.playerId ) {
+        this.add.text(this.player.x - 100, this.player.y - 24, `WIN`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' })
+        this.add.text(675, 630, `Congratulations, you WIN!`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
       } else {
-        this.add.text(480, 600, `Sorry, you lose the game...`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px' })
+        this.add.text(675, 630, `Sorry, you lose...`, { color: '#ffc93c', fontFamily: '"Press Start 2P"', fontSize: '16px', align: 'center' }).setOrigin(0.5)
       }
     }
   }

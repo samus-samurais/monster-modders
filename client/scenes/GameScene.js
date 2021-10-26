@@ -60,15 +60,19 @@ export default class GameScene extends Phaser.Scene {
 
         // create static platforms as begining and goal place.
         this.staticPlatforms = this.physics.add.staticGroup();
-        this.staticPlatforms.create(64, 642, 'platform');
-        this.staticPlatforms.create(1248, 224, 'platform');
+        //this.staticPlatforms.create(64, 642, 'platform');
+        //this.staticPlatforms.create(1248, 224, 'platform');
+
+        this.staticPlatforms.create(84, 658, 'platform');
+        this.staticPlatforms.create(1228, 394, 'platform');
+    
 
         //adds sprite to serve as start point graphic
-        this.add.image(74, 626, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
+        this.add.image(104, 642, "startLine").setOrigin(0.5,1).setScale(0.45,0.45);
 
         this.allPlatforms = this.add.group();
 
-        this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
+        this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.6).setInteractive();
         this.platformMaker.on('pointerdown', () => {
 
           if(this.platformBeingPlaced && this.platformTable[this.platformBeingPlaced.id]){
@@ -83,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
           this.platformBeingPlaced = userPlatform
         });
 
-        this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
+        this.platformDestroyer = this.add.image(270, 50, "falseRemovePlatformButton").setScale(0.6).setInteractive();
         this.platformDestroyer.on('pointerdown', () => {
           // remove button don't work until user creates at least one platform
           if (this.addButtonToggle) {
@@ -142,7 +146,7 @@ export default class GameScene extends Phaser.Scene {
           gameObject.update();
         })
 
-        this.livesText = this.add.text(5, 662, `You have ${this.lives} lives`, { color: 'white',fontSize: '16px'});
+        this.livesText = this.add.text(5, 690, `You have ${this.lives} lives`, { color: 'white',fontSize: '16px'});
 
         const {width} = this.scale;
         //Platform timer text initially rendered as "Players loading" until all players are ready
@@ -152,8 +156,11 @@ export default class GameScene extends Phaser.Scene {
         //Socket stuff is below
 
         this.socket.on("updatePlatformTimer", (time) => {
-          if(this.actionsDisplay.text === ""){
+          if(time>=9 && this.actionsRemaining > 0){
+            //If the timer has just started, set up player's building tools
+            //The other clause is to prevent someone from destroying the game through spam clicking platforms in the first second :P
             this.actionsDisplay.setText(`Actions left: ${this.actionsRemaining}`);
+            this.showPlatformButtons();
           }
           console.log("Platform timer updated");
           this.platformTimer.setText(`Time to Place Platforms: ${time}`);
@@ -231,6 +238,7 @@ export default class GameScene extends Phaser.Scene {
         })
 
         this.hideAllPlayers();
+        this.hidePlatformButtons();
         this.socket.emit("readyToBuild");
 
     }
@@ -417,12 +425,6 @@ export default class GameScene extends Phaser.Scene {
     roundOver(roundData){
       this.phase = "points";
       for (const key of Object.keys(roundData.playerInfo)){
-        console.log(
-          `${roundData.playerInfo[key].username} ${this.placementStatuses[roundData.playerInfo[key].placedThisRound]}
-          ${(roundData.playerInfo[key].placedThisRound > 0 ?
-            `+${roundData.playerCount+1-roundData.playerInfo[key].placedThisRound} points`
-          : "No points gained :(")}`
-          );
       }
       this.scene.launch("PointsScene", { gameScene: this, socket: this.socket, user: this.playerInfo, players: this.players, pointsInfo: roundData});
       this.pointsSceneRunning = true;
@@ -434,7 +436,7 @@ export default class GameScene extends Phaser.Scene {
 
       //Reset game state for new round
       for (const key of Object.keys(this.otherPlayers)) {
-        this.otherPlayers[key].setPosition(200,535);
+        this.otherPlayers[key].setPosition(96,535);
       }
       this.player.setPosition(96,535);
       this.lives = 3;

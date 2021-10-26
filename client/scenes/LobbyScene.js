@@ -25,14 +25,14 @@ export default class LobbyScene extends Phaser.Scene {
 
         //Creates ground for lobby
         this.staticPlatforms = this.physics.add.staticGroup();
-        this.staticPlatforms.create(640, 700, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
+        this.staticPlatforms.create(640, 720, 'platform').setOrigin(0.5,0.5).setSize(1280,40).setDisplaySize(1280,40);
 
         //play lobbyScene (waitingScene) music
         this.waitingMusic = this.sound.add("waitingMusic");
         this.waitingMusic.play({volume: 0.4, loop: true});
 
         //Initializes start button
-        this.startButton = this.add.image(100,50,'multiplayerButton').setScale(0.5);
+        this.startButton = this.add.image(100,50,'startButton').setScale(0.3);
         this.startButton.visible = false;
         this.startButton.disableInteractive();
         this.startButton.on('pointerdown', () => {
