@@ -59,12 +59,10 @@ export default class PointsScene extends Phaser.Scene {
     */
     for(let i = 0; i < ids.length; i++){
         if(ids[i] === this.playerId){
-            this.playerPointsText = this.add.text(700, i * 100 + 120, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
-            this.playerPointsGained = this.add.text(700, i * 100 + 100, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
+            this.playerPointsText = this.add.text(700, i * 100 + 100, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px'});
+            this.playerPointsGained = this.add.text(700, i * 100 + 140, `${(this.pointsInfo.playerInfo[ids[i]].placedThisRound > 0 ?
               `+${this.pointsInfo.playerCount+1-this.pointsInfo.playerInfo[ids[i]].placedThisRound} points`
-            : "+0 points :(")}`, { color: 'white', fontSize: '24px ', align: 'center'});
-
-            this.playerPointsText = this.add.text(700, i * 100 + 140, `${this.pointsInfo.playerInfo[ids[i]].points} points`, { color: 'white',fontSize: '26px'});
+            : "+0 points :(")}`, { color: 'white', fontFamily: '"Press Start 2P"', fontSize: '16px ', align: 'center'});
 
             this.player = new Player(this, 610, i * 100 + 144, 'zombiesprite', 'PC', this.socket, this.players[ids[i]].username)
 
