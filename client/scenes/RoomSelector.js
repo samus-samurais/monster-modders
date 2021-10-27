@@ -110,7 +110,6 @@ export default class RoomSelector extends Phaser.Scene {
         })
 
         this.socket.on("closeRoom", (roomInfo) => {
-          console.log("Room being closed");
             roomButtons[roomInfo.roomKey].disableInteractive();
             roomButtons[roomInfo.roomKey].setTint(0x343b36);
             roomButtons[roomInfo.roomKey].status.text = roomInfo.cause;

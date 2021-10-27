@@ -281,7 +281,6 @@ module.exports = (io) => {
             toSend[`room${i}`].isOpen = roomList[`room${i}`].isOpen;
             toSend[`room${i}`].gameStarted = roomList[`room${i}`].gameStarted;
         }
-          console.log("sending room data",toSend);
           socket.emit("roomDataSent", toSend);
         })
 
