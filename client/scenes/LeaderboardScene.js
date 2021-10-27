@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 
+//Displays our leaderboard which tracks the top 10 accounts with the most wins!
+
 export default class LeaderboardScene extends Phaser.Scene {
   constructor() {
     super('LeaderboardScene');
@@ -19,6 +21,7 @@ export default class LeaderboardScene extends Phaser.Scene {
       child.visible = false;
     });
 
+    //Sets up leaderboard display
     this.rectangleBackground = this.add.rectangle(640, 360, 520, 680, 0x009AA8);
     this.tweens.add({
       targets: this.rectangleBackground,
@@ -34,9 +37,9 @@ export default class LeaderboardScene extends Phaser.Scene {
 
     this.socket.on('leaderboardInfo', (leaderboardArr) => {
       this.leaderboard(leaderboardArr);
-      console.log('frond end leaderboard Arr is:', leaderboardArr);
     })
 
+    //Makes the back button
     this.goBack();
   }
 
@@ -54,6 +57,7 @@ export default class LeaderboardScene extends Phaser.Scene {
     }
   }
 
+  //Back button initializer
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, "backButton")

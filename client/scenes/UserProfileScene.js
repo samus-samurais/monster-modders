@@ -1,5 +1,9 @@
 import Phaser from 'phaser'
 
+//An alternate main menu of sorts
+//From here, users can look at their profile information
+//They can also start a Sandbox or multiplayer game here
+
 export default class UserProfileScene extends Phaser.Scene {
   constructor() {
     super('UserProfileScene')
@@ -17,6 +21,7 @@ export default class UserProfileScene extends Phaser.Scene {
       child.disableInteractive();
       child.visible = false;
     });
+    //Sets up another instance of this.UI, since you are allowed to go back and forth between the userProfile scene and the RoomSelector
     this.UI = this.add.group();
 
     // display login user's information
@@ -33,21 +38,21 @@ export default class UserProfileScene extends Phaser.Scene {
     this.sandboxButton = this.add.image(445, 540, 'sandboxButton').setInteractive();
     this.sandboxButton.on('pointerdown', () => {
       this.scene.start('Sandbox', {socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
-      this.sandboxButton.disableInteractive();
     });
     this.UI.add(this.sandboxButton);
 
     this.multiplayerButton = this.add.image(765, 540, 'multiplayerButton').setInteractive();
     this.multiplayerButton.on('pointerdown', () => {
       this.scene.launch('RoomSelector',{socket: this.socket, user: this.playerInfo, prevSceneUI: this.UI});
-      this.multiplayerButton.disableInteractive();
     })
     this.UI.add(this.multiplayerButton);
 
+    //Back button stuff. See: LITERALLY EVERY OTHER UI SCENE
     this.goBack();
 
   }
 
+  //I DONT LIKE IT I WANNA GO BAAAAACCCKKK (initializes the button to do this)
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, 'backButton')

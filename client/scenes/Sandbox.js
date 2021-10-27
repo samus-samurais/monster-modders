@@ -3,6 +3,10 @@ import Platform from "../sprites/Platform.js";
 import Player from "../sprites/Player.js"
 import FallDetector from "../sprites/FallDetector.js";
 
+//A single player mode where players can add or remove as many platforms as they see fit! 
+//In this mode, players can move their character and place platforms at the same time
+//They can also move around platforms that have already been placed here
+
 export default class Sandbox extends Phaser.Scene {
   constructor() {
     super("Sandbox");
@@ -18,11 +22,14 @@ export default class Sandbox extends Phaser.Scene {
     this.socket = data.socket;
     this.playerId = data.socket.id;
     this.playerInfo = data.user ? data.user : { username: "guest"};
-    console.log('check its a login user or guest--', this.playerInfo)
   }
 
   create() {
+
+    this.sound.stopAll(); //stop lobby music
+
     const self = this
+    //Initializes game map
     this.add.image(640, 368, 'GameMapFinal')
     this.add.image(40, 608, 'door')
     this.add.image(1252, 354, 'door')
@@ -34,23 +41,27 @@ export default class Sandbox extends Phaser.Scene {
     //Sets world such that players can go past top and bottom of screen, but not sides
     this.physics.world.setBoundsCollision(true,true,false,false);
 
-    // create static platforms as begining and goal place.
+    // create static platforms at start and finish.
     this.staticPlatforms = this.physics.add.staticGroup();
     this.staticPlatforms.create(64, 642, 'staticPlatformStartLine');
     this.staticPlatforms.create(1230, 386, 'staticPlatformFinishLineRightSize');
     this.staticPlatforms.create(1200, 386, 'staticPlatformFinishLineRightSize');
 
+    //Sets up group to hold all non-static platforms
     this.allPlatforms = this.add.group();
 
+
+    //Initializes add platform button
     this.platformMaker = this.add.image(100, 50, 'addPlatformButton').setScale(0.5).setInteractive();
     this.platformMaker.on('pointerdown', () => {
-      //In sandbox mode, platforms are given no socket and a generic ID to ensure they are always 'sticky' and emit nothing
+      //In sandbox mode, platforms are given no socket and a generic "single player" ID to ensure they are always 'sticky' and emit nothing
       const userPlatform = new Platform(self, this.input.mousePointer.x, this.input.mousePointer.y, "broomplatform", null, "single player");
       this.allPlatforms.add(userPlatform);
       this.input.setDraggable(userPlatform);
       this.platformBeingPlaced = userPlatform
     });
 
+    //Initializes remove platform button
     this.platformDestroyer = this.add.image(256, 50, "falseRemovePlatformButton").setScale(0.5).setInteractive();
     this.platformDestroyer.on('pointerdown', () => {
       // remove button don't work until user creates at least one platform
@@ -94,18 +105,22 @@ export default class Sandbox extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.D
     });
 
+    //Since this is a single player mode with no end state, it gets a back button! Yay!
     this.goBack();
   }
 
   update () {
+    //Handles player movement
     if(this.player){
       this.player.update(this.cursors);
     }
 
+    //Handles platform movement
     if(this.platformBeingPlaced){
       this.platformBeingPlaced.update(this.input.mousePointer);
     }
 
+    //Handles add button state (more on that in GameScene)
     if (this.allPlatforms.children.entries.length) {
       this.addButtonToggle = true;
     } else {
@@ -114,6 +129,7 @@ export default class Sandbox extends Phaser.Scene {
 
   }
 
+  //Handles platform removal, exclusively called through removeplatform button
   onClicked(pointer, objectClicked) {
     if(this.allPlatforms.children.entries.includes(objectClicked) && this.removeButtonToggle){
       this.allPlatforms.remove(objectClicked);
@@ -123,6 +139,8 @@ export default class Sandbox extends Phaser.Scene {
     }
   }
 
+  //Lets player exit Sandbox when they are done
+  //(If I come back to this: Upon finishing a game while logged in, somehow playerInfo gets garbled at some point and the back button breaks)
   goBack() {
     const backButton = this.add
       .image(this.scale.width - 20, 20, 'backButton')

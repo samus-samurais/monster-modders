@@ -1,5 +1,9 @@
 import Player from "../sprites/Player.js"
 
+//Lobby for game rooms
+//Loads a small platforming world for players to run around in whilst waiting for a room to fill
+//Once enough players are in the room, a start button appears to launch the game itself
+
 export default class LobbyScene extends Phaser.Scene {
     constructor(key) {
         super(key);
@@ -17,6 +21,10 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     create(){
+
+        //Defines self variable to handle scoping issues in sockets
+        //This would be rendered unnecessary had I simply used arrow functions for all my sockets
+        //But I didn't, and don't wanna touch anything that might explode, so here we are!
         const self = this;
         this.sound.stopAll(); //stop lobby music
 
@@ -77,8 +85,8 @@ export default class LobbyScene extends Phaser.Scene {
             }
         });
 
+        //Starts game once someone presses the start button
         this.socket.on('startedGame', function (players, scene = self){
-            console.log("players here are",players);
             scene.startGame(players)
         });
 
@@ -90,6 +98,7 @@ export default class LobbyScene extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D
         });
 
+        //Makes back button
         this.goBack();
 
         //With every basic feature initalized, scene sends for room information
@@ -97,29 +106,28 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     update() {
+        //Handles player movement
         if(this.player){
             this.player.update(this.cursors);
         }
     }
 
     addPlayers(players){
-        console.log("Players object: ",players);
-        console.log("Socket: ",this.socket);
         let ids = Object.keys(players);
         for(let i = 0; i < ids.length; i++){
             if(ids[i] === this.playerId){
-                console.log("Match found!"); //PC == Playable Character!
+                //PC == Playable Character!
                 if (this.playerInfo && this.playerInfo.email) {
                     this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'zombiesprite', 'PC',this.socket, this.playerInfo.username, {staticPlatforms: this.staticPlatforms});
                 } else {
                     this.player = new Player(this, players[ids[i]].x,players[ids[i]].y, 'zombiesprite', 'PC',this.socket, players[ids[i]].username, {staticPlatforms: this.staticPlatforms});
                 }
             } else {
-                console.log("Different player"); //NPC = Non-playable Character
+                //NPC = Non-playable Character. See GameScene for more info on this if confused
                 this.otherPlayers[ids[i]] = new Player(this, players[ids[i]].x, players[ids[i]].y, 'zombiesprite','NPC', null, players[ids[i]].username)
             }
         }
-        //Set up player counter, show button if enough players to start game
+        //Sets up player counter, show button if enough players to start game
         this.playerCounter.text = `Players in lobby: ${ids.length}/4`
         if(ids.length>=2){
             this.startButton.visible = true;
@@ -127,10 +135,9 @@ export default class LobbyScene extends Phaser.Scene {
         }
     }
 
+    //Handles new players joining room
     addNewPlayer(player){
-        console.log("Updating scene with new player:",player);
         this.otherPlayers[player.playerId] = new Player(this, player.x, player.y, 'zombiesprite','NPC', null, player.username)
-        console.log("other players are",this.otherPlayers);
         let ids = Object.keys(this.otherPlayers);
         //Update player counter, show button if enough players to start game
         this.playerCounter.text = `Players in lobby: ${ids.length+1}/4`
@@ -141,8 +148,8 @@ export default class LobbyScene extends Phaser.Scene {
         }
     }
 
+    //Handles players leaving room
     removePlayer(id){
-        console.log("Removing player with id:",id)
         this.otherPlayers[id].delete();
         delete this.otherPlayers[id];
         let ids = Object.keys(this.otherPlayers);
@@ -155,13 +162,13 @@ export default class LobbyScene extends Phaser.Scene {
     }
 
     startGame(players){
-        console.log("Starting game...");
-        console.log('players are', players);
-        //VERY IMPORTANT for functioning sockets - always call this when swapping scenes w socket.on calls
+        //VERY IMPORTANT for functioning sockets - always call this when stopping scenes w socket.on calls
         this.socket.removeAllListeners();
+        //Note for Future Devs (or just me when I forget): start stops current scene and runs new one, launch runs the scene in tandem 
         this.scene.start('GameScene', {socket: this.socket, players, user: this.playerInfo});
     }
 
+    //Makes a back button!
     goBack() {
         const backButton = this.add
           .image(this.scale.width - 20, 20, 'backButton')
